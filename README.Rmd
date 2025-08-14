@@ -1,0 +1,34 @@
+---
+output: github_document
+---
+
+```{r, include = FALSE}
+lgr::get_logger("mlr3")$set_threshold("warn")
+set.seed(1)
+options(datatable.print.class = FALSE, datatable.print.keys = FALSE)
+```
+
+# mlr3cmprsk <img src="man/figures/logo.png" align="right" width = "120" />
+
+Package website: [release](https://mlr3cmprsk.mlr-org.com/) | [dev](https://mlr3cmprsk.mlr-org.com/dev/)
+
+`mlr3cmprsk` extends the [mlr3](https://mlr3.mlr-org.com/) ecosystem with a unified interface for machine learning in **competing risks survival analysis**.  
+It provides consistent task, learner, and prediction abstractions, enabling seamless benchmarking, model comparison, and integration with the broader `mlr3` framework.
+
+<!-- badges: start -->
+[![r-cmd-check](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml)
+[![CRAN Status](https://www.r-pkg.org/badges/version-ago/mlr3cmprsk)](https://cran.r-project.org/package=mlr3cmprsk)
+[![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
+<!-- badges: end -->
+
+## Installation
+
+Install the development version from GitHub:
+
+```{r eval = FALSE}
+# install.packages("pak")
+pak::pak("mlr-org/mlr3survival")
+```
+
+## Example
+

@@ -1,0 +1,34 @@
+Package: mlr3cmprsk
+Title: Competing Risks Machine Learning for 'mlr3'
+Version: 0.0.0.9000
+Authors@R: 
+    person("John", "Zobolas", , "bblodfon@gmail.com", role = c("cre", "aut"),
+           comment = c(ORCID = "0000-0002-3609-8674"))
+Description: Provides a unified interface for right-censored competing
+    risks tasks in 'mlr3'.
+License: MIT + file LICENSE
+Depends:
+    mlr3 (>= 1.1.0),
+    R (>= 3.6.0)
+Imports:
+    checkmate (>= 2.3.2),
+    data.table (>= 1.17.8),
+    mlr3misc (>= 0.18.0),
+    paradox (>= 1.0.1),
+    R6 (>= 2.6.1),
+    riskRegression,
+    survival
+Suggests:
+    future,
+    lgr,
+    testthat (>= 3.0.0)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE, r6 = TRUE)
+RoxygenNote: 7.3.2
+Collate: 
+    'TaskCompRisks.R'
+    'aaa.R'
+    'Task_pbc.R'
+    'as_task_cmprisk.R'
+    'zzz.R'
+Config/testthat/edition: 3
