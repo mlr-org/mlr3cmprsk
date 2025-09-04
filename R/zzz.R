@@ -15,7 +15,7 @@
 # ))
 
 # add tasks, learners and measures to mlr3 dictionaries
-register_mlr3survival = function() {
+register_mlr3cmprsk = function() {
   x = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
   iwalk(tasks, function(obj, nm) x$add(nm, obj))
 
@@ -51,7 +51,7 @@ register_mlr3survival = function() {
   x$learner_predict_types$cmprsk = list(cif = "cif")
 
   # dictionary
-  register_namespace_callback(pkgname, "mlr3", register_mlr3survival)
+  register_namespace_callback(pkgname, "mlr3", register_mlr3cmprsk)
 }
 
 .onUnload = function(libpath) {

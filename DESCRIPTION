@@ -6,29 +6,36 @@ Authors@R:
            comment = c(ORCID = "0000-0002-3609-8674"))
 Description: Provides a unified interface for right-censored competing
     risks tasks in 'mlr3'.
-License: MIT + file LICENSE
+License: LGPL (>= 3)
 Depends:
-    mlr3 (>= 1.1.0),
-    R (>= 3.6.0)
+    mlr3 (>= 1.0.0),
+    R (>= 3.5.0)
 Imports:
-    checkmate (>= 2.3.2),
-    data.table (>= 1.17.8),
-    mlr3misc (>= 0.18.0),
-    paradox (>= 1.0.1),
-    R6 (>= 2.6.1),
+    checkmate,
+    data.table,
+    mlr3misc (>= 0.8.0),
+    paradox (>= 1.0.0),
+    R6,
     riskRegression,
     survival
 Suggests:
-    future,
-    lgr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    mirai
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.3.2
 Collate: 
-    'TaskCompRisks.R'
+    'LearnerCompRisks.R'
     'aaa.R'
+    'LearnerCompRisksAalenJohansen.R'
+    'MeasureCompRisks.R'
+    'MeasureCompRisksAUC.R'
+    'PredictionCompRisks.R'
+    'PredictionDataCompRisks.R'
+    'TaskCompRisks.R'
     'Task_pbc.R'
+    'as_prediction_cmprsk.R'
     'as_task_cmprisk.R'
+    'bibentries.R'
+    'default_fallback.R'
     'zzz.R'
-Config/testthat/edition: 3

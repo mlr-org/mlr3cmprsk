@@ -1,10 +1,9 @@
 #' @title Aalen Johansen Competing Risks Learner
-#' @templateVar fullname LearnerCompRisksAalenJohansen
+#' @name mlr_learners_cmprsk.aalen
 #' @templateVar id cmprsk.aalen
 #' @template cmprsk_learner
 #'
 #' @description
-#'
 #' This learner estimates the Cumulative Incidence Function (CIF) for competing
 #' risks using the empirical Aalen-Johansen (AJ) estimator.
 #'
@@ -75,4 +74,4 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
 )
 
 #' @include aaa.R
-register_learner("cmprsk.aalen", LearnerCompRisksAalenJohansen)
+learners[["cmprsk.aalen"]] = LearnerCompRisksAalenJohansen

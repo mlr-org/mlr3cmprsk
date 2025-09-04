@@ -10,7 +10,7 @@
 #' in the test set.
 #'
 #' @template param_id
-#' @template param_param_set
+#' @template param_set
 #' @template param_predict_types
 #' @template param_feature_types
 #' @template param_learner_properties

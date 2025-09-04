@@ -9,7 +9,7 @@
 #' Predefined measures can be found in the [dictionary][mlr3misc::Dictionary] [mlr3::mlr_measures].
 #'
 #' @template param_id
-#' @template param_param_set
+#' @template param_set
 #' @template param_range
 #' @template param_minimize
 #' @template param_average

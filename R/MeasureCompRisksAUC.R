@@ -1,11 +1,10 @@
+#' @title Blanche's AUC Competing Risks Measure
+#' @name mlr_measures_cmprsk.auc
+#' @templateVar id cmprsk.auc
 #' @template cmprsk_measure
-#' @templateVar title Blanche's AUC
-#' @templateVar fullname MeasureCompRisksAUC
-#'
-#' @aliases MeasureCompRisksAUC mlr_measures_cmprsk.auc
 #'
 #' @description
-#' Calculates the cause-specific time-dependent ROC-AUC at a **specific time point**,
+#' Calculates the time-dependent ROC-AUC at a **specific time point**,
 #' as described in Blanche et al. (2013).
 #'
 #' By default, this measure returns a **cause-independent AUC(t)** score,
@@ -149,4 +148,5 @@ MeasureCompRisksAUC = R6Class(
   )
 )
 
-register_measure("cmprsk.auc", MeasureCompRisksAUC)
+#' @include aaa.R
+measures[["cmprsk.auc"]] = MeasureCompRisksAUC
