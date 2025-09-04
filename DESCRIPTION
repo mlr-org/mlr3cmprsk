@@ -13,6 +13,7 @@ Depends:
 Imports:
     checkmate (>= 2.3.2),
     data.table (>= 1.17.8),
+    distr6 (>= 1.8.4),
     mlr3misc (>= 0.18.0),
     paradox (>= 1.0.1),
     R6 (>= 2.6.1),
