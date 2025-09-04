@@ -8,19 +8,22 @@ Description: Provides a unified interface for right-censored competing
     risks tasks in 'mlr3'.
 License: LGPL (>= 3)
 Depends:
-    mlr3 (>= 1.0.0),
-    R (>= 3.5.0)
+    mlr3 (>= 1.1.0),
+    R (>= 3.6.0)
 Imports:
-    checkmate,
-    data.table,
-    mlr3misc (>= 0.8.0),
-    paradox (>= 1.0.0),
-    R6,
+    checkmate (>= 2.3.2),
+    data.table (>= 1.17.8),
+    mlr3misc (>= 0.18.0),
+    paradox (>= 1.0.1),
+    R6 (>= 2.6.1),
     riskRegression,
     survival
 Suggests:
-    testthat (>= 3.0.0),
-    mirai
+    mirai,
+    testthat (>= 3.0.0)
+Remotes:
+    mlr-org/survdistr,
+    mlr-org/mlr3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.3.2
@@ -36,6 +39,8 @@ Collate:
     'Task_pbc.R'
     'as_prediction_cmprsk.R'
     'as_task_cmprisk.R'
+    'assertions.R'
     'bibentries.R'
     'default_fallback.R'
+    'helpers.R'
     'zzz.R'

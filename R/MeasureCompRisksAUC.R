@@ -103,10 +103,10 @@ MeasureCompRisksAUC = R6Class(
         cif_mat = cif_list[[cause]]
 
         # get CIF on the time horizon
-        mat = .interp_cif(cif_mat, eval_times = time_horizon)
+        mat = interp_cif(cif_mat, eval_times = time_horizon)
 
         # calculate AUC(t) score
-        res = .riskRegr_score(
+        res = riskRegr_score(
           mat_list = list(mat),
           metric = "auc",
           data = data,
@@ -124,10 +124,10 @@ MeasureCompRisksAUC = R6Class(
           cif_mat = cif_list[[cause]]
 
           # get CIF on the time horizon
-          mat = .interp_cif(cif_mat, eval_times = time_horizon)
+          mat = interp_cif(cif_mat, eval_times = time_horizon)
 
           # calculate AUC(t) score
-          res = .riskRegr_score(
+          res = riskRegr_score(
             mat_list = list(mat),
             metric = "auc",
             data = data,

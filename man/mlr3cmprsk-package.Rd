@@ -6,6 +6,8 @@
 \alias{mlr3cmprsk-package}
 \title{mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Provides a unified interface for right-censored competing risks tasks in 'mlr3'.
 }
 \author{

@@ -3,7 +3,7 @@
 \name{mlr_measures_cmprsk.auc}
 \alias{mlr_measures_cmprsk.auc}
 \alias{MeasureCompRisksAUC}
-\title{Blanche's AUC}
+\title{Blanche's AUC Competing Risks Measure}
 \description{
 Calculates the time-dependent ROC-AUC at a \strong{specific time point},
 as described in Blanche et al. (2013).

@@ -30,7 +30,7 @@
 #'
 #' @family Measure
 #' @seealso
-#' Default survival measure: `TODO`
+#' Default competing risks measure: [`dens.logloss`][mlr_measures_dens.logloss]
 #' @export
 MeasureCompRisks = R6Class(
   "MeasureCompRisks",
