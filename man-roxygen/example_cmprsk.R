@@ -23,7 +23,6 @@
 #' predictions
 #'
 #' # Score the predictions
-#' <%= if(msr_id == "auc" || msr_id == "all") "
 #' # AUC(t = 100), weighted mean score across causes (default)
 #' predictions$score(msr(\"cmprsk.auc\", cause = \"mean\", time_horizon = 100))
 #'
@@ -32,5 +31,4 @@
 #'
 #' # AUC(t = 100), 2nd cause
 #' predictions$score(msr(\"cmprsk.auc\", cause = 2, time_horizon = 100))
-#' " %>
 #'

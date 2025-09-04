@@ -1,15 +1,9 @@
-#' <% learner = get(fullname)$new() %>
-#' <% shortname = learner$id %>
-#'
-#' @name <%= paste("mlr_learners", shortname, sep = "_")%>
-#'
 #' @section Dictionary:
 #' This [Learner][mlr3::Learner] can be instantiated via the [dictionary][mlr3misc::Dictionary]
 #' [mlr_learners][mlr3::mlr_learners] or with the associated sugar function [lrn()][mlr3::lrn]:
 #' ```
-#' <%=fullname%>$new()
-#' mlr_learners$get("<%=shortname%>")
-#' lrn("<%=shortname%>")
+#' mlr_learners$get("<%=id%>")
+#' lrn("<%=id%>")
 #' ```
 #'
 #' @section Meta Information:
