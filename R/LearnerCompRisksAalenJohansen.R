@@ -35,7 +35,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
         properties = "weights",
         packages = "survival",
         label = "Aalen Johansen Estimator",
-        man = "mlr3proba::mlr_learners_cmprsk.aalen"
+        man = "mlr3cmprsk::mlr_learners_cmprsk.aalen"
       )
     }
   ),

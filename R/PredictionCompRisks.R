@@ -68,7 +68,7 @@ PredictionCompRisks = R6Class("PredictionCompRisks",
       }
 
       self$task_type = "cmprsk"
-      self$man = "mlr3proba::PredictionCompRisks"
+      self$man = "mlr3cmprsk::PredictionCompRisks"
       self$data = pdata
       self$predict_types = intersect("cif", names(pdata))
     }

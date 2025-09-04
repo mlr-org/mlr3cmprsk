@@ -28,7 +28,7 @@ lrn("cmprsk.aalen")
 \item Task type: \dQuote{cmprsk}
 \item Predict Types: \dQuote{cif}
 \item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}
-\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3proba}, \CRANpkg{survival}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3cmprsk}, \CRANpkg{survival}
 }
 }
 

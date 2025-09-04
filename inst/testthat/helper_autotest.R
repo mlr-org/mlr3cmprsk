@@ -4,7 +4,7 @@ generate_tasks.LearnerCompRisks = function(learner, N = 20L, ...) {
   event = sample(0:2, size = N, replace = TRUE, prob = c(0.3, 0.35, 0.35))
 
   data = cbind(data.table::data.table(time = times, event = event), generate_data(learner, N))
-  task = mlr3proba::TaskCompRisks$new(id = "proto", backend = mlr3::as_data_backend(data))
+  task = mlr3cmprsk::TaskCompRisks$new(id = "proto", backend = mlr3::as_data_backend(data))
   tasks = generate_generic_tasks(learner, task)
 
   # Generate sanity task
@@ -31,7 +31,7 @@ generate_tasks.LearnerCompRisks = function(learner, N = 20L, ...) {
     time = c(times_group0, times_group1),
     event = c(event_group0, event_group1)
   )
-  tasks$sanity = mlr3proba::TaskCompRisks$new("sanity", mlr3::as_data_backend(data),
+  tasks$sanity = mlr3cmprsk::TaskCompRisks$new("sanity", mlr3::as_data_backend(data),
                                               time = "time", event = "event")
 
   tasks

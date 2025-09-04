@@ -40,7 +40,7 @@ LearnerCompRisks = R6Class("LearnerCompRisks",
       super$initialize(
         id = id, task_type = "cmprsk", param_set = param_set, predict_types = predict_types,
         feature_types = feature_types, properties = properties,
-        packages = c("mlr3proba", packages), label = label, man = man
+        packages = c("mlr3cmprsk", packages), label = label, man = man
       )
     }
   )

@@ -33,7 +33,7 @@ load_pbc = function() {
   b = as_data_backend(data)
   task = TaskCompRisks$new("pbc", b, time = "time", event = "status",
                            label = "Primary Biliary Cholangitis")
-  b$hash = task$man = "mlr3proba::mlr_tasks_pbc"
+  b$hash = task$man = "mlr3cmprsk::mlr_tasks_pbc"
 
   task
 }
