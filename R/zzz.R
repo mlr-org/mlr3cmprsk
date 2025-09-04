@@ -6,7 +6,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom survival Surv
 #' @importFrom utils getFromNamespace
-# @importFrom stats model.frame terms predict runif dist # IF NEEDED
+#' @importFrom stats median
 "_PACKAGE"
 
 # to silence RCMD check - IF NEEDED

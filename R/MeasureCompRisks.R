@@ -30,7 +30,7 @@
 #'
 #' @family Measure
 #' @seealso
-#' Default competing risks measure: [`dens.logloss`][mlr_measures_dens.logloss]
+#' Default competing risks measure: [`cmprsk.auc`][mlr_measures_cmprsk.auc]
 #' @export
 MeasureCompRisks = R6Class(
   "MeasureCompRisks",

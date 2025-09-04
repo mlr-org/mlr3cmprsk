@@ -20,6 +20,7 @@ Imports:
     riskRegression,
     survival
 Suggests:
+    lrg,
     mirai,
     testthat (>= 3.0.0)
 Remotes:

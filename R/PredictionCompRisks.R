@@ -38,7 +38,7 @@ PredictionCompRisks = R6Class("PredictionCompRisks",
     #' @details
     #' The `cif` input currently is a list of CIF matrices.
     #'
-    #' @param task ([TaskSurv])\cr
+    #' @param task ([TaskCompRisks])\cr
     #'   Task, used to extract defaults for `row_ids` and `truth`.
     #'
     #' @param row_ids (`integer()`)\cr

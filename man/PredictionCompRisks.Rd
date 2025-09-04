@@ -83,7 +83,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{task}}{(\link{TaskSurv})\cr
+\item{\code{task}}{(\link{TaskCompRisks})\cr
 Task, used to extract defaults for \code{row_ids} and \code{truth}.}
 
 \item{\code{row_ids}}{(\code{integer()})\cr

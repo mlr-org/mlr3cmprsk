@@ -6,7 +6,7 @@ expect_task_cmprsk = function(task) {
 
   f = task$formula()
   expect_formula(f)
-  expect_setequal(extract_vars(f)$lhs, task$target_names)
+  expect_setequal(mlr3misc::extract_vars(f)$lhs, task$target_names)
   expect_class(task$aalen_johansen(), "survfit")
 }
 

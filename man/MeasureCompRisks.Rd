@@ -13,7 +13,7 @@ This measure specializes \link[mlr3:Measure]{Measure} for competing risk problem
 Predefined measures can be found in the \link[mlr3misc:Dictionary]{dictionary} \link[mlr3:mlr_measures]{mlr3::mlr_measures}.
 }
 \seealso{
-Default competing risks measure: \code{\link[=mlr_measures_dens.logloss]{dens.logloss}}
+Default competing risks measure: \code{\link[=mlr_measures_cmprsk.auc]{cmprsk.auc}}
 }
 \concept{Measure}
 \section{Super class}{
