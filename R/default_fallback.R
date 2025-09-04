@@ -1,7 +1,3 @@
-default_fallback = function(learner, ...) {
-  UseMethod("default_fallback")
-}
-
 #' @export
 default_fallback.LearnerCompRisks = function(learner, ...) {
   fallback = lrn("cmprsk.aalen")
