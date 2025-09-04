@@ -1,0 +1,19 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/LearnerCompRisks.html</loc></url>
+<url><loc>/reference/MeasureCompRisks.html</loc></url>
+<url><loc>/reference/PredictionCompRisks.html</loc></url>
+<url><loc>/reference/TaskCompRisks.html</loc></url>
+<url><loc>/reference/as_prediction_cmprsk.html</loc></url>
+<url><loc>/reference/as_task_cmprsk.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/mlr3cmprsk-package.html</loc></url>
+<url><loc>/reference/mlr_learners_cmprsk.aalen.html</loc></url>
+<url><loc>/reference/mlr_measures_cmprsk.auc.html</loc></url>
+<url><loc>/reference/mlr_tasks_pbc.html</loc></url>
+</urlset>
+
