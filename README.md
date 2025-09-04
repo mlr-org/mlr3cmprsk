@@ -1,7 +1,7 @@
 
 # mlr3cmprsk <img src="man/figures/logo.png" align="right" width = "120" />
 
-⚠️ This package is under **under development**️
+⚠ This package is **under development**️
 
 Package website: [release](https://mlr3cmprsk.mlr-org.com/) \|
 [dev](https://mlr3cmprsk.mlr-org.com/dev/)
