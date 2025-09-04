@@ -77,19 +77,24 @@ Additional arguments.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"pbc"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"cmprsk.aalen"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Package 'mlr3proba' required but not installed for Learner 'cmprsk.aalen'</span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> The following packages could not be loaded: mlr3proba</span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">=</span> <span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot predict, Learner 'cmprsk.aalen' has not been trained yet</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># convert to a data.table</span></span></span>
 <span class="r-in"><span><span class="va">tab</span> <span class="op">=</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'p' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># convert back to a Prediction</span></span></span>
 <span class="r-in"><span><span class="fu">as_prediction_cmprsk</span><span class="op">(</span><span class="va">tab</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'tab' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;PredictionCompRisks&gt;</span><span style="font-weight: bold;"> for </span><span style="color: #0000BB; font-weight: bold;">276</span><span style="font-weight: bold;"> observations:</span> <span style="color: #00BBBB;">─────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids time event       CIF</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        1   13     2 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        2  147     0 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        3   33     2 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      ---  ---   ---       ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      274   30     0 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      275   27     0 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      276   25     0 &lt;list[2]&gt;</span>
 </code></pre></div>
     </div>
   </div>

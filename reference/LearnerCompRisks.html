@@ -168,30 +168,27 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># get all survival learners from mlr_learners:</span></span></span>
 <span class="r-in"><span><span class="va">lrns</span> <span class="op">=</span> <span class="va">mlr_learners</span><span class="op">$</span><span class="fu">mget</span><span class="op">(</span><span class="va">mlr_learners</span><span class="op">$</span><span class="fu">keys</span><span class="op">(</span><span class="st">"^cmprsk"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Package 'mlr3proba' required but not installed for Learner 'cmprsk.aalen'</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lrns</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cmprsk.aalen"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get a specific learner from mlr_learners:</span></span></span>
 <span class="r-in"><span><span class="va">mlr_learners</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"cmprsk.aalen"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Package 'mlr3proba' required but not installed for Learner 'cmprsk.aalen'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerCompRisksAalenJohansen&gt;</span><span style="font-weight: bold;"> (cmprsk.aalen): Aalen Johansen Estimator</span> <span style="color: #00BBBB;">────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Model: -</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Parameters: list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3proba</span>, and <span style="color: #0000BB;">survival</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3cmprsk</span>, and <span style="color: #0000BB;">survival</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Predict Types: [cif]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Feature Types: logical, integer, numeric, and factor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Encapsulation: none (fallback: -)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: weights</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Other settings: use_weights = 'use'</span>
 <span class="r-in"><span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"cmprsk.aalen"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Package 'mlr3proba' required but not installed for Learner 'cmprsk.aalen'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerCompRisksAalenJohansen&gt;</span><span style="font-weight: bold;"> (cmprsk.aalen): Aalen Johansen Estimator</span> <span style="color: #00BBBB;">────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Model: -</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Parameters: list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3proba</span>, and <span style="color: #0000BB;">survival</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3cmprsk</span>, and <span style="color: #0000BB;">survival</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Predict Types: [cif]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Feature Types: logical, integer, numeric, and factor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Encapsulation: none (fallback: -)</span>
