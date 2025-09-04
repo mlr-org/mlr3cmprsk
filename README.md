@@ -1,19 +1,31 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+# mlr3cmprsk <img src="man/figures/logo.png" align="right" width = "120" />
 
-# mlr3cmprsk
+⚠ This package is under **under development**️
+
+Package website: [release](https://mlr3cmprsk.mlr-org.com/) \|
+[dev](https://mlr3cmprsk.mlr-org.com/dev/)
+
+`mlr3cmprsk` extends the [mlr3](https://mlr3.mlr-org.com/) ecosystem
+with a unified interface for machine learning in **competing risks
+survival analysis**. It provides consistent task, learner, and
+prediction abstractions, enabling seamless benchmarking, model
+comparison, and integration with the broader `mlr3` framework.
 
 <!-- badges: start -->
-<!-- badges: end -->
 
-The goal of `mlr3cmprsk` is to implement a unified interface for doing
-machine learning in the survival competing risk setting.
+[![r-cmd-check](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml)
+[![CRAN
+Status](https://www.r-pkg.org/badges/version-ago/mlr3cmprsk)](https://cran.r-project.org/package=mlr3cmprsk)
+[![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
+<!-- badges: end -->
 
 ## Installation
 
-You can install the development version of mlr3cmprsk like so:
+Install the development version from GitHub:
 
 ``` r
+# install.packages("pak")
 pak::pak("mlr-org/mlr3cmprsk")
 ```
 
