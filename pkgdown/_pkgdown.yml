@@ -34,7 +34,7 @@ navbar:
       aria-label: Mattermost
     stackoverflow:
       icon: fab fa-stack-overflow
-      href: https://stackoverflow.com/questions/tagged/mlr3survival
+      href: https://stackoverflow.com/questions/tagged/mlr3
       aria-label: Stack Overflow
     website:
       icon: fa-link
@@ -63,7 +63,3 @@ reference:
   - title: Converters
     contents:
       - starts_with("as_")
-  - title: Internal Objects and Functions
-    contents:
-      - surv_return
-      - get_mortality
