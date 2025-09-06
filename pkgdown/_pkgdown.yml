@@ -1,0 +1,69 @@
+url: https://mlr3cmprsk.mlr-org.com
+
+template:
+  bootstrap: 5
+  light-switch: true
+  math-rendering: mathjax
+  package: mlr3pkgdowntemplate
+
+development:
+  mode: auto
+  version_label: default
+  version_tooltip: "Version"
+
+toc:
+  depth: 3
+
+navbar:
+  structure:
+    left:  [reference, news, book]
+    right: [search, github, mattermost, stackoverflow, website, lightswitch]
+  components:
+    home: ~
+    book:
+      text: mlr3book
+      icon: fa fa-book
+      href: https://mlr3book.mlr-org.com
+    reference:
+      icon: fa fa-file-alt
+      text: Reference
+      href: reference/index.html
+    mattermost:
+      icon: fa fa-comments
+      href: https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/
+      aria-label: Mattermost
+    stackoverflow:
+      icon: fab fa-stack-overflow
+      href: https://stackoverflow.com/questions/tagged/mlr3survival
+      aria-label: Stack Overflow
+    website:
+      icon: fa-link
+      href: https://mlr-org.com/
+      aria-label: mlr3 website
+
+reference:
+  - title: Package
+    contents:
+      - mlr3survival-package
+  - title: Building Blocks
+    contents:
+      - TaskCompRisks
+      - LearnerCompRisks
+      - PredictionCompRisks
+      - MeasureCompRisks
+  - title: Competing Risk Tasks
+    contents:
+      - mlr_tasks_pbc
+  - title: Competing Risk Learners
+    contents:
+      - starts_with("mlr_learners_cmprsk")
+  - title: Competing Risk Measures
+    contents:
+      - starts_with("mlr_measures_cmprsk")
+  - title: Converters
+    contents:
+      - starts_with("as_")
+  - title: Internal Objects and Functions
+    contents:
+      - surv_return
+      - get_mortality
