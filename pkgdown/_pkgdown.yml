@@ -44,7 +44,7 @@ navbar:
 reference:
   - title: Package
     contents:
-      - mlr3survival-package
+      - mlr3cmprsk-package
   - title: Building Blocks
     contents:
       - TaskCompRisks
