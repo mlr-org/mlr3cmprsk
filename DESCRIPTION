@@ -24,7 +24,6 @@ Suggests:
     mirai,
     testthat (>= 3.0.0)
 Remotes:
-    mlr-org/mlr3,
     mlr-org/survdistr,
     xoopR/distr6
 ByteCompile: true
