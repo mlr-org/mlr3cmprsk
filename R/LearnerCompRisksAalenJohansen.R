@@ -23,6 +23,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
+      # TODO: check if we truly need it? maybe always return it? weights are affected?
       param_set = ps(
         model = p_lgl(default = FALSE, tags = "train")
       )
