@@ -56,7 +56,7 @@ test_that("combining predictions", {
   expect_equal(dt$row_ids, c(preds[[1]]$row_ids, preds[[2]]$row_ids, preds[[3]]$row_ids))
 })
 
-test_that("data.frame roundtrip", {
+test_that("data.table/frame roundtrip", {
   p1 = learner$train(task)$predict(task)
   tab = as.data.table(p1)
   p2 = as_prediction_cmprsk(tab)
@@ -64,6 +64,10 @@ test_that("data.frame roundtrip", {
 
   expect_equal(p1$cif, p2$cif)
   expect_equal(tab[, !("CIF")], as.data.table(p2)[, !("CIF")])
+
+  tab_df = as.data.frame(tab)
+  p3 = as_prediction_cmprsk(tab_df)
+  expect_prediction_cmprsk(p3)
 })
 
 test_that("as_prediction_cmprsk", {

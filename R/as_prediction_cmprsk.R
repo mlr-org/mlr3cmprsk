@@ -45,10 +45,13 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
     set_names(mat_list, cmp_event_ids)
   } else NULL
 
+  setDT(x) # if just a `data.frame`, with = FALSE below will not work!
+  x_subset = x[, setdiff(names(x), c("time", "event", "CIF")), with = FALSE]
+
   invoke(
     PredictionCompRisks$new,
     truth = Surv(x$time, factor(x$event, levels = c("0", sort(cmp_event_ids)))),
     cif = cif,
-    .args = x[, -intersect(c("time", "event", "CIF"), names(x)), with = FALSE]
+    .args = x_subset
   )
 }
