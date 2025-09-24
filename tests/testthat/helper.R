@@ -25,18 +25,36 @@ gen_cmprsk_task = function(n = 50, n_events = 2) {
 }
 
 # Generate a list of CIF matrices
-gen_cif = function(n = 20, n_events = 2, n_times = 20) {
-  cif_list = lapply(1:n_events, function(i) {
-    # Randomly choose the number of time points for this event
-    k = sample(n_times, 1)
+gen_cif = function(n = 20, n_events = 2, n_times = 20, max_time = 5) {
+  # Common evaluation grid
+  times = seq(0, max_time, length.out = n_times)
 
-    # Generate a CIF matrix where each row starts at 0 and increases
-    cif_mat = matrix(apply(matrix(runif(n * k, min = 0, max = 1), nrow = n), 1, function(x) {
-      c(0, sort(x)) # Ensure first value is 0 and sequence is increasing
-    }), nrow = n, byrow = TRUE)
-    set_col_names(cif_mat, 1:(k+1))
+  # Random cause-specific hazards for each subject & cause =>
+  # h_j => CONSTANT for j cause (and per observation)
+  # shape: [n x n_events]
+  hazards = matrix(runif(n * n_events, min = 0.1, max = 0.5),
+                   nrow = n, ncol = n_events)
+
+  # Total hazard per subject
+  h_total = rowSums(hazards)
+
+  # assume exponential survival with rate h_total: S(t) = exp(-h_total * t)
+  # Compute CIF for each cause:
+  # CIF_j(t) = \int_0^t S(u)*h_j du = (h_j / h_tot) * (1 - exp(-h_tot * t))
+  # this guarantees: \sum CIF_j(t) = 1 - S(t)
+  cif_list = lapply(seq_len(n_events), function(j) {
+    mat = outer(times, seq_len(n), function(t, i) {
+      (hazards[i, j] / h_total[i]) * (1 - exp(-h_total[i] * t))
+    })
+    t(mat) # rows = subjects, cols = times
   })
-  names(cif_list) = 1:n_events
 
+  # Assign colnames as times for convenience
+  cif_list = lapply(cif_list, function(mat) {
+    colnames(mat) = times
+    mat
+  })
+
+  names(cif_list) = as.character(seq_len(n_events))
   cif_list
 }
