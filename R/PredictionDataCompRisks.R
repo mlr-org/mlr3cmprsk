@@ -52,7 +52,7 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
   }
 
   if ("cif" %in% predict_types) {
-    # Extract CIF lists
+    # Extract list of CIF lists
     cif_lists = map(dots, "cif")
 
     # Check that all CIF lists have the same number of competing risks
@@ -63,18 +63,13 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
       stop("Error: Can't combine CIFs with different numbers of competing events")
     }
 
-    # Merge a list of CIF matrices (function from `distr6`)
-    # We use this as the time points may be different between predicted CIFs
-    # for a particular competing event (cause) and this function uses
-    # constant interpolation to "fill in" the CIF values for the union of time points
-    merge_cols = getFromNamespace(".merge_cols", ns = "distr6")
-
     # Check time points for each cause and merge accordingly
     merged_cifs = vector("list", n_cmp_events)
     for (cause_idx in seq_len(n_cmp_events)) {
-      cause_cifs = lapply(cif_lists, function(cif) cif[[cause_idx]])
-      # CIF is like a CDF, so this function works as it should (constant interpolation)
-      merged_cifs[[cause_idx]] = do.call(rbind, merge_cols(cause_cifs, "cdf"))[ii, ]
+      # get the cause-specific CIFs
+      cs_cifs = lapply(cif_lists, function(cif_list) cif_list[[cause_idx]])
+      # merge them by finding the common time points and using constant interpolation
+      merged_cifs[[cause_idx]] = merge_cifs(cs_cifs)[ii, , drop = FALSE]
     }
     # add the causes names
     names(merged_cifs) = names(cif_lists[[1]])
