@@ -3,7 +3,6 @@
 #' @import mlr3
 #' @import mlr3misc
 #' @import paradox
-#' @import distr6
 #' @importFrom R6 R6Class
 #' @importFrom survival Surv
 #' @importFrom utils getFromNamespace
@@ -34,7 +33,7 @@ register_mlr3cmprsk = function() {
 
   # reflections
   ## tasks
-  x = getFromNamespace("mlr_reflections", ns = "mlr3")
+  x = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
   x$task_types = x$task_types[!"cmprsk"] # to ensure we don't have multiple row entries of 'surv'
   x$task_types = setkeyv(rbind(x$task_types, rowwise_table(
     ~type,    ~package,       ~task,           ~learner,           ~prediction,            ~prediction_data,          ~measure,
@@ -61,7 +60,7 @@ register_mlr3cmprsk = function() {
   walk(names(tasks), function(id) mlr_tasks$remove(id))
 
   # reflections
-  x = getFromNamespace("mlr_reflections", ns = "mlr3")
+  x = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
   type = NULL # silence data.table note
   x$task_types = x$task_types[type != "cmprsk"]
   x$task_col_roles$cmprsk = NULL
