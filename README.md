@@ -4,8 +4,7 @@
 <img src="man/figures/warning.png" width = "42" /> This package is
 **under development**
 
-Package website: [release](https://mlr3cmprsk.mlr-org.com/) \|
-[dev](https://mlr3cmprsk.mlr-org.com/dev/)
+Package website: [release](https://mlr3cmprsk.mlr-org.com/)
 
 `mlr3cmprsk` extends the [mlr3](https://mlr3.mlr-org.com/) ecosystem
 with a unified interface for machine learning in **competing risks

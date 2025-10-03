@@ -12,7 +12,7 @@ options(datatable.print.class = FALSE, datatable.print.keys = FALSE)
 
 <img src="man/figures/warning.png" width = "42" /> This package is **under development**
 
-Package website: [release](https://mlr3cmprsk.mlr-org.com/) | [dev](https://mlr3cmprsk.mlr-org.com/dev/)
+Package website: [release](https://mlr3cmprsk.mlr-org.com/)
 
 `mlr3cmprsk` extends the [mlr3](https://mlr3.mlr-org.com/) ecosystem with a unified interface for machine learning in **competing risks survival analysis**.
 It provides consistent task, learner, and prediction abstractions, enabling seamless benchmarking, model comparison, and integration with the broader `mlr3` framework.
