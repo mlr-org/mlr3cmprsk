@@ -34,3 +34,7 @@ pak::pak("mlr-org/mlr3cmprsk")
 
 ## Example
 
+## Code of Conduct
+
+Please note that the mlr3cmprsk project is released with a [Contributor Code of Conduct](https://mlr3cmprsk.mlr-org.com/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
