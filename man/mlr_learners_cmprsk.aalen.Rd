@@ -40,7 +40,7 @@ lrn("cmprsk.aalen")
 }
 
 \examples{
-\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
 
 # Define the Learner
@@ -79,6 +79,10 @@ predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
 Aalen, O O, Johansen, Soren (1978).
 \dQuote{An empirical transition matrix for non-homogeneous Markov chains based on censored observations.}
 \emph{Scandinavian journal of statistics}, 141--150.
+}
+\seealso{
+Other competing risk learners: 
+\code{\link{mlr_learners_cmprsk.crr}}
 }
 \concept{competing risk learners}
 \section{Super classes}{

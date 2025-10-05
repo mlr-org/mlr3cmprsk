@@ -22,6 +22,17 @@ bibentries = c(
     volume = "32",
     url = "https://onlinelibrary.wiley.com/doi/10.1002/sim.5958"
   ),
+  
+  finegray1999crr = bibentry("article",
+     author = "Fine, Jason P. and Gray, Robert J.",
+     title = "A proportional hazards model for the subdistribution of a competing risk",
+     journal = "Journal of the American Statistical Association",
+     volume = 94,
+     number = 446,
+     year = 1999,
+     pages = "496--509"
+    ),
+
   heyard_2020 = bibentry("article",
     author  = "Heyard, Rachel and Timsit, Jean-Francois and Held, Leonhard",
     title   = "Validation of discrete time-to-event prediction models in the presence of competing risks",
