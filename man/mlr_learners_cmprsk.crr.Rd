@@ -58,7 +58,7 @@ lrn("cmprsk.crr")
 model covariate effects that change over time (by default is \code{NULL}, i.e no time-varying features).
 }
 
-This list must contain:
+This list (if not NULL) must contain:
 \itemize{
 \item \code{feat2}: \code{character()} A character vector of feature names from the task's feature set that are
 treated as time-varying.

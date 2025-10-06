@@ -25,7 +25,7 @@
 #' 1. `cov2_info`: `list()` Optional list with configuration for time-varying covariates, enabling the learner to
 #' model covariate effects that change over time (by default is `NULL`, i.e no time-varying features).
 #'
-#' This list must contain:
+#' This list (if not NULL) must contain:
 #'   * `feat2`: `character()` A character vector of feature names from the task's feature set that are
 #'     treated as time-varying.
 #'   * `tf`: `function(uft)` A user-defined function specifying how the features in `feat2` vary
@@ -53,6 +53,7 @@
 #' @references
 #' `r format_bib("finegray1999crr")`
 #' @templateVar msr_id all
+#' @importFrom stats as.formula
 #' @examplesIf mlr3misc::require_namespaces("riskRegression", quietly = TRUE)
 #' library(mlr3)
 #'
