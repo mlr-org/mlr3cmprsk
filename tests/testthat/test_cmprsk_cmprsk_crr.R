@@ -5,15 +5,11 @@ skip_if_not_installed("rlang")
 
 test_that("autotest", {
   set.seed(42)
-  learner = lrn("cmprsk.crr", na.action = stats::na.omit)
+  learner = lrn("cmprsk.crr")
   expect_learner(learner)
 
-    # suppress expected warnings during encapsulation autotest from fallback
-    # `cmprsk.aalen`, which lacks the 'missings'  properties of `cmprsk.crr`
-    result = suppress_fallback_warnings(
-      run_autotest(learner, N = 42, check_replicable = FALSE,
-         exclude = "utf8_feature_names")
-    )
+  result = run_autotest(learner, N = 42, check_replicable = FALSE,
+                        exclude = "utf8_feature_names")
     expect_true(result, info = result$error)
 })
 
