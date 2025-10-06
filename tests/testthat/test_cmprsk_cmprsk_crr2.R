@@ -4,7 +4,7 @@ skip_if_not_installed("cmprsk")
 skip_if_not_installed("rlang")
 
 test_that("pbc test, emulates autotest", {
-  withr::local_seed(42)
+  set.seed(42)
   task = tsk("pbc")
   task$select(c("age", "trt"))
   size = task$nrow
