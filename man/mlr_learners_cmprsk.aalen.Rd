@@ -40,7 +40,7 @@ lrn("cmprsk.aalen")
 }
 
 \examples{
-\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
 
 # Define the Learner
