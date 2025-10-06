@@ -53,18 +53,19 @@
 #' @references
 #' `r format_bib("finegray1999crr")`
 #' @templateVar msr_id all
-#' @template example_cmprsk
-#' @examplesIf learner_is_runnable("cmprsk.crr")
+#' @examplesIf mlr3misc::require_namespaces("riskRegression", quietly = TRUE)
 #' library(mlr3)
 #'
 #' # Define a task
 #' task = tsk("pbc")
 #' task$select(c("age", "bili", "sex"))
+#'
+#' # Stratification based on event
 #' task$set_col_roles(cols = "status", add_to = "stratum")
 #'
 #' # Create partition list for train and test sets
 #' set.seed(123)
-#' ids = partition(task, ratio =0.95)
+#' ids = partition(task, ratio = 0.95)
 
 #'
 #' # Define the learner
@@ -82,10 +83,18 @@
 #'   predictions
 #'
 #' # Score the predictions
-#'   predictions$score()
+#' # AUC(t = 100), weighted mean score across causes (default)
+#' predictions$score(msr("cmprsk.auc", cause = "mean", time_horizon = 100))
+#'
+#' # AUC(t = 100), 1st cause
+#' predictions$score(msr("cmprsk.auc", cause = 1, time_horizon = 100))
+#'
+#' # AUC(t = 100), 2nd cause
+#' predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
+#'
 #' @export
 LearnerCompRisksFineGrayCRR = R6::R6Class("LearnerCompRisksFineGrayCRR",
-  inherit = LearnerCompRisks,
+  inherit = mlr3cmprsk::LearnerCompRisks,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -104,10 +113,10 @@ LearnerCompRisksFineGrayCRR = R6::R6Class("LearnerCompRisksFineGrayCRR",
         id = "cmprsk.crr",
         predict_types = "cif",
         feature_types = c("logical", "integer", "numeric", "factor"),
-        packages = c("mlr3extralearners", "cmprsk"),
+        packages = c("mlr3cmprsk", "cmprsk"),
         param_set = param_set,
         properties = character(0),
-        man = "mlr3extralearners::mlr_learners_cmprsk.crr",
+        man = "mlr3cmprsk::mlr_learners_cmprsk.crr",
         label = "Competing Risks Regression: Fine-Gray model"
       )
     }

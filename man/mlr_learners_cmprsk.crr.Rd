@@ -25,7 +25,7 @@ lrn("cmprsk.crr")
 \item Task type: \dQuote{cmprsk}
 \item Predict Types: \dQuote{cif}
 \item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}
-\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3cmprsk}, \CRANpkg{mlr3extralearners}, \CRANpkg{cmprsk}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3cmprsk}, \CRANpkg{cmprsk}
 }
 }
 
@@ -93,48 +93,16 @@ censoring distributions (by default is \code{NULL}).
 \dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
 
-# Define the Learner
-learner = lrn("cmprsk.aalen")
-learner
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "bili", "sex"))
 
 # Stratification based on event
 task$set_col_roles(cols = "status", add_to = "stratum")
 
-# Create train and test set
-part = partition(task)
-
-# Train the learner on the training set
-learner$train(task, row_ids = part$train)
-learner$model
-
-# Make predictions for the test set
-predictions = learner$predict(task, row_ids = part$test)
-predictions
-
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time_horizon = 100))
-
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time_horizon = 100))
-
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
-\dontshow{\}) # examplesIf}
-\dontshow{if (learner_is_runnable("cmprsk.crr")) withAutoprint(\{ # examplesIf}
-library(mlr3)
-
-# Define a task
-task = tsk("pbc")
-task$select(c("age", "bili", "sex"))
-task$set_col_roles(cols = "status", add_to = "stratum")
-
 # Create partition list for train and test sets
 set.seed(123)
-ids = partition(task, ratio =0.95)
+ids = partition(task, ratio = 0.95)
 
 # Define the learner
 learner = lrn("cmprsk.crr")
@@ -151,7 +119,14 @@ learner$model
   predictions
 
 # Score the predictions
-  predictions$score()
+# AUC(t = 100), weighted mean score across causes (default)
+predictions$score(msr("cmprsk.auc", cause = "mean", time_horizon = 100))
+
+# AUC(t = 100), 1st cause
+predictions$score(msr("cmprsk.auc", cause = 1, time_horizon = 100))
+
+# AUC(t = 100), 2nd cause
+predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
 \dontshow{\}) # examplesIf}
 }
 \references{
