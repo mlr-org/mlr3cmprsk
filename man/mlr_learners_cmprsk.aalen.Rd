@@ -80,6 +80,10 @@ Aalen, O O, Johansen, Soren (1978).
 \dQuote{An empirical transition matrix for non-homogeneous Markov chains based on censored observations.}
 \emph{Scandinavian journal of statistics}, 141--150.
 }
+\seealso{
+Other competing risk learners: 
+\code{\link{mlr_learners_cmprsk.crr}}
+}
 \concept{competing risk learners}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3cmprsk:LearnerCompRisks]{mlr3cmprsk::LearnerCompRisks}} -> \code{LearnerCompRisksAalenJohansen}
