@@ -103,11 +103,9 @@ MeasureCompRisksAUC = R6Class(
         cif_mat = cif_list[[cause]]
 
         # get CIF on the time horizon
-        mat = survdistr::mat_interp(
+        mat = survdistr::interp_cif(
           x = cif_mat,
           eval_times = time_horizon,
-          constant = TRUE,
-          type = "cif",
           add_times = FALSE,
           check = FALSE
         )
@@ -131,11 +129,9 @@ MeasureCompRisksAUC = R6Class(
           cif_mat = cif_list[[cause]]
 
           # get CIF on the time horizon
-          mat = survdistr::mat_interp(
+          mat = survdistr::interp_cif(
             x = cif_mat,
             eval_times = time_horizon,
-            constant = TRUE,
-            type = "cif",
             add_times = FALSE,
             check = FALSE
           )
