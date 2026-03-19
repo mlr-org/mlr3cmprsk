@@ -23,7 +23,7 @@ following Equation (7) in Heyard et al. (2020)."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -139,9 +139,10 @@ ISSN 1097-0258, <a href="https://doi.org/10.1002/SIM.5958" class="external-link"
 
 <ul><li><p><a href="#method-MeasureCompRisksAUC-new"><code>MeasureCompRisksAUC$new()</code></a></p></li>
 <li><p><a href="#method-MeasureCompRisksAUC-clone"><code>MeasureCompRisksAUC$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="aggregate"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-aggregate"><code>mlr3::Measure$aggregate()</code></a></span></li>
+</ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="aggregate"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-aggregate"><code>mlr3::Measure$aggregate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="format"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-format"><code>mlr3::Measure$format()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="help"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-help"><code>mlr3::Measure$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="obs_loss"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-obs_loss"><code>mlr3::Measure$obs_loss()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="print"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-print"><code>mlr3::Measure$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="score"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-score"><code>mlr3::Measure$score()</code></a></span></li>
 </ul></details></p><hr><a id="method-MeasureCompRisksAUC-new"></a><div class="section">
@@ -205,9 +206,9 @@ ISSN 1097-0258, <a href="https://doi.org/10.1002/SIM.5958" class="external-link"
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        n nevent     rmean se(rmean)*</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (s0) 184      0 89.555756   4.139912</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    184     12  8.066105   2.249986</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    184     74 51.378138   4.138024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (s0) 184      0 89.487076   4.226585</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    184     12  8.162571   2.276943</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    184     74 51.350353   4.216350</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    *restricted mean time in state (max time = 149 )</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Make predictions for the test set</span></span></span>
@@ -217,12 +218,12 @@ ISSN 1097-0258, <a href="https://doi.org/10.1002/SIM.5958" class="external-link"
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;PredictionCompRisks&gt;</span><span style="font-weight: bold;"> for </span><span style="color: #0000BB; font-weight: bold;">92</span><span style="font-weight: bold;"> observations:</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids time event       CIF</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        4   63     2 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        8   78     2 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        9    1     2 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       11    9     2 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ---  ---   ---       ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      139   81     1 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      157   73     1 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      256   29     1 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      231   35     1 &lt;list[2]&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Score the predictions</span></span></span>
 <span class="r-in"><span><span class="co"># AUC(t = 100), weighted mean score across causes (default)</span></span></span>

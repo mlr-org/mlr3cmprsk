@@ -21,7 +21,7 @@ at all unique times (both events and censoring) observed in the training set."><
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -177,10 +177,10 @@ at all unique times (both events and censoring) observed in the training set.</p
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        n nevent     rmean se(rmean)*</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (s0) 184      0 90.075885   4.316580</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    184     12  8.034342   2.238112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    184     74 50.889773   4.306029</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    *restricted mean time in state (max time = 149 )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (s0) 184      0 90.486196   4.278051</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    184     12  7.761797   2.158935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    184     74 49.752008   4.282081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    *restricted mean time in state (max time = 148 )</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Make predictions for the test set</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span> <span class="op">=</span> <span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">part</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
@@ -188,13 +188,13 @@ at all unique times (both events and censoring) observed in the training set.</p
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;PredictionCompRisks&gt;</span><span style="font-weight: bold;"> for </span><span style="color: #0000BB; font-weight: bold;">92</span><span style="font-weight: bold;"> observations:</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids time event       CIF</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        3   33     2 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        4   63     2 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        7   81     2 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        8   78     2 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ---  ---   ---       ---</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      157   73     1 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      213   47     1 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      231   35     1 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      139   81     1 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      256   29     1 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      262   17     1 &lt;list[2]&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Score the predictions</span></span></span>
 <span class="r-in"><span><span class="co"># AUC(t = 100), weighted mean score across causes (default)</span></span></span>

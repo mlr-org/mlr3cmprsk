@@ -135,10 +135,10 @@ learner$model
 #> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names))
 #> 
 #>        n nevent     rmean se(rmean)*
-#> (s0) 184      0 90.075885   4.316580
-#> 1    184     12  8.034342   2.238112
-#> 2    184     74 50.889773   4.306029
-#>    *restricted mean time in state (max time = 149 )
+#> (s0) 184      0 90.486196   4.278051
+#> 1    184     12  7.761797   2.158935
+#> 2    184     74 49.752008   4.282081
+#>    *restricted mean time in state (max time = 148 )
 
 # Make predictions for the test set
 predictions = learner$predict(task, row_ids = part$test)
@@ -146,13 +146,13 @@ predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        3   33     2 <list[2]>
 #>        4   63     2 <list[2]>
 #>        7   81     2 <list[2]>
+#>        8   78     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      157   73     1 <list[2]>
-#>      213   47     1 <list[2]>
-#>      231   35     1 <list[2]>
+#>      139   81     1 <list[2]>
+#>      256   29     1 <list[2]>
+#>      262   17     1 <list[2]>
 
 # Score the predictions
 # AUC(t = 100), weighted mean score across causes (default)

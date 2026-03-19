@@ -111,6 +111,7 @@ Inherited methods
 - [`mlr3::Measure$aggregate()`](https://mlr3.mlr-org.com/reference/Measure.html#method-aggregate)
 - [`mlr3::Measure$format()`](https://mlr3.mlr-org.com/reference/Measure.html#method-format)
 - [`mlr3::Measure$help()`](https://mlr3.mlr-org.com/reference/Measure.html#method-help)
+- [`mlr3::Measure$obs_loss()`](https://mlr3.mlr-org.com/reference/Measure.html#method-obs_loss)
 - [`mlr3::Measure$print()`](https://mlr3.mlr-org.com/reference/Measure.html#method-print)
 - [`mlr3::Measure$score()`](https://mlr3.mlr-org.com/reference/Measure.html#method-score)
 
@@ -175,9 +176,9 @@ learner$model
 #> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names))
 #> 
 #>        n nevent     rmean se(rmean)*
-#> (s0) 184      0 89.555756   4.139912
-#> 1    184     12  8.066105   2.249986
-#> 2    184     74 51.378138   4.138024
+#> (s0) 184      0 89.487076   4.226585
+#> 1    184     12  8.162571   2.276943
+#> 2    184     74 51.350353   4.216350
 #>    *restricted mean time in state (max time = 149 )
 
 # Make predictions for the test set
@@ -187,12 +188,12 @@ predictions
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
 #>        4   63     2 <list[2]>
+#>        8   78     2 <list[2]>
 #>        9    1     2 <list[2]>
-#>       11    9     2 <list[2]>
 #>      ---  ---   ---       ---
 #>      139   81     1 <list[2]>
 #>      157   73     1 <list[2]>
-#>      256   29     1 <list[2]>
+#>      231   35     1 <list[2]>
 
 # Score the predictions
 # AUC(t = 100), weighted mean score across causes (default)
