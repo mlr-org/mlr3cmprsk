@@ -25,8 +25,13 @@ test_that("combining predictions", {
   # different time points in each resampling `preds[[i]]`
   # Note: AJ has the same number of time points independent of the cause, so we
   # just check for cause `1`
-  expect_false(ncol(preds[[1L]]$data$cif$`1`) == ncol(preds[[2L]]$data$cif$`1`))
-  expect_false(ncol(preds[[2L]]$data$cif$`1`) == ncol(preds[[3L]]$data$cif$`1`))
+  # TODO: just check that the times attributes are different!
+  times1_fold1 = as.numeric(colnames(preds[[1L]]$data$cif$`1`))
+  times1_fold2 = as.numeric(colnames(preds[[2L]]$data$cif$`1`))
+  times1_fold3 = as.numeric(colnames(preds[[3L]]$data$cif$`1`))
+  expect_false(identical(times1_fold1, times1_fold2))
+  expect_false(identical(times1_fold1, times1_fold3))
+  expect_false(identical(times1_fold2, times1_fold3))
 
   # combine predictions
   pred = do.call(c, preds)
@@ -35,9 +40,6 @@ test_that("combining predictions", {
   # check that time points are properly combined
   # cause 1
   times1 = as.numeric(colnames(pred$cif$`1`))
-  times1_fold1 = as.numeric(colnames(preds[[1L]]$data$cif$`1`))
-  times1_fold2 = as.numeric(colnames(preds[[2L]]$data$cif$`1`))
-  times1_fold3 = as.numeric(colnames(preds[[3L]]$data$cif$`1`))
   # union of time points across folds in the combined prediction object
   expect_true(all(times1 == sort(unique(c(times1_fold1, times1_fold2, times1_fold3)))))
 
