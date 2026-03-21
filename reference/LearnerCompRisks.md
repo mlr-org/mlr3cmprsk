@@ -142,24 +142,24 @@ names(lrns)
 # get a specific learner from mlr_learners:
 mlr_learners$get("cmprsk.aalen")
 #> 
-#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen Johansen Estimator ────
+#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen-Johansen Estimator ────
 #> • Model: -
 #> • Parameters: list()
 #> • Packages: mlr3, mlr3cmprsk, and survival
 #> • Predict Types: [cif]
 #> • Feature Types: logical, integer, numeric, and factor
 #> • Encapsulation: none (fallback: -)
-#> • Properties: weights
+#> • Properties: importance, missings, selected_features, and weights
 #> • Other settings: use_weights = 'use'
 lrn("cmprsk.aalen")
 #> 
-#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen Johansen Estimator ────
+#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen-Johansen Estimator ────
 #> • Model: -
 #> • Parameters: list()
 #> • Packages: mlr3, mlr3cmprsk, and survival
 #> • Predict Types: [cif]
 #> • Feature Types: logical, integer, numeric, and factor
 #> • Encapsulation: none (fallback: -)
-#> • Properties: weights
+#> • Properties: importance, missings, selected_features, and weights
 #> • Other settings: use_weights = 'use'
 ```

@@ -3,11 +3,11 @@
 This learner estimates the Cumulative Incidence Function (CIF) for
 competing risks using the empirical Aalen-Johansen (AJ) estimator.
 
-Transition probabilities to each event are computed from the training
-data via the
+Transition probabilities to each competing event are computed from the
+training data via the
 [survfit](https://rdrr.io/pkg/survival/man/survfit.formula.html)
-function and predictions are made at all unique times (both events and
-censoring) observed in the training set.
+function. Predictions are made at all **unique event times (across all
+causes)** observed in the training set.
 
 ## Dictionary
 
@@ -35,10 +35,7 @@ with the associated sugar function
 
 ## Parameters
 
-|       |         |         |             |
-|-------|---------|---------|-------------|
-| Id    | Type    | Default | Levels      |
-| model | logical | FALSE   | TRUE, FALSE |
+Empty ParamSet
 
 ## References
 
@@ -52,11 +49,22 @@ non-homogeneous Markov chains based on censored observations.”
 [`mlr3cmprsk::LearnerCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
 -\> `LearnerCompRisksAalenJohansen`
 
+## Active bindings
+
+- `native_model`:
+
+  ([survival::survfit](https://rdrr.io/pkg/survival/man/survfit.html))  
+  The fitted model.
+
 ## Methods
 
 ### Public methods
 
 - [`LearnerCompRisksAalenJohansen$new()`](#method-LearnerCompRisksAalenJohansen-new)
+
+- [`LearnerCompRisksAalenJohansen$importance()`](#method-LearnerCompRisksAalenJohansen-importance)
+
+- [`LearnerCompRisksAalenJohansen$selected_features()`](#method-LearnerCompRisksAalenJohansen-selected_features)
 
 - [`LearnerCompRisksAalenJohansen$clone()`](#method-LearnerCompRisksAalenJohansen-clone)
 
@@ -71,7 +79,6 @@ Inherited methods
 - [`mlr3::Learner$predict_newdata()`](https://mlr3.mlr-org.com/reference/Learner.html#method-predict_newdata)
 - [`mlr3::Learner$print()`](https://mlr3.mlr-org.com/reference/Learner.html#method-print)
 - [`mlr3::Learner$reset()`](https://mlr3.mlr-org.com/reference/Learner.html#method-reset)
-- [`mlr3::Learner$selected_features()`](https://mlr3.mlr-org.com/reference/Learner.html#method-selected_features)
 - [`mlr3::Learner$train()`](https://mlr3.mlr-org.com/reference/Learner.html#method-train)
 
 ------------------------------------------------------------------------
@@ -84,6 +91,39 @@ Creates a new instance of this
 #### Usage
 
     LearnerCompRisksAalenJohansen$new()
+
+------------------------------------------------------------------------
+
+### Method `importance()`
+
+All features have a score of `0` for this learner. This method exists
+solely for compatibility with the `mlr3` ecosystem, as this learner is
+used as a fallback for other survival learners that require an
+`importance()` method.
+
+#### Usage
+
+    LearnerCompRisksAalenJohansen$importance()
+
+#### Returns
+
+Named [`numeric()`](https://rdrr.io/r/base/numeric.html).
+
+------------------------------------------------------------------------
+
+### Method `selected_features()`
+
+Selected features are always the empty set for this learner. This method
+is implemented only for compatibility with the `mlr3` API, as this
+learner does not perform feature selection.
+
+#### Usage
+
+    LearnerCompRisksAalenJohansen$selected_features()
+
+#### Returns
+
+`character(0)`.
 
 ------------------------------------------------------------------------
 
@@ -110,14 +150,14 @@ library(mlr3)
 learner = lrn("cmprsk.aalen")
 learner
 #> 
-#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen Johansen Estimator ────
+#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen-Johansen Estimator ────
 #> • Model: -
 #> • Parameters: list()
 #> • Packages: mlr3, mlr3cmprsk, and survival
 #> • Predict Types: [cif]
 #> • Feature Types: logical, integer, numeric, and factor
 #> • Encapsulation: none (fallback: -)
-#> • Properties: weights
+#> • Properties: importance, missings, selected_features, and weights
 #> • Other settings: use_weights = 'use'
 
 # Define a Task
@@ -131,8 +171,9 @@ part = partition(task)
 
 # Train the learner on the training set
 learner$train(task, row_ids = part$train)
-learner$model
-#> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names))
+learner$native_model
+#> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names), 
+#>     weights = NULL)
 #> 
 #>        n nevent     rmean se(rmean)*
 #> (s0) 184      0 90.486196   4.278051

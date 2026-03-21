@@ -8,6 +8,9 @@ calculated as a weighted average of the cause-specific AUCs. The weights
 correspond to the relative event frequencies of each cause, following
 Equation (7) in Heyard et al. (2020).
 
+Alternatively, users can obtain the **cause-specific AUC(t)** for any
+individual cause by specifying the `cause` parameter.
+
 ## Details
 
 Calls
@@ -151,14 +154,14 @@ library(mlr3)
 learner = lrn("cmprsk.aalen")
 learner
 #> 
-#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen Johansen Estimator ────
+#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen-Johansen Estimator ────
 #> • Model: -
 #> • Parameters: list()
 #> • Packages: mlr3, mlr3cmprsk, and survival
 #> • Predict Types: [cif]
 #> • Feature Types: logical, integer, numeric, and factor
 #> • Encapsulation: none (fallback: -)
-#> • Properties: weights
+#> • Properties: importance, missings, selected_features, and weights
 #> • Other settings: use_weights = 'use'
 
 # Define a Task
@@ -172,8 +175,9 @@ part = partition(task)
 
 # Train the learner on the training set
 learner$train(task, row_ids = part$train)
-learner$model
-#> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names))
+learner$native_model
+#> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names), 
+#>     weights = NULL)
 #> 
 #>        n nevent     rmean se(rmean)*
 #> (s0) 184      0 89.487076   4.226585
