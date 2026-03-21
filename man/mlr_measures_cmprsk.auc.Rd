@@ -94,7 +94,7 @@ part = partition(task)
 
 # Train the learner on the training set
 learner$train(task, row_ids = part$train)
-learner$model
+learner$native_model
 
 # Make predictions for the test set
 predictions = learner$predict(task, row_ids = part$test)
