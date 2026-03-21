@@ -12,6 +12,8 @@ By default, this measure returns a \strong{cause-independent AUC(t)} score,
 calculated as a weighted average of the cause-specific AUCs.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (7) in Heyard et al. (2020).
+
+Alternatively, users can obtain the \strong{cause-specific AUC(t)} for any individual cause by specifying the \code{cause} parameter.
 }
 \details{
 Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
@@ -92,7 +94,7 @@ part = partition(task)
 
 # Train the learner on the training set
 learner$train(task, row_ids = part$train)
-learner$model
+learner$native_model
 
 # Make predictions for the test set
 predictions = learner$predict(task, row_ids = part$test)

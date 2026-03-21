@@ -28,6 +28,7 @@ generate_tasks.LearnerCompRisks = function(learner, N = 20L, ...) {
 
   data = data.table::data.table(
     x = rep(0:1, each = N_half),
+    x_unif = stats::rnorm(N), # uniform noise feature
     time = c(times_group0, times_group1),
     event = c(event_group0, event_group1)
   )

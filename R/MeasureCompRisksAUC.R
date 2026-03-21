@@ -12,6 +12,8 @@
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (7) in Heyard et al. (2020).
 #'
+#' Alternatively, users can obtain the **cause-specific AUC(t)** for any individual cause by specifying the `cause` parameter.
+#'
 #' @details
 #' Calls [riskRegression::Score()] with:
 #' - `metric = "auc"`

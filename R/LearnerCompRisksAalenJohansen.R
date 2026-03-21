@@ -7,9 +7,10 @@
 #' This learner estimates the Cumulative Incidence Function (CIF) for competing
 #' risks using the empirical Aalen-Johansen (AJ) estimator.
 #'
-#' Transition probabilities to each event are computed from the training data via
-#' the [survfit][survival::survfit.formula()] function and predictions are made
-#' at all unique times (both events and censoring) observed in the training set.
+#' Transition probabilities to each competing event are computed from the training
+#' data via the [survfit][survival::survfit.formula()] function.
+#' Predictions are made at all **unique event times (across all causes)** observed
+#' in the training set.
 #'
 #' @references
 #' `r format_bib("aalen_1978")`
@@ -23,40 +24,76 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
-      # TODO: check if we truly need it? maybe always return it? weights are affected?
-      param_set = ps(
-        model = p_lgl(default = FALSE, tags = "train")
-      )
-
       super$initialize(
         id = "cmprsk.aalen",
-        param_set = param_set,
         predict_types = "cif",
         feature_types = c("logical", "integer", "numeric", "factor"),
-        properties = "weights",
+        properties = c("missings", "weights", "importance", "selected_features"),
         packages = "survival",
-        label = "Aalen Johansen Estimator",
+        label = "Aalen-Johansen Estimator",
         man = "mlr3cmprsk::mlr_learners_cmprsk.aalen"
       )
+    },
+
+    #' @description
+    #' All features have a score of `0` for this learner.
+    #' This method exists solely for compatibility with the `mlr3` ecosystem,
+    #' as this learner is used as a fallback for other survival learners that
+    #' require an `importance()` method.
+    #'
+    #' @return Named `numeric()`.
+    importance = function() {
+      if (is.null(self$model)) {
+        stopf("No model stored")
+      }
+
+      fn = self$model$features
+      named_vector(fn, 0)
+    },
+
+    #' @description
+    #' Selected features are always the empty set for this learner.
+    #' This method is implemented only for compatibility with the `mlr3` API,
+    #' as this learner does not perform feature selection.
+    #'
+    #' @return `character(0)`.
+    selected_features = function() {
+      if (is.null(self$model)) {
+        stopf("No model stored")
+      }
+
+      character()
     }
   ),
 
   private = list(
     .train = function(task) {
-      pv = self$param_set$get_values(tags = "train")
-      pv$weights = private$.get_weights(task)
+      survfit_obj = invoke(
+        survival::survfit,
+        formula = task$formula(1),
+        data = task$data(cols = task$target_names),
+        .args = list(weights = private$.get_weights(task))
+      )
 
-      invoke(survival::survfit,
-             formula = task$formula(1),
-             data = task$data(cols = task$target_names),
-             .args = pv)
+      list(
+        model = survfit_obj,
+        features = task$feature_names, # keep features for importance
+        event_times = task$unique_event_times() # add event times for use in prediction
+      )
     },
 
     .predict = function(task) {
-      trans_mat = self$model$pstate
-      trans_mat = trans_mat[, -1] # remove (s0) => prob of staying censored (state 0)
+      survfit_model = self$native_model
+      trans_mat = survfit_model$pstate
+      trans_mat = trans_mat[, -1] # remove (s0) => prob of 'staying' censored (state 0)
 
-      times = self$model$time # unique train set time points
+      times = survfit_model$time # unique time points from train set
+      event_times = self$model$event_times # unique event times from train set
+
+      idx = which(times %in% event_times)
+      times = times[idx] # keep only the unique event times
+      trans_mat = trans_mat[idx, , drop = FALSE]
+
       n_obs = task$nrow # number of test observations
       cif_list = stats::setNames(vector("list", ncol(trans_mat)), colnames(trans_mat))
 
@@ -70,6 +107,14 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
       }
 
       list(cif = cif_list)
+    }
+  ),
+
+  active = list(
+    #' @field native_model ([survival::survfit])\cr
+    #' The fitted model.
+    native_model = function() {
+      self$model$model
     }
   )
 )
