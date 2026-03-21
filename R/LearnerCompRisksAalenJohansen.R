@@ -68,19 +68,16 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
 
   private = list(
     .train = function(task) {
-      pv = self$param_set$get_values(tags = "train")
-      pv$weights = private$.get_weights(task)
-
       survfit_obj = invoke(
         survival::survfit,
         formula = task$formula(1),
         data = task$data(cols = task$target_names),
-        .args = pv
+        .args = list(weights = private$.get_weights(task))
       )
 
       list(
         model = survfit_obj,
-        features = task$feature_names,
+        features = task$feature_names, # keep features for importance
         event_times = task$unique_event_times() # add event times for use in prediction
       )
     },
@@ -90,10 +87,11 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
       trans_mat = survfit_model$pstate
       trans_mat = trans_mat[, -1] # remove (s0) => prob of 'staying' censored (state 0)
 
-      event_times = self$model$event_times
-      # survfit_model$time => unique time points from train set
-      idx = which(survfit_model$time %in% event_times)
-      times = survfit_model$time[idx] # keep only the unique event times
+      times = survfit_model$time # unique time points from train set
+      event_times = self$model$event_times # unique event times from train set
+
+      idx = which(times %in% event_times)
+      times = times[idx] # keep only the unique event times
       trans_mat = trans_mat[idx, , drop = FALSE]
 
       n_obs = task$nrow # number of test observations
@@ -118,7 +116,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     native_model = function() {
       self$model$model
     }
-  ),
+  )
 )
 
 #' @include aaa.R
