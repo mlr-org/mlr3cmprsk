@@ -41,5 +41,15 @@ bibentries = c(
     pages   = "88--112",
     year    = "2011",
     url     = "https://doi.org/10.1002/BIMJ.201000073"
+  ),
+  fine_1999 = bibentry("article",
+    author = "Fine, Jason P and Gray, Robert J",
+    title = "A Proportional Hazards Model for the Subdistribution of a Competing Risk",
+    journal = "Journal of the American Statistical Association",
+    year = "1999",
+    volume = "94",
+    number = "446",
+    pages = "496--509",
+    doi = "10.1080/01621459.1999.10474144"
   )
 )
