@@ -7,7 +7,7 @@ test_that("autotest", {
   })
 })
 
-test_that("cmprsk.fg returns one model per cause and aligned CIF grids", {
+test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
   with_seed(42L, {
     task = gen_cmprsk_task(n = 240, n_events = 3)
     task$set_col_roles(cols = "event", add_to = "stratum")
