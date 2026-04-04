@@ -8,15 +8,14 @@
 #' risks using the empirical Aalen-Johansen (AJ) estimator.
 #'
 #' Transition probabilities to each competing event are computed from the training
-#' data via the [survfit][survival::survfit.formula()] function.
+#' data via the [survival::survfit.formula()] function.
 #' Predictions are made at all **unique event times (across all causes)** observed
 #' in the training set.
 #'
 #' @references
 #' `r format_bib("aalen_1978")`
 #'
-#' @templateVar msr_id all
-#' @template example_cmprsk
+#' @template example_aalen
 #' @export
 LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
   inherit = LearnerCompRisks,
