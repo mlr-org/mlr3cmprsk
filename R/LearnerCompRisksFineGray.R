@@ -44,7 +44,7 @@ LearnerCompRisksFineGray = R6Class("LearnerCompRisksFineGray",
         predict_types = "cif",
         feature_types = c("logical", "integer", "numeric"),
         packages = "cmprsk",
-        label = "Fine-Gray Model",
+        label = "Competing Risks Regression: Fine-Gray model",
         man = "mlr3cmprsk::mlr_learners_cmprsk.fg"
       )
     }
