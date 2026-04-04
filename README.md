@@ -15,6 +15,7 @@ comparison, and integration with the broader `mlr3` framework.
 <!-- badges: start -->
 
 [![r-cmd-check](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml)
+[![codecov](https://codecov.io/gh/mlr-org/mlr3cmprsk/graph/badge.svg)](https://codecov.io/gh/mlr-org/mlr3cmprsk)
 [![CRAN
 Status](https://www.r-pkg.org/badges/version-ago/mlr3cmprsk)](https://cran.r-project.org/package=mlr3cmprsk)
 [![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)

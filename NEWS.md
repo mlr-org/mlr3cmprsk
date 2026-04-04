@@ -2,6 +2,7 @@
 
 * Added `LearnerCompRisksFineGray` via `cmprsk` R package
 * Refactor `merge_cifs()` to `align_cifs()`
+* Added test coverage report + badge
 
 # mlr3cmprsk 0.0.3
 
