@@ -69,7 +69,7 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
       # get the cause-specific CIFs
       cs_cifs = lapply(cif_lists, function(cif_list) cif_list[[cause_idx]])
       # merge them by finding the common time points and using constant interpolation
-      merged_cifs[[cause_idx]] = merge_cifs(cs_cifs)[ii, , drop = FALSE]
+      merged_cifs[[cause_idx]] = align_cifs(cs_cifs, bind_rows = TRUE)[ii, , drop = FALSE]
     }
     # add the causes names
     names(merged_cifs) = names(cif_lists[[1]])

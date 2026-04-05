@@ -40,8 +40,7 @@
 #' @references
 #' `r format_bib("blanche_2013", "heyard_2020")`
 #'
-#' @templateVar msr_id auc
-#' @template example_cmprsk
+#' @template example_fine_gray
 #' @export
 MeasureCompRisksAUC = R6Class(
   "MeasureCompRisksAUC",

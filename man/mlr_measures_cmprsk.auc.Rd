@@ -77,14 +77,17 @@ If \code{NULL}, the \strong{median time point} from the test set is used.
 
 \examples{
 \dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-library(mlr3)
-
 # Define the Learner
-learner = lrn("cmprsk.aalen")
+learner = lrn("cmprsk.fg")
 learner
 
 # Define a Task
 task = tsk("pbc")
+
+# Subset task features as Fine-Gray model doesn't accept factors
+# Encode factors with `mlr3pipelines::po("encode")` if needed
+feats = c("age", "chol", "albumin", "ast", "bili", "protime")
+task$select(feats)
 
 # Stratification based on event
 task$set_col_roles(cols = "status", add_to = "stratum")

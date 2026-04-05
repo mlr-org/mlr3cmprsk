@@ -9,7 +9,7 @@ This learner estimates the Cumulative Incidence Function (CIF) for competing
 risks using the empirical Aalen-Johansen (AJ) estimator.
 
 Transition probabilities to each competing event are computed from the training
-data via the \link[survival:survfit.formula]{survfit} function.
+data via the \code{\link[survival:survfit.formula]{survival::survfit.formula()}} function.
 Predictions are made at all \strong{unique event times (across all causes)} observed
 in the training set.
 }
@@ -40,8 +40,6 @@ Empty ParamSet
 
 \examples{
 \dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-library(mlr3)
-
 # Define the Learner
 learner = lrn("cmprsk.aalen")
 learner
@@ -63,21 +61,19 @@ learner$native_model
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time_horizon = 100))
-
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time_horizon = 100))
-
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
+# Score the predictions: Aalen-Johansen estimator
+# has random discriminative performance
+predictions$score()
 \dontshow{\}) # examplesIf}
 }
 \references{
 Aalen, O O, Johansen, Soren (1978).
 \dQuote{An empirical transition matrix for non-homogeneous Markov chains based on censored observations.}
 \emph{Scandinavian journal of statistics}, 141--150.
+}
+\seealso{
+Other competing risk learners: 
+\code{\link{mlr_learners_cmprsk.fg}}
 }
 \concept{competing risk learners}
 \section{Super classes}{

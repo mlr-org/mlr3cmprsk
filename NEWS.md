@@ -1,3 +1,10 @@
+# mlr3cmprsk 0.0.4
+
+* Added `LearnerCompRisksFineGray` via `cmprsk` R package
+* Refactor `merge_cifs()` to `align_cifs()`
+* Added test coverage report + badge
+* Added example in `README`
+
 # mlr3cmprsk 0.0.3
 
 * Added `missings`, `importance`, and `selected_features` properties to `cmprsk.aalen`.
