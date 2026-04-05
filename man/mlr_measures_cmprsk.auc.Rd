@@ -85,7 +85,7 @@ learner
 task = tsk("pbc")
 
 # Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines`
+# Encode factors with `mlr3pipelines::po("encode")` if needed
 feats = c("age", "chol", "albumin", "ast", "bili", "protime")
 task$select(feats)
 

@@ -42,7 +42,7 @@ lrn("cmprsk.fg")
 \section{Parameters}{
 \tabular{lllll}{
    Id \tab Type \tab Default \tab Levels \tab Range \cr
-   censgroup \tab numeric \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
+   cengroup \tab numeric \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
    gtol \tab numeric \tab 1e-06 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
    maxiter \tab integer \tab 10 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
    init \tab untyped \tab - \tab  \tab - \cr
@@ -60,7 +60,7 @@ learner
 task = tsk("pbc")
 
 # Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines`
+# Encode factors with `mlr3pipelines::po("encode")` if needed
 feats = c("age", "chol", "albumin", "ast", "bili", "protime")
 task$select(feats)
 
@@ -88,6 +88,12 @@ predictions$score(msr("cmprsk.auc", cause = 1, time_horizon = 100))
 # AUC(t = 100), 2nd cause
 predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
 \dontshow{\}) # examplesIf}
+}
+\references{
+Fine, P J, Gray, J R (1999).
+\dQuote{A Proportional Hazards Model for the Subdistribution of a Competing Risk.}
+\emph{Journal of the American Statistical Association}, \bold{94}(446), 496--509.
+\doi{10.1080/01621459.1999.10474144}.
 }
 \seealso{
 Other competing risk learners: 
