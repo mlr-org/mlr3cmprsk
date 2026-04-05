@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.3</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,6 +89,34 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mlr3cmprsk</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"pbc"</span><span class="op">)</span></span>
+<span><span class="va">task</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"chol"</span>, <span class="st">"albumin"</span>, <span class="st">"bili"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">task</span><span class="op">$</span><span class="fu">set_col_roles</span><span class="op">(</span>cols <span class="op">=</span> <span class="st">"status"</span>, add_to <span class="op">=</span> <span class="st">"stratum"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">learners</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cmprsk.fg"</span>, <span class="st">"cmprsk.aalen"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bm_grid</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/benchmark_grid.html" class="external-link">benchmark_grid</a></span><span class="op">(</span><span class="va">task</span>, <span class="va">learners</span>, <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">bm</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">benchmark</a></span><span class="op">(</span><span class="va">bm_grid</span><span class="op">)</span></span>
+<span><span class="va">bm</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="do">##    nr task_id   learner_id resampling_id iteration       prediction_test</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="do">## 1:  1     pbc    cmprsk.fg            cv         1 &lt;PredictionCompRisks&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="do">## 2:  1     pbc    cmprsk.fg            cv         2 &lt;PredictionCompRisks&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="do">## 3:  1     pbc    cmprsk.fg            cv         3 &lt;PredictionCompRisks&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="do">## 4:  2     pbc cmprsk.aalen            cv         1 &lt;PredictionCompRisks&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="do">## 5:  2     pbc cmprsk.aalen            cv         2 &lt;PredictionCompRisks&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">## 6:  2     pbc cmprsk.aalen            cv         3 &lt;PredictionCompRisks&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="do">##    cmprsk.auc</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="do">## 1:  0.7989382</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="do">## 2:  0.7848370</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="do">## 3:  0.8665564</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="do">## 4:  0.5000000</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="do">## 5:  0.5000000</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="do">## 6:  0.5000000</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="do">## Hidden columns: uhash, task, learner, resampling</span></span></code></pre></div>
+<p>For more competing risk learners, see the <a href="https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners" class="external-link">available list</a> at <code>mlr3extralearners</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
@@ -123,6 +151,7 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>John Zobolas <br><small class="roles"> Maintainer, author </small> <a href="https://orcid.org/0000-0002-3609-8674" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 

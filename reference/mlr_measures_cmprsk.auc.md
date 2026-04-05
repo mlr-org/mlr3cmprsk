@@ -148,24 +148,27 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-library(mlr3)
-
 # Define the Learner
-learner = lrn("cmprsk.aalen")
+learner = lrn("cmprsk.fg")
 learner
 #> 
-#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen-Johansen Estimator ────
+#> ── <LearnerCompRisksFineGray> (cmprsk.fg): Competing Risks Regression: Fine-Gray
 #> • Model: -
 #> • Parameters: list()
-#> • Packages: mlr3, mlr3cmprsk, and survival
+#> • Packages: mlr3, mlr3cmprsk, and cmprsk
 #> • Predict Types: [cif]
-#> • Feature Types: logical, integer, numeric, and factor
+#> • Feature Types: logical, integer, and numeric
 #> • Encapsulation: none (fallback: -)
-#> • Properties: importance, missings, selected_features, and weights
-#> • Other settings: use_weights = 'use'
+#> • Properties:
+#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
 
 # Define a Task
 task = tsk("pbc")
+
+# Subset task features as Fine-Gray model doesn't accept factors
+# Encode factors with `mlr3pipelines::po("encode")` if needed
+feats = c("age", "chol", "albumin", "ast", "bili", "protime")
+task$select(feats)
 
 # Stratification based on event
 task$set_col_roles(cols = "status", add_to = "stratum")
@@ -176,14 +179,30 @@ part = partition(task)
 # Train the learner on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
-#> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names), 
-#>     weights = NULL)
+#> $`1`
+#> convergence:  TRUE 
+#> coefficients:
+#>       age   albumin       ast      bili      chol   protime 
+#> -0.081820 -0.233000  0.002990  0.028350  0.001049 -0.938500 
+#> standard errors:
+#> [1] 0.024320 1.002000 0.005755 0.130700 0.001832 0.536000
+#> two-sided p-values:
+#>     age albumin     ast    bili    chol protime 
+#> 0.00077 0.82000 0.60000 0.83000 0.57000 0.08000 
 #> 
-#>        n nevent     rmean se(rmean)*
-#> (s0) 184      0 89.487076   4.226585
-#> 1    184     12  8.162571   2.276943
-#> 2    184     74 51.350353   4.216350
-#>    *restricted mean time in state (max time = 149 )
+#> $`2`
+#> convergence:  TRUE 
+#> coefficients:
+#>        age    albumin        ast       bili       chol    protime 
+#>  5.774e-02 -1.034e+00  8.724e-03  8.646e-02  1.455e-05  2.868e-01 
+#> standard errors:
+#> [1] 0.0143300 0.2537000 0.0021420 0.0198900 0.0004309 0.1157000
+#> two-sided p-values:
+#>     age albumin     ast    bili    chol protime 
+#> 5.6e-05 4.6e-05 4.7e-05 1.4e-05 9.7e-01 1.3e-02 
+#> 
+#> attr(,"class")
+#> [1] "fine_gray"
 
 # Make predictions for the test set
 predictions = learner$predict(task, row_ids = part$test)
@@ -191,27 +210,27 @@ predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        4   63     2 <list[2]>
-#>        8   78     2 <list[2]>
-#>        9    1     2 <list[2]>
+#>        1   13     2 <list[2]>
+#>       20   22     2 <list[2]>
+#>       25    2     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      139   81     1 <list[2]>
-#>      157   73     1 <list[2]>
-#>      231   35     1 <list[2]>
+#>      221   24     1 <list[2]>
+#>      229   42     1 <list[2]>
+#>      262   17     1 <list[2]>
 
 # Score the predictions
 # AUC(t = 100), weighted mean score across causes (default)
 predictions$score(msr("cmprsk.auc", cause = "mean", time_horizon = 100))
 #> cmprsk.auc 
-#>        0.5 
+#>  0.8275552 
 
 # AUC(t = 100), 1st cause
 predictions$score(msr("cmprsk.auc", cause = 1, time_horizon = 100))
 #> cmprsk.auc 
-#>        0.5 
+#>  0.7682148 
 
 # AUC(t = 100), 2nd cause
 predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
 #> cmprsk.auc 
-#>        0.5 
+#>  0.8371779 
 ```

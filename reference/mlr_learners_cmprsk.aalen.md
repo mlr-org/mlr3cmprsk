@@ -5,7 +5,7 @@ competing risks using the empirical Aalen-Johansen (AJ) estimator.
 
 Transition probabilities to each competing event are computed from the
 training data via the
-[survfit](https://rdrr.io/pkg/survival/man/survfit.formula.html)
+[`survival::survfit.formula()`](https://rdrr.io/pkg/survival/man/survfit.formula.html)
 function. Predictions are made at all **unique event times (across all
 causes)** observed in the training set.
 
@@ -42,6 +42,11 @@ Empty ParamSet
 Aalen, O O, Johansen, Soren (1978). “An empirical transition matrix for
 non-homogeneous Markov chains based on censored observations.”
 *Scandinavian journal of statistics*, 141–150.
+
+## See also
+
+Other competing risk learners:
+[`mlr_learners_cmprsk.fg`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
 
 ## Super classes
 
@@ -144,8 +149,6 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-library(mlr3)
-
 # Define the Learner
 learner = lrn("cmprsk.aalen")
 learner
@@ -158,7 +161,7 @@ learner
 #> • Feature Types: logical, integer, numeric, and factor
 #> • Encapsulation: none (fallback: -)
 #> • Properties: importance, missings, selected_features, and weights
-#> • Other settings: use_weights = 'use'
+#> • Other settings: use_weights = 'use', predict_raw = 'FALSE'
 
 # Define a Task
 task = tsk("pbc")
@@ -195,19 +198,9 @@ predictions
 #>      256   29     1 <list[2]>
 #>      262   17     1 <list[2]>
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time_horizon = 100))
-#> cmprsk.auc 
-#>        0.5 
-
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time_horizon = 100))
-#> cmprsk.auc 
-#>        0.5 
-
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time_horizon = 100))
+# Score the predictions: Aalen-Johansen estimator
+# has random discriminative performance
+predictions$score()
 #> cmprsk.auc 
 #>        0.5 
 ```

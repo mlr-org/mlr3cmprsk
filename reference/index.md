@@ -27,6 +27,9 @@
 - [`mlr_learners_cmprsk.aalen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.md)
   [`LearnerCompRisksAalenJohansen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.md)
   : Aalen Johansen Competing Risks Learner
+- [`mlr_learners_cmprsk.fg`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
+  [`LearnerCompRisksFineGray`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
+  : Fine-Gray Competing Risks Learner
 
 ## Competing Risk Measures
 

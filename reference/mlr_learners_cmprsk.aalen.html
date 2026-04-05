@@ -8,12 +8,12 @@
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Aalen Johansen Competing Risks Learner — mlr_learners_cmprsk.aalen"><meta name="description" content="This learner estimates the Cumulative Incidence Function (CIF) for competing
 risks using the empirical Aalen-Johansen (AJ) estimator.
 Transition probabilities to each competing event are computed from the training
-data via the survfit function.
+data via the survival::survfit.formula() function.
 Predictions are made at all unique event times (across all causes) observed
 in the training set."><meta property="og:description" content="This learner estimates the Cumulative Incidence Function (CIF) for competing
 risks using the empirical Aalen-Johansen (AJ) estimator.
 Transition probabilities to each competing event are computed from the training
-data via the survfit function.
+data via the survival::survfit.formula() function.
 Predictions are made at all unique event times (across all causes) observed
 in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.com/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -23,7 +23,7 @@ in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.3</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@ in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-
     <p>This learner estimates the Cumulative Incidence Function (CIF) for competing
 risks using the empirical Aalen-Johansen (AJ) estimator.</p>
 <p>Transition probabilities to each competing event are computed from the training
-data via the <a href="https://rdrr.io/pkg/survival/man/survfit.formula.html" class="external-link">survfit</a> function.
+data via the <code><a href="https://rdrr.io/pkg/survival/man/survfit.formula.html" class="external-link">survival::survfit.formula()</a></code> function.
 Predictions are made at all <strong>unique event times (across all causes)</strong> observed
 in the training set.</p>
     </div>
@@ -97,6 +97,11 @@ in the training set.</p>
     <p>Aalen, O O, Johansen, Soren (1978).
 “An empirical transition matrix for non-homogeneous Markov chains based on censored observations.”
 <em>Scandinavian journal of statistics</em>, 141–150.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other competing risk learners:
+<code><a href="mlr_learners_cmprsk.fg.html">mlr_learners_cmprsk.fg</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
@@ -190,9 +195,7 @@ as this learner does not perform feature selection.</p><div class="section">
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Define the Learner</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Define the Learner</span></span></span>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"cmprsk.aalen"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -204,7 +207,7 @@ as this learner does not perform feature selection.</p><div class="section">
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Feature Types: logical, integer, numeric, and factor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Encapsulation: none (fallback: -)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: importance, missings, selected_features, and weights</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Other settings: use_weights = 'use'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Other settings: use_weights = 'use', predict_raw = 'FALSE'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Define a Task</span></span></span>
 <span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"pbc"</span><span class="op">)</span></span></span>
@@ -241,19 +244,9 @@ as this learner does not perform feature selection.</p><div class="section">
 <span class="r-out co"><span class="r-pr">#&gt;</span>      256   29     1 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      262   17     1 &lt;list[2]&gt;</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Score the predictions</span></span></span>
-<span class="r-in"><span><span class="co"># AUC(t = 100), weighted mean score across causes (default)</span></span></span>
-<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.auc"</span>, cause <span class="op">=</span> <span class="st">"mean"</span>, time_horizon <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.auc </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        0.5 </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># AUC(t = 100), 1st cause</span></span></span>
-<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.auc"</span>, cause <span class="op">=</span> <span class="fl">1</span>, time_horizon <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.auc </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        0.5 </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># AUC(t = 100), 2nd cause</span></span></span>
-<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.auc"</span>, cause <span class="op">=</span> <span class="fl">2</span>, time_horizon <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Score the predictions: Aalen-Johansen estimator</span></span></span>
+<span class="r-in"><span><span class="co"># has random discriminative performance</span></span></span>
+<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.auc </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        0.5 </span>
 </code></pre></div>

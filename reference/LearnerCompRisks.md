@@ -137,7 +137,7 @@ library(mlr3)
 # get all survival learners from mlr_learners:
 lrns = mlr_learners$mget(mlr_learners$keys("^cmprsk"))
 names(lrns)
-#> [1] "cmprsk.aalen"
+#> [1] "cmprsk.aalen" "cmprsk.fg"   
 
 # get a specific learner from mlr_learners:
 mlr_learners$get("cmprsk.aalen")
@@ -150,7 +150,7 @@ mlr_learners$get("cmprsk.aalen")
 #> • Feature Types: logical, integer, numeric, and factor
 #> • Encapsulation: none (fallback: -)
 #> • Properties: importance, missings, selected_features, and weights
-#> • Other settings: use_weights = 'use'
+#> • Other settings: use_weights = 'use', predict_raw = 'FALSE'
 lrn("cmprsk.aalen")
 #> 
 #> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen-Johansen Estimator ────
@@ -161,5 +161,5 @@ lrn("cmprsk.aalen")
 #> • Feature Types: logical, integer, numeric, and factor
 #> • Encapsulation: none (fallback: -)
 #> • Properties: importance, missings, selected_features, and weights
-#> • Other settings: use_weights = 'use'
+#> • Other settings: use_weights = 'use', predict_raw = 'FALSE'
 ```
