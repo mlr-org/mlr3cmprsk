@@ -36,6 +36,10 @@ test_that("cmprsk.auc works", {
   m = msr("cmprsk.auc", time_horizon = 5)
   expect_warning(p2$score(m), class = "RiskRegressionScoreNaN")
 
+  # request for cause that doesn't exist should give an error
+  m = msr("cmprsk.auc", cause = 3)
+  expect_error(p2$score(m), "Invalid cause")
+
   # check usage of cause_weights for AUC calculation
   m = msr("cmprsk.auc", cause = "mean", cause_weights = c(1, 0))
   expect_equal(m$param_set$values$cause_weights, c(1, 0))
