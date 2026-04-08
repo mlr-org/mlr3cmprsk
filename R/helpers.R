@@ -85,8 +85,10 @@ aggregate_cause_scores = function(scores, method, event, cause_weights = NULL) {
   if (!is.null(cause_weights)) {
     w = cause_weights
   } else {
-    event = event[event != 0] # remove censored observations if present (event == 0)
-    w = as.numeric(prop.table(table(event))) # observed proportions per cause
+    # remove censored observations if present (event == 0)
+    event = event[event != 0]
+    # observed proportions per cause (table sorts in increasing order)
+    w = as.numeric(prop.table(table(event)))
   }
 
   sum(w * scores)
