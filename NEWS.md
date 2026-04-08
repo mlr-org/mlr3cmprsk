@@ -1,3 +1,8 @@
+# mlr3cmprsk 0.0.5
+
+* Refactor `MeasureCompRisksAUC`, added `cause_weights` argument
+* Added parameter tests for AJ and FG learners
+
 # mlr3cmprsk 0.0.4
 
 * Added `LearnerCompRisksFineGray` via `cmprsk` R package
