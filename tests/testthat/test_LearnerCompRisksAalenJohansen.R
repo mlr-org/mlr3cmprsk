@@ -36,3 +36,30 @@ test_that("cmprsk.aalen returns aligned CIF time grids", {
     }
   })
 })
+
+test_that("train params of cmprsk.aalen", {
+  learner = lrn("cmprsk.aalen")
+  fun = list(survival::survfit.formula)
+  exclude = c(
+    "formula", # handled by mlr3
+    "data", # handled by mlr3
+    "weights", # hanlded by mlr3
+    "subset", # hanlded by mlr3
+    "na.action", # not supported
+    "stype", # not supported
+    "ctype", # not supported
+    "id", # not supported
+    "cluster", # not supported
+    "robust", # not supported
+    "istate", # not supported
+    "timefix", # not supported
+    "etype", # not supported
+    "model", # not supported
+    "error", # not supported
+    "entry", # not supported
+    "time0" # not supported
+  )
+  res = run_paramtest(learner, fun, exclude, tag = "train")
+  expect_true(res, info = res$error)
+})
+# no predict wrapped function is used for this learner, so we do not test predict params
