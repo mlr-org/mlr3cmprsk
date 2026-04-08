@@ -13,7 +13,8 @@ calculated as a weighted average of the cause-specific AUCs.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (7) in Heyard et al. (2020).
 
-Alternatively, users can obtain the \strong{cause-specific AUC(t)} for any individual cause by specifying the \code{cause} parameter.
+Alternatively, users can obtain the \strong{cause-specific AUC(t)} for any
+individual cause by specifying the \code{cause} parameter.
 }
 \details{
 Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
@@ -25,7 +26,8 @@ Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
 
 Notes on the \code{riskRegression} implementation:
 \enumerate{
-\item IPCW weights are estimated using the \strong{test data only}.
+\item IPCW weights are estimated using the \strong{test data only}, so smaller test
+sets may lead to less stable estimates.
 \item No extrapolation is supported: if \code{time_horizon} exceeds the maximum observed
 time on the test data, an error is thrown.
 \item The choice of \code{time_horizon} is critical: if, at that time, no events of a
@@ -59,6 +61,7 @@ msr("cmprsk.auc")
 \tabular{llll}{
    Id \tab Type \tab Default \tab Range \cr
    cause \tab integer \tab - \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   cause_weights \tab untyped \tab NULL \tab - \cr
    time_horizon \tab numeric \tab NULL \tab \eqn{[0, \infty)}{[0, Inf)} \cr
 }
 }
@@ -68,10 +71,16 @@ msr("cmprsk.auc")
 \itemize{
 \item \code{cause} (\code{numeric(1)|"mean"})\cr
 Integer number indicating which cause to use.
-Default value is \code{"mean"} which returns a weighted mean of the cause-specific AUCs.
+Default value is \code{"mean"} which returns a event-frequency weighted mean of
+the cause-specific AUCs.
+\item \code{cause_weights} (\code{numeric()} | \code{NULL})\cr
+Optional custom weights for \code{cause = "mean"}.
+If \code{NULL}, observed cause frequencies in the test data are used.
+The weights must be non-negative, sum to 1 and match the number of causes 1-1,
+i.e. first weight for first cause, second weight for second cause, etc.
 \item \code{time_horizon} (\code{numeric(1)})\cr
 Single time point at which to return the score.
-If \code{NULL}, the \strong{median time point} from the test set is used.
+If \code{NULL}, the \strong{median observed time point} from the test set is used.
 }
 }
 

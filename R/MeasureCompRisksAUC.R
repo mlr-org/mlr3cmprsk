@@ -12,7 +12,8 @@
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (7) in Heyard et al. (2020).
 #'
-#' Alternatively, users can obtain the **cause-specific AUC(t)** for any individual cause by specifying the `cause` parameter.
+#' Alternatively, users can obtain the **cause-specific AUC(t)** for any
+#' individual cause by specifying the `cause` parameter.
 #'
 #' @details
 #' Calls [riskRegression::Score()] with:
@@ -21,7 +22,8 @@
 #' - `cens.model = "km"`
 #'
 #' Notes on the `riskRegression` implementation:
-#' 1. IPCW weights are estimated using the **test data only**.
+#' 1. IPCW weights are estimated using the **test data only**, so smaller test
+#' sets may lead to less stable estimates.
 #' 2. No extrapolation is supported: if `time_horizon` exceeds the maximum observed
 #' time on the test data, an error is thrown.
 #' 3. The choice of `time_horizon` is critical: if, at that time, no events of a
@@ -32,10 +34,16 @@
 #' @section Parameter details:
 #' - `cause` (`numeric(1)|"mean"`)\cr
 #'  Integer number indicating which cause to use.
-#'  Default value is `"mean"` which returns a weighted mean of the cause-specific AUCs.
+#'  Default value is `"mean"` which returns a event-frequency weighted mean of
+#'  the cause-specific AUCs.
+#' - `cause_weights` (`numeric()` | `NULL`)\cr
+#'  Optional custom weights for `cause = "mean"`.
+#'  If `NULL`, observed cause frequencies in the test data are used.
+#'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
+#'  i.e. first weight for first cause, second weight for second cause, etc.
 #' - `time_horizon` (`numeric(1)`)\cr
 #'  Single time point at which to return the score.
-#'  If `NULL`, the **median time point** from the test set is used.
+#'  If `NULL`, the **median observed time point** from the test set is used.
 #'
 #' @references
 #' `r format_bib("blanche_2013", "heyard_2020")`
@@ -51,6 +59,7 @@ MeasureCompRisksAUC = R6Class(
     initialize = function() {
       param_set = ps(
         cause = p_int(lower = 1, init = "mean", special_vals = list("mean")),
+        cause_weights = p_uty(default = NULL, special_vals = list(NULL)),
         time_horizon = p_dbl(lower = 0, default = NULL, special_vals = list(NULL))
       )
 
@@ -91,21 +100,29 @@ MeasureCompRisksAUC = R6Class(
       cif_list = prediction$cif
       causes = names(cif_list)
 
-      cause = pv$cause
-      if (test_int(cause)) {
-        cause = as.character(cause)
+      # check weights
+      cause_weights = pv$cause_weights
+      if (!is.null(cause_weights)) {
+        assert_numeric(
+          cause_weights,
+          lower = 0,
+          upper = 1,
+          len = length(causes),
+          any.missing = FALSE,
+          null.ok = FALSE
+        )
 
-        # check if cause exists
-        if (cause %nin% causes) {
-          stopf("Invalid cause. Use one of: %s", paste(causes, collapse = ", "))
+        if (!isTRUE(all.equal(sum(cause_weights), 1, tolerance = 1e-8))) {
+          stop("Cause weights must sum to 1.")
         }
+      }
 
-        # get cause-specific CIF
-        cif_mat = cif_list[[cause]]
+      aggregation = validate_cause_aggregation(pv$cause, causes)
 
+      cause_auc = function(cause) {
         # get CIF on the time horizon
         mat = survdistr::interp_cif(
-          x = cif_mat,
+          x = cif_list[[cause]], # cause-specific CIF
           eval_times = time_horizon,
           add_times = FALSE,
           check = FALSE
@@ -121,40 +138,21 @@ MeasureCompRisksAUC = R6Class(
           cause = cause
         )
 
-        times = NULL # fix: no global binding
-        res$AUC$score[times == time_horizon][["AUC"]]
-      } else {
-        # iterate through cause-specific CIFs, get AUC(t)
-        aucs = vapply(causes, function(cause) {
-          # get cause-specific CIF
-          cif_mat = cif_list[[cause]]
-
-          # get CIF on the time horizon
-          mat = survdistr::interp_cif(
-            x = cif_mat,
-            eval_times = time_horizon,
-            add_times = FALSE,
-            check = FALSE
-          )
-
-          # calculate AUC(t) score
-          res = riskRegr_score(
-            mat_list = list(mat),
-            metric = "auc",
-            data = data,
-            formula = form,
-            times = time_horizon,
-            cause = cause
-          )
-
-          times = NULL # fix: no global binding
-          res$AUC$score[times == time_horizon][["AUC"]]
-        }, numeric(1L))
-
-        event = data[event != 0, event] # remove censored obs (if they exist)
-        w = prop.table(table(event)) # observed proportions per cause
-        sum(w[names(aucs)] * aucs) # weighted mean
+        extract_metric_value(res, metric = "auc", time_horizon = time_horizon)
       }
+
+      if (aggregation$mode == "single") {
+        return(cause_auc(aggregation$cause))
+      }
+
+      aucs = vapply(causes, cause_auc, numeric(1L))
+
+      aggregate_cause_scores(
+        scores = aucs,
+        method = aggregation$cause, # "mean"
+        event = data$event,
+        cause_weights = cause_weights
+      )
     }
   )
 )

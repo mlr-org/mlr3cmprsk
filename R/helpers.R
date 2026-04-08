@@ -1,5 +1,5 @@
 # Wrapper around `riskRegression::Score()`
-riskRegr_score = function(mat_list, metric, data, formula, times, cause) {
+riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary = NULL) {
   assert_choice(metric, c("auc", "brier"))
 
   invoke(
@@ -8,7 +8,7 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause) {
     data = data, # (time, event) values for `formula` => n_rows == n_obs
     # `Hist(time, event) ~ 1 => cens.model = 'km') or `Hist(time, event) ~ vars` for 'cox'
     formula = formula,
-    summary = base::switch(metric == "brier", "ibs"), # `NULL` otherwise
+    summary = summary,
     se.fit = 0L,
     metrics = metric,
     cens.method = "ipcw",
@@ -19,6 +19,77 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause) {
     times = times,
     cause = cause
   )
+}
+
+#' @noRd
+extract_metric_value = function(result, metric, time_horizon = NULL, integrated = FALSE) {
+  score = if (metric == "auc") result$AUC$score else result$Brier$score
+
+  if (integrated) {
+    col = intersect(c("IBS", "ibs", "Brier"), names(score))[1L]
+    assert_string(col)
+    return(score[[col]][1L])
+  }
+
+  time_col = intersect(c("times", "time"), names(score))[1L]
+  metric_col = if (metric == "auc") {
+    intersect(c("AUC", "auc", "score"), names(score))[1L]
+  } else {
+    intersect(c("Brier", "brier", "score"), names(score))[1L]
+  }
+
+  assert_string(time_col)
+  assert_string(metric_col)
+
+  if (is.null(time_horizon)) {
+    return(score[[metric_col]][1L])
+  }
+
+  idx = which(score[[time_col]] == time_horizon)
+  # I have interpolated exaclty on time_horizon, so there should be a match. But just in case, I take the closest time point.
+  # if (!length(idx)) {
+  #   idx = which.min(abs(score[[time_col]] - time_horizon))
+  # }
+
+  score[[metric_col]][idx[1L]]
+}
+
+#' @noRd
+validate_cause_aggregation = function(cause, causes) {
+  if (test_int(cause)) {
+    cause = as.character(cause)
+    if (cause %nin% causes) {
+      stopf("Invalid cause. Use one of: %s", paste(causes, collapse = ", "))
+    }
+    return(list(mode = "single", cause = cause))
+  }
+
+  # cause can be "mean" or "sum" depending on the aggregation method
+  list(mode = "aggregate", cause = cause)
+}
+
+#' @noRd
+aggregate_cause_scores = function(scores, method, event, cause_weights = NULL) {
+  if (!check_numeric(scores, any.missing = FALSE, finite = TRUE)) {
+    mlr3misc::warning_mlr3(
+      msg = "One/Some scores is NA/NaN",
+      class = "RiskRegressionScoreNA"
+    )
+  }
+
+  if (method == "sum") {
+    return(sum(scores))
+  }
+
+  # method == "mean"
+  if (!is.null(cause_weights)) {
+    w = cause_weights
+  } else {
+    event = event[event != 0] # remove censored observations if present (event == 0)
+    w = as.numeric(prop.table(table(event))) # observed proportions per cause
+  }
+
+  sum(w * scores)
 }
 
 #' @title Align CIF matrices on a common time grid
