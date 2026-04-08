@@ -70,10 +70,10 @@ validate_cause_aggregation = function(cause, causes) {
 
 #' @noRd
 aggregate_cause_scores = function(scores, method, event, cause_weights = NULL) {
-  if (!check_numeric(scores, any.missing = FALSE, finite = TRUE)) {
+  if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
     mlr3misc::warning_mlr3(
-      msg = "One/Some scores is NA/NaN",
-      class = "RiskRegressionScoreNA"
+      msg = "At least one of the scores is NaN",
+      class = "RiskRegressionScoreNaN"
     )
   }
 

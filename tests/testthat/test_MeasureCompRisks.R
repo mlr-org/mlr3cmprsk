@@ -32,6 +32,11 @@ test_that("cmprsk.auc works", {
   suppressMessages(expect_error(p1$score(m)))
   suppressMessages(expect_error(p2$score(m)))
 
+  # request for early time point where no event have yet happened gives NaN AUC
+  m = msr("cmprsk.auc", time_horizon = 5)
+  expect_warning(p2$score(m), class = "RiskRegressionScoreNaN")
+
+  # check usage of cause_weights for AUC calculation
   m = msr("cmprsk.auc", cause = "mean", cause_weights = c(1, 0))
   expect_equal(m$param_set$values$cause_weights, c(1, 0))
   auc1 = p2$score(m)
