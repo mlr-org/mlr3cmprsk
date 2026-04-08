@@ -22,5 +22,5 @@
 #'
 #' # Score the predictions: Aalen-Johansen estimator
 #' # has random discriminative performance
-#' predictions$score()
+#' predictions$score(msr("cmprsk.auc", time_horizon = 100))
 #'
