@@ -1,7 +1,8 @@
 # mlr3cmprsk 0.0.5
 
-* Refactor `MeasureCompRisksAUC`, added `cause_weights` argument
+* Refactored `MeasureCompRisksAUC`, added `cause_weights` parameter
 * Added parameter tests for AJ and FG learners
+* Added more tests
 
 # mlr3cmprsk 0.0.4
 
