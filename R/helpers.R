@@ -1,4 +1,6 @@
-# Wrapper around `riskRegression::Score()`
+#' Wrapper around `riskRegression::Score()`
+#' @keywords internal
+#' @noRd
 riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary = NULL) {
   assert_choice(metric, c("auc", "brier"))
 
@@ -21,6 +23,8 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
   )
 }
 
+#' Extracts the AUC or Brier score from a `riskRegression::Score()` result
+#' @keywords internal
 #' @noRd
 extract_metric_value = function(result, metric, time_horizon = NULL, integrated = FALSE) {
   score = if (metric == "auc") result$AUC$score else result$Brier$score
@@ -54,6 +58,8 @@ extract_metric_value = function(result, metric, time_horizon = NULL, integrated 
   score[[metric_col]][idx[1L]]
 }
 
+#' Validates the `cause` parameter for aggregation of cause-specific scores
+#' @keywords internal
 #' @noRd
 validate_cause_aggregation = function(cause, causes) {
   if (test_int(cause)) {
@@ -68,6 +74,9 @@ validate_cause_aggregation = function(cause, causes) {
   list(mode = "aggregate", cause = cause)
 }
 
+#' Aggregates cause-specific scores into a single summary score using
+#' the specified method and weights
+#' @keywords internal
 #' @noRd
 aggregate_cause_scores = function(scores, method, event, cause_weights = NULL) {
   if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {

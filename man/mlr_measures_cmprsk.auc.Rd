@@ -7,16 +7,15 @@
 \description{
 Calculates the time-dependent ROC-AUC at a \strong{specific time point},
 as described in Blanche et al. (2013).
-
+}
+\details{
 By default, this measure returns a \strong{cause-independent AUC(t)} score,
 calculated as a weighted average of the cause-specific AUCs.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (7) in Heyard et al. (2020).
-
 Alternatively, users can obtain the \strong{cause-specific AUC(t)} for any
 individual cause by specifying the \code{cause} parameter.
-}
-\details{
+
 Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
 \itemize{
 \item \code{metric = "auc"}
@@ -78,6 +77,7 @@ Optional custom weights for \code{cause = "mean"}.
 If \code{NULL}, observed cause frequencies in the test data are used.
 The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 i.e. first weight for first cause, second weight for second cause, etc.
+See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
 \item \code{time_horizon} (\code{numeric(1)})\cr
 Single time point at which to return the score.
 If \code{NULL}, the \strong{median observed time point} from the test set is used.
@@ -132,6 +132,11 @@ Blanche, Paul, Dartigues, Francois J, Jacqmin-Gadda, Helene (2013).
 \dQuote{Estimating and comparing time-dependent areas under receiver operating characteristic curves for censored event times with competing risks.}
 \emph{Statistics in Medicine}, \bold{32}(30), 5381--5397.
 ISSN 1097-0258, \doi{10.1002/SIM.5958}, \url{https://onlinelibrary.wiley.com/doi/10.1002/sim.5958}.
+
+Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018).
+\dQuote{Prediction errors for state occupation and transition probabilities in multi-state models.}
+\emph{Biometrical Journal}, \bold{60}(1), 34--48.
+ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.201600191}.
 
 Heyard, Rachel, Timsit, Jean-Francois, Held, Leonhard (2020).
 \dQuote{Validation of discrete time-to-event prediction models in the presence of competing risks.}
