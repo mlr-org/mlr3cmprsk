@@ -1,6 +1,6 @@
 Package: mlr3cmprsk
 Title: Competing Risks Machine Learning for 'mlr3'
-Version: 0.0.4
+Version: 0.0.5
 Authors@R: c(
     person("John", "Zobolas", , "bblodfon@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-3609-8674")),
