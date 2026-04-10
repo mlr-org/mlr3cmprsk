@@ -1,5 +1,5 @@
 #' @examplesIf mlr3misc::require_namespaces("riskRegression", quietly = TRUE)
-#' # Define the Learner
+#' # Define the Learner (Aalen-Johansen/AJ estimator)
 #' learner = lrn("cmprsk.aalen")
 #' learner
 #'
@@ -20,7 +20,11 @@
 #' predictions = learner$predict(task, row_ids = part$test)
 #' predictions
 #'
-#' # Score the predictions: Aalen-Johansen estimator
-#' # has random discriminative performance
-#' predictions$score(msr("cmprsk.auc", time_horizon = 100))
+#' # Score the predictions
+#' # AJ has random discriminative performance
+#' predictions$score(msr("cmprsk.auc", time = 100))
+#'
+#' # Prediction error (Brier score) at specific time point
+#' # BS(t) => weighted mean score across causes (default)
+#' predictions$score(msr("cmprsk.brier", time = 100))
 #'
