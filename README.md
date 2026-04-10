@@ -34,6 +34,7 @@ pak::pak("mlr-org/mlr3cmprsk")
 
 ``` r
 library(mlr3cmprsk)
+set.seed(42)
 
 task = tsk("pbc")
 task$select(c("age", "chol", "albumin", "bili"))
@@ -43,7 +44,9 @@ learners = lrns(c("cmprsk.fg", "cmprsk.aalen"))
 
 bm_grid = benchmark_grid(task, learners, rsmp("cv", folds = 3))
 bm = benchmark(bm_grid)
-bm$score()
+
+# AUC at t = 100 (weighted by event frequencies)
+bm$score(msr("cmprsk.auc", time = 100))
 ```
 
     ##    nr task_id   learner_id resampling_id iteration       prediction_test
@@ -54,17 +57,42 @@ bm$score()
     ## 5:  2     pbc cmprsk.aalen            cv         2 <PredictionCompRisks>
     ## 6:  2     pbc cmprsk.aalen            cv         3 <PredictionCompRisks>
     ##    cmprsk.auc
-    ## 1:  0.7989382
-    ## 2:  0.7848370
-    ## 3:  0.8665564
+    ## 1:  0.7813865
+    ## 2:  0.7663073
+    ## 3:  0.8390308
     ## 4:  0.5000000
     ## 5:  0.5000000
     ## 6:  0.5000000
     ## Hidden columns: uhash, task, learner, resampling
 
+``` r
+# Brier score at t = 100 (sum over causes)
+bm$score(msr("cmprsk.brier", time = 100, cause = "sum"))
+```
+
+    ##    nr task_id   learner_id resampling_id iteration       prediction_test
+    ## 1:  1     pbc    cmprsk.fg            cv         1 <PredictionCompRisks>
+    ## 2:  1     pbc    cmprsk.fg            cv         2 <PredictionCompRisks>
+    ## 3:  1     pbc    cmprsk.fg            cv         3 <PredictionCompRisks>
+    ## 4:  2     pbc cmprsk.aalen            cv         1 <PredictionCompRisks>
+    ## 5:  2     pbc cmprsk.aalen            cv         2 <PredictionCompRisks>
+    ## 6:  2     pbc cmprsk.aalen            cv         3 <PredictionCompRisks>
+    ##    cmprsk.brier
+    ## 1:    0.2425159
+    ## 2:    0.2569747
+    ## 3:    0.2311288
+    ## 4:    0.3129159
+    ## 5:    0.3142841
+    ## 6:    0.3140260
+    ## Hidden columns: uhash, task, learner, resampling
+
 For more competing risk learners, see the [available
 list](https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners)
 at `mlr3extralearners`.
+
+For more details about available measures and their parameters, see
+[reference
+list](https://mlr3cmprsk.mlr-org.com/reference/index.html#competing-risks-measures).
 
 ## Code of Conduct
 
