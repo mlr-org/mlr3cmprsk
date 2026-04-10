@@ -80,7 +80,7 @@ validate_cause_aggregation = function(cause, causes) {
 #' the specified method and weights
 #' @keywords internal
 #' @noRd
-aggregate_cause_scores = function(scores, method, event, cause_weights = NULL) {
+aggregate_cause_scores = function(scores, event, cause_weights = NULL) {
   if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
     mlr3misc::warning_mlr3(
       msg = "At least one of the scores is NaN",
@@ -88,17 +88,13 @@ aggregate_cause_scores = function(scores, method, event, cause_weights = NULL) {
     )
   }
 
-  if (method == "sum") {
-    return(sum(scores))
-  }
-
-  # method == "mean"
   if (!is.null(cause_weights)) {
     w = cause_weights
   } else {
     # remove censored observations if present (event == 0)
     event = event[event != 0]
-    # observed proportions per cause (table sorts in increasing order)
+    # observed proportions per cause
+    # `table()` sorts in increasing order, i.e. cause 1, cause 2, ...
     w = as.numeric(prop.table(table(event)))
   }
 

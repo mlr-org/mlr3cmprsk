@@ -12,6 +12,7 @@
 #' calculated as a weighted average of the cause-specific AUCs.
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (7) in Heyard et al. (2020).
+#' User-supplied weights are also supported.
 #' Alternatively, users can obtain the **cause-specific AUC(t)** for any
 #' individual cause by specifying the `cause` parameter.
 #'
@@ -33,14 +34,13 @@
 #' @section Parameter details:
 #' - `cause` (`numeric(1)|"mean"`)\cr
 #'  Integer number indicating which cause to use.
-#'  Default value is `"mean"` which returns a event-frequency weighted mean of
+#'  Default value is `"mean"` which returns an event-frequency weighted mean of
 #'  the cause-specific AUCs.
 #' - `cause_weights` (`numeric()` | `NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
 #'  If `NULL`, observed cause frequencies in the test data are used.
 #'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 #'  i.e. first weight for first cause, second weight for second cause, etc.
-#'  See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
 #' - `time` (`numeric(1)`)\cr
 #'  Single time point at which to return the score.
 #'  If `NULL`, the **median observed time point** from the test set is used.
@@ -146,12 +146,7 @@ MeasureCompRisksAUC = R6Class(
 
       aucs = vapply(causes, cause_auc, numeric(1L))
 
-      aggregate_cause_scores(
-        scores = aucs,
-        method = aggregation$cause, # "mean"
-        event = data$event,
-        cause_weights = cause_weights
-      )
+      aggregate_cause_scores(aucs, data$event, cause_weights)
     }
   )
 )

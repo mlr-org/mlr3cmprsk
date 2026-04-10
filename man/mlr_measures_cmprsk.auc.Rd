@@ -13,6 +13,7 @@ By default, this measure returns a \strong{cause-independent AUC(t)} score,
 calculated as a weighted average of the cause-specific AUCs.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (7) in Heyard et al. (2020).
+User-supplied weights are also supported.
 Alternatively, users can obtain the \strong{cause-specific AUC(t)} for any
 individual cause by specifying the \code{cause} parameter.
 
@@ -70,14 +71,13 @@ msr("cmprsk.auc")
 \itemize{
 \item \code{cause} (\code{numeric(1)|"mean"})\cr
 Integer number indicating which cause to use.
-Default value is \code{"mean"} which returns a event-frequency weighted mean of
+Default value is \code{"mean"} which returns an event-frequency weighted mean of
 the cause-specific AUCs.
 \item \code{cause_weights} (\code{numeric()} | \code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
 If \code{NULL}, observed cause frequencies in the test data are used.
 The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 i.e. first weight for first cause, second weight for second cause, etc.
-See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
 \item \code{time} (\code{numeric(1)})\cr
 Single time point at which to return the score.
 If \code{NULL}, the \strong{median observed time point} from the test set is used.

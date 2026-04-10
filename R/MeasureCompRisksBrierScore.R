@@ -4,14 +4,17 @@
 #' @template cmprsk_measure
 #'
 #' @description
-#' Calculates the competing risks prediction error (Brier score) at a
+#' Calculates the competing risks prediction error (Brier score, BS) at a
 #' **specific time point**, using IPCW as described in Schopp et al. (2011).
 #'
 #' @details
-#' By default, this measure returns the **sum of the cause-specific Brier scores**
-#' across all causes, as in Alberge et al. (2025).
-#' Alternatively, users can obtain either the mean of the cause-specific Brier scores
-#' or the Brier score for a specific cause by specifying the `cause` parameter.
+#' By default, this measure returns a **cause-independent BS(t)** score,
+#' calculated as a weighted average of the cause-specific Brier scores.
+#' The weights correspond to the relative event frequencies of each cause,
+#' following Equation (8) in Spitoni et al. (2018).
+#' User-supplied weights are also supported.
+#' Alternatively, users can obtain the **cause-specific** Brier score for any
+#' individual cause by specifying the `cause` parameter.
 #'
 #' Calls [riskRegression::Score()] with:
 #' - `metric = "brier"`
@@ -23,16 +26,12 @@
 #' sets may lead to less stable estimates.
 #' 2. No extrapolation is supported: if `time` exceeds the maximum observed
 #' time on the test data, an error is thrown.
-#' 3. The choice of `time` is critical: if, at that time, no events of a
-#' given cause have occurred and all predicted CIFs are zero, `riskRegression`
-#' will return `NaN` for that cause-specific AUC (and subsequently for the
-#' summary AUC).
 #'
 #' @section Parameter details:
-#' - `cause` (`numeric(1)|"mean"|"sum"`)\cr
+#' - `cause` (`numeric(1)|"mean"`)\cr
 #'  Integer number indicating which cause to use.
-#'  Default value is `"sum"` which returns the sum of the cause-specific Brier
-#'  scores across all causes.
+#'  Default value is `"mean"` which returns an event-frequency weighted mean of
+#'  the cause-specific Brier scores.
 #' - `cause_weights` (`numeric()` | `NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
 #'  If `NULL`, observed cause frequencies in the test data are used.
@@ -44,7 +43,7 @@
 #'  If `NULL`, the **median observed time point** from the test set is used.
 #'
 #' @references
-#' `r format_bib("schoop_2011", "spitoni_2018", "alberge_2025")`
+#' `r format_bib("schoop_2011", "spitoni_2018")`
 #'
 #' @templateVar msr_id brier
 #' @template example_fine_gray
@@ -57,7 +56,7 @@ MeasureCompRisksBrierScore = R6Class(
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       param_set = ps(
-        cause = p_int(lower = 1, init = "sum", special_vals = list("sum", "mean")),
+        cause = p_int(lower = 1, init = "mean", special_vals = list("mean")),
         cause_weights = p_uty(default = NULL, special_vals = list(NULL)),
         time = p_dbl(lower = 0, default = NULL, special_vals = list(NULL))
       )
@@ -145,12 +144,7 @@ MeasureCompRisksBrierScore = R6Class(
 
       brier_scores = vapply(causes, cause_brier, numeric(1L))
 
-      aggregate_cause_scores(
-        scores = brier_scores,
-        method = aggregation$cause, # "sum" or "mean"
-        event = data$event,
-        cause_weights = cause_weights
-      )
+      aggregate_cause_scores(brier_scores, data$event, cause_weights)
     }
   )
 )

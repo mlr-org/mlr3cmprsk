@@ -5,14 +5,17 @@
 \alias{MeasureCompRisksBrierScore}
 \title{Brier Score Competing Risks Measure}
 \description{
-Calculates the competing risks prediction error (Brier score) at a
+Calculates the competing risks prediction error (Brier score, BS) at a
 \strong{specific time point}, using IPCW as described in Schopp et al. (2011).
 }
 \details{
-By default, this measure returns the \strong{sum of the cause-specific Brier scores}
-across all causes, as in Alberge et al. (2025).
-Alternatively, users can obtain either the mean of the cause-specific Brier scores
-or the Brier score for a specific cause by specifying the \code{cause} parameter.
+By default, this measure returns a \strong{cause-independent BS(t)} score,
+calculated as a weighted average of the cause-specific Brier scores.
+The weights correspond to the relative event frequencies of each cause,
+following Equation (8) in Spitoni et al. (2018).
+User-supplied weights are also supported.
+Alternatively, users can obtain the \strong{cause-specific} Brier score for any
+individual cause by specifying the \code{cause} parameter.
 
 Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
 \itemize{
@@ -27,10 +30,6 @@ Notes on the \code{riskRegression} implementation:
 sets may lead to less stable estimates.
 \item No extrapolation is supported: if \code{time} exceeds the maximum observed
 time on the test data, an error is thrown.
-\item The choice of \code{time} is critical: if, at that time, no events of a
-given cause have occurred and all predicted CIFs are zero, \code{riskRegression}
-will return \code{NaN} for that cause-specific AUC (and subsequently for the
-summary AUC).
 }
 }
 \section{Dictionary}{
@@ -66,10 +65,10 @@ msr("cmprsk.brier")
 \section{Parameter details}{
 
 \itemize{
-\item \code{cause} (\code{numeric(1)|"mean"|"sum"})\cr
+\item \code{cause} (\code{numeric(1)|"mean"})\cr
 Integer number indicating which cause to use.
-Default value is \code{"sum"} which returns the sum of the cause-specific Brier
-scores across all causes.
+Default value is \code{"mean"} which returns an event-frequency weighted mean of
+the cause-specific Brier scores.
 \item \code{cause_weights} (\code{numeric()} | \code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
 If \code{NULL}, observed cause frequencies in the test data are used.
@@ -135,11 +134,6 @@ Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018).
 \dQuote{Prediction errors for state occupation and transition probabilities in multi-state models.}
 \emph{Biometrical Journal}, \bold{60}(1), 34--48.
 ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.201600191}.
-
-Alberge, J., Maladiere, V., Grisel, O., Abecassis, J., Varoquaux, G. (2025).
-\dQuote{Survival models: Proper scoring rule and stochastic optimization with competing risks.}
-\emph{Journal of Epidemiology and Population Health}, \bold{73}.
-\doi{10.1016/J.JEPH.2025.203083}, \url{https://doi.org/10.1016/J.JEPH.2025.203083}.
 }
 \section{Super classes}{
 \code{\link[mlr3:Measure]{mlr3::Measure}} -> \code{\link[mlr3cmprsk:MeasureCompRisks]{mlr3cmprsk::MeasureCompRisks}} -> \code{MeasureCompRisksBrierScore}
