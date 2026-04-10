@@ -23,43 +23,6 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
   )
 }
 
-#' Extracts the AUC or Brier score from a `riskRegression::Score()` result
-#' @keywords internal
-#' @noRd
-extract_metric_value = function(result, metric, times = NULL, integrated = FALSE) {
-  score = if (metric == "auc") result$AUC$score else result$Brier$score
-
-  if (integrated) {
-    col = intersect(c("IBS", "ibs", "Brier"), names(score))[1L]
-    assert_string(col)
-    return(score[[col]][1L])
-  }
-
-  time_col = intersect(c("times", "time"), names(score))[1L]
-  metric_col = if (metric == "auc") {
-    intersect(c("AUC", "auc", "score"), names(score))[1L]
-  } else {
-    intersect(c("Brier", "brier", "score"), names(score))[1L]
-  }
-
-  assert_string(time_col)
-  assert_string(metric_col)
-
-  if (is.null(times)) {
-    return(score[[metric_col]][1L])
-  }
-
-  idx = which(score[[time_col]] == times)
-  # I have interpolated exactly on times, so there should be a match.
-  # But just in case, I take the closest time point => this works only for a single
-  # time point though.
-  # if (!length(idx)) {
-  #   idx = which.min(abs(score[[time_col]] - times))
-  # }
-
-  score[[metric_col]][idx[1L]]
-}
-
 #' Validates the `cause` parameter for aggregation of cause-specific scores
 #' @keywords internal
 #' @noRd

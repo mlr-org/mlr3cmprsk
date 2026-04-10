@@ -137,7 +137,7 @@ MeasureCompRisksAUC = R6Class(
           cause = cause
         )
 
-        extract_metric_value(res, metric = "auc", times = time)
+        res$AUC$score$AUC # one time point => one AUC value
       }
 
       if (aggregation$mode == "single") {

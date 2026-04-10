@@ -135,7 +135,7 @@ MeasureCompRisksBrierScore = R6Class(
           cause = cause
         )
 
-        extract_metric_value(res, metric = "brier", times = time)
+        res$Brier$score$Brier # one time point => one Brier score value
       }
 
       if (aggregation$mode == "single") {
