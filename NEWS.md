@@ -2,7 +2,8 @@
 
 * Refactored `MeasureCompRisksAUC`, added `cause_weights` parameter
 * Added parameter tests for AJ and FG learners
-* Added more tests
+* Added more tests => >80% code coverage
+* Added `MeasureCompRisksBrierScore`, i.e. `msr("cmprsk.brier")` for fixed time point prediction error evaluation
 
 # mlr3cmprsk 0.0.4
 
