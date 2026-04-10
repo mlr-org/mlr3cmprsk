@@ -41,6 +41,7 @@ Collate:
     'LearnerCompRisksFineGray.R'
     'MeasureCompRisks.R'
     'MeasureCompRisksAUC.R'
+    'MeasureCompRisksBrierScore.R'
     'PredictionCompRisks.R'
     'PredictionDataCompRisks.R'
     'TaskCompRisks.R'
