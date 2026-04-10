@@ -136,7 +136,7 @@ Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018).
 \emph{Biometrical Journal}, \bold{60}(1), 34--48.
 ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.201600191}.
 
-Alberge, J., Maladière, V., Grisel, O., Abécassis, J., Varoquaux, G. (2025).
+Alberge, J., Maladiere, V., Grisel, O., Abecassis, J., Varoquaux, G. (2025).
 \dQuote{Survival models: Proper scoring rule and stochastic optimization with competing risks.}
 \emph{Journal of Epidemiology and Population Health}, \bold{73}.
 \doi{10.1016/J.JEPH.2025.203083}, \url{https://doi.org/10.1016/J.JEPH.2025.203083}.

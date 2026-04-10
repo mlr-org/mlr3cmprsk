@@ -67,7 +67,7 @@ bibentries = c(
     url = "https://doi.org/10.1002/BIMJ.201600191"
   ),
   alberge_2025 = bibentry("article",
-    author = "Alberge, J. and Maladière, V. and Grisel, O. and Abécassis, J. and Varoquaux, G.",
+    author = "Alberge, J. and Maladiere, V. and Grisel, O. and Abecassis, J. and Varoquaux, G.",
     journal = "Journal of Epidemiology and Population Health",
     title = "Survival models: Proper scoring rule and stochastic optimization with competing risks",
     year = "2025",
