@@ -45,7 +45,7 @@ learners = lrns(c("cmprsk.fg", "cmprsk.aalen"))
 bm_grid = benchmark_grid(task, learners, rsmp("cv", folds = 3))
 bm = benchmark(bm_grid)
 
-# AUC at t = 100 (weighted by event frequencies)
+# AUC at t = 100 (mean over causes, weighted by event frequencies)
 bm$score(msr("cmprsk.auc", time = 100))
 ```
 
@@ -66,8 +66,8 @@ bm$score(msr("cmprsk.auc", time = 100))
     ## Hidden columns: uhash, task, learner, resampling
 
 ``` r
-# Brier score at t = 100 (sum over causes)
-bm$score(msr("cmprsk.brier", time = 100, cause = "sum"))
+# Brier score at t = 100 (mean over causes, weighted by event frequencies)
+bm$score(msr("cmprsk.brier", time = 100))
 ```
 
     ##    nr task_id   learner_id resampling_id iteration       prediction_test
@@ -78,12 +78,12 @@ bm$score(msr("cmprsk.brier", time = 100, cause = "sum"))
     ## 5:  2     pbc cmprsk.aalen            cv         2 <PredictionCompRisks>
     ## 6:  2     pbc cmprsk.aalen            cv         3 <PredictionCompRisks>
     ##    cmprsk.brier
-    ## 1:    0.2425159
-    ## 2:    0.2569747
-    ## 3:    0.2311288
-    ## 4:    0.3129159
-    ## 5:    0.3142841
-    ## 6:    0.3140260
+    ## 1:    0.1564736
+    ## 2:    0.1750273
+    ## 3:    0.1371346
+    ## 4:    0.2182071
+    ## 5:    0.2200391
+    ## 6:    0.2181846
     ## Hidden columns: uhash, task, learner, resampling
 
 For more competing risk learners, see the [available
