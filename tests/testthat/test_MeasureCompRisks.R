@@ -40,6 +40,10 @@ test_that("cmprsk.auc works", {
   m = msr("cmprsk.auc", cause = 3)
   expect_error(p2$score(m), "Invalid cause")
 
+  # cause weights must sum to 1
+  m = msr("cmprsk.auc", cause = "mean", cause_weights = c(0.5, 0.6))
+  expect_error(p2$score(m), "must sum to 1")
+
   # check usage of cause_weights for AUC(t) calculation
   m = msr("cmprsk.auc", cause = "mean", cause_weights = c(1, 0))
   expect_equal(m$param_set$values$cause_weights, c(1, 0))
@@ -96,6 +100,10 @@ test_that("cmprsk.brier works", {
   # request for cause that doesn't exist should give an error
   m = msr("cmprsk.brier", cause = 3)
   expect_error(p2$score(m), "Invalid cause")
+
+  # cause weights must sum to 1
+  m = msr("cmprsk.brier", cause = "mean", cause_weights = c(0.5, 0.6))
+  expect_error(p2$score(m), "must sum to 1")
 
   # check usage of cause_weights for BS(t) calculation
   m = msr("cmprsk.brier", cause = "mean", cause_weights = c(1, 0))
