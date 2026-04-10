@@ -27,9 +27,9 @@ Notes on the \code{riskRegression} implementation:
 \enumerate{
 \item IPCW weights are estimated using the \strong{test data only}, so smaller test
 sets may lead to less stable estimates.
-\item No extrapolation is supported: if \code{time_horizon} exceeds the maximum observed
+\item No extrapolation is supported: if \code{time} exceeds the maximum observed
 time on the test data, an error is thrown.
-\item The choice of \code{time_horizon} is critical: if, at that time, no events of a
+\item The choice of \code{time} is critical: if, at that time, no events of a
 given cause have occurred and all predicted CIFs are zero, \code{riskRegression}
 will return \code{NaN} for that cause-specific AUC (and subsequently for the
 summary AUC).
@@ -61,7 +61,7 @@ msr("cmprsk.auc")
    Id \tab Type \tab Default \tab Range \cr
    cause \tab integer \tab - \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    cause_weights \tab untyped \tab NULL \tab - \cr
-   time_horizon \tab numeric \tab NULL \tab \eqn{[0, \infty)}{[0, Inf)} \cr
+   time \tab numeric \tab NULL \tab \eqn{[0, \infty)}{[0, Inf)} \cr
 }
 }
 
@@ -78,7 +78,7 @@ If \code{NULL}, observed cause frequencies in the test data are used.
 The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 i.e. first weight for first cause, second weight for second cause, etc.
 See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
-\item \code{time_horizon} (\code{numeric(1)})\cr
+\item \code{time} (\code{numeric(1)})\cr
 Single time point at which to return the score.
 If \code{NULL}, the \strong{median observed time point} from the test set is used.
 }

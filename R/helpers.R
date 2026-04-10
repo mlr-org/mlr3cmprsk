@@ -26,7 +26,7 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
 #' Extracts the AUC or Brier score from a `riskRegression::Score()` result
 #' @keywords internal
 #' @noRd
-extract_metric_value = function(result, metric, time_horizon = NULL, integrated = FALSE) {
+extract_metric_value = function(result, metric, times = NULL, integrated = FALSE) {
   score = if (metric == "auc") result$AUC$score else result$Brier$score
 
   if (integrated) {
@@ -45,14 +45,16 @@ extract_metric_value = function(result, metric, time_horizon = NULL, integrated 
   assert_string(time_col)
   assert_string(metric_col)
 
-  if (is.null(time_horizon)) {
+  if (is.null(times)) {
     return(score[[metric_col]][1L])
   }
 
-  idx = which(score[[time_col]] == time_horizon)
-  # I have interpolated exaclty on time_horizon, so there should be a match. But just in case, I take the closest time point.
+  idx = which(score[[time_col]] == times)
+  # I have interpolated exactly on times, so there should be a match.
+  # But just in case, I take the closest time point => this works only for a single
+  # time point though.
   # if (!length(idx)) {
-  #   idx = which.min(abs(score[[time_col]] - time_horizon))
+  #   idx = which.min(abs(score[[time_col]] - times))
   # }
 
   score[[metric_col]][idx[1L]]

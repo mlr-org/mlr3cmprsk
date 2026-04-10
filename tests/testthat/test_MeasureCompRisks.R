@@ -1,6 +1,6 @@
 test_that("competing risks measures are available", {
   expect_r6(msr("cmprsk.auc"), "MeasureCompRisksAUC")
-  #expect_r6(msr("cmprsk.brier"), "MeasureCompRisksBrierScore")
+  expect_r6(msr("cmprsk.brier"), "MeasureCompRisksBrierScore")
   #expect_r6(msr("cmprsk.ibs"), "MeasureCompRisksIntegratedBrierScore")
 })
 
@@ -28,12 +28,12 @@ test_that("cmprsk.auc works", {
 
   # AUC can't be calculated via RiskRegression beyond the
   # maximum observed time from the test set
-  m = msr("cmprsk.auc", time_horizon = 160)
+  m = msr("cmprsk.auc", time = 160)
   suppressMessages(expect_error(p1$score(m)))
   suppressMessages(expect_error(p2$score(m)))
 
   # request for early time point where no event have yet happened gives NaN AUC
-  m = msr("cmprsk.auc", time_horizon = 5)
+  m = msr("cmprsk.auc", time = 5)
   expect_warning(p2$score(m), class = "RiskRegressionScoreNaN")
 
   # request for cause that doesn't exist should give an error

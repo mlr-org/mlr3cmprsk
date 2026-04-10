@@ -21,9 +21,9 @@
 #' Notes on the `riskRegression` implementation:
 #' 1. IPCW weights are estimated using the **test data only**, so smaller test
 #' sets may lead to less stable estimates.
-#' 2. No extrapolation is supported: if `time_horizon` exceeds the maximum observed
+#' 2. No extrapolation is supported: if `time` exceeds the maximum observed
 #' time on the test data, an error is thrown.
-#' 3. The choice of `time_horizon` is critical: if, at that time, no events of a
+#' 3. The choice of `time` is critical: if, at that time, no events of a
 #' given cause have occurred and all predicted CIFs are zero, `riskRegression`
 #' will return `NaN` for that cause-specific AUC (and subsequently for the
 #' summary AUC).
@@ -39,7 +39,7 @@
 #'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 #'  i.e. first weight for first cause, second weight for second cause, etc.
 #'  See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
-#' - `time_horizon` (`numeric(1)`)\cr
+#' - `time` (`numeric(1)`)\cr
 #'  Single time point at which to return the score.
 #'  If `NULL`, the **median observed time point** from the test set is used.
 #'
@@ -59,7 +59,7 @@ MeasureCompRisksBrierScore = R6Class(
       param_set = ps(
         cause = p_int(lower = 1, init = "sum", special_vals = list("sum", "mean")),
         cause_weights = p_uty(default = NULL, special_vals = list(NULL)),
-        time_horizon = p_dbl(lower = 0, default = NULL, special_vals = list(NULL))
+        time = p_dbl(lower = 0, default = NULL, special_vals = list(NULL))
       )
 
       super$initialize(
@@ -88,10 +88,10 @@ MeasureCompRisksBrierScore = R6Class(
       form = formulate(lhs = "Hist(time, event)", rhs = "1", env = getNamespace("prodlim"))
 
       # Define evaluation time (single time point for BS)
-      time_horizon = if (is.null(pv$time_horizon)) {
+      time = if (is.null(pv$time)) {
         median(data$time)
       } else {
-        assert_number(pv$time_horizon, lower = 0, finite = TRUE, na.ok = FALSE)
+        assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
 
       # list of predicted CIF matrices
@@ -118,10 +118,10 @@ MeasureCompRisksBrierScore = R6Class(
       aggregation = validate_cause_aggregation(pv$cause, causes)
 
       cause_brier = function(cause) {
-        # get CIF on the time horizon
+        # get CIF on the given time point
         mat = survdistr::interp_cif(
           x = cif_list[[cause]], # cause-specific CIF
-          eval_times = time_horizon,
+          eval_times = time,
           add_times = FALSE,
           check = FALSE
         )
@@ -132,11 +132,11 @@ MeasureCompRisksBrierScore = R6Class(
           metric = "brier",
           data = data,
           formula = form,
-          times = time_horizon,
+          times = time,
           cause = cause
         )
 
-        extract_metric_value(res, metric = "brier", time_horizon = time_horizon)
+        extract_metric_value(res, metric = "brier", times = time)
       }
 
       if (aggregation$mode == "single") {
