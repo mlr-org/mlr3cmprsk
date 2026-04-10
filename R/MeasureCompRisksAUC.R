@@ -7,15 +7,14 @@
 #' Calculates the time-dependent ROC-AUC at a **specific time point**,
 #' as described in Blanche et al. (2013).
 #'
+#' @details
 #' By default, this measure returns a **cause-independent AUC(t)** score,
 #' calculated as a weighted average of the cause-specific AUCs.
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (7) in Heyard et al. (2020).
-#'
 #' Alternatively, users can obtain the **cause-specific AUC(t)** for any
 #' individual cause by specifying the `cause` parameter.
 #'
-#' @details
 #' Calls [riskRegression::Score()] with:
 #' - `metric = "auc"`
 #' - `cens.method = "ipcw"`
@@ -41,12 +40,13 @@
 #'  If `NULL`, observed cause frequencies in the test data are used.
 #'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 #'  i.e. first weight for first cause, second weight for second cause, etc.
+#'  See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
 #' - `time_horizon` (`numeric(1)`)\cr
 #'  Single time point at which to return the score.
 #'  If `NULL`, the **median observed time point** from the test set is used.
 #'
 #' @references
-#' `r format_bib("blanche_2013", "heyard_2020")`
+#' `r format_bib("blanche_2013", "spitoni_2018", "heyard_2020")`
 #'
 #' @template example_fine_gray
 #' @export
@@ -80,9 +80,8 @@ MeasureCompRisksAUC = R6Class(
     .score = function(prediction, task, ...) {
       pv = self$param_set$values
 
-      # Prepare test set data (for IPCW)
-      # uses test set observations as it needs to match exactly the number of
-      # rows (observations) in the predicted CIF matrix
+      # Prepare test set data for IPCW
+      # Must match the number of rows in the predicted CIF matrix
       data = data.table(
         time = prediction$truth[, 1L],
         event = prediction$truth[, 2L]
@@ -112,7 +111,7 @@ MeasureCompRisksAUC = R6Class(
           null.ok = FALSE
         )
 
-        if (!isTRUE(all.equal(sum(cause_weights), 1, tolerance = 1e-8))) {
+        if (abs(sum(cause_weights) - 1) > 1e-8) {
           stop("Cause weights must sum to 1.")
         }
       }
