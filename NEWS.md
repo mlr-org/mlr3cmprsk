@@ -4,6 +4,7 @@
 * Added parameter tests for AJ and FG learners
 * Added more tests => >80% code coverage
 * Added `MeasureCompRisksBrierScore`, i.e. `msr("cmprsk.brier")` for fixed time point prediction error evaluation
+* Use `survdistr` from CRAN
 
 # mlr3cmprsk 0.0.4
 

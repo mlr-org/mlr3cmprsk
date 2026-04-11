@@ -21,14 +21,12 @@ Imports:
     paradox (>= 1.0.1),
     R6,
     riskRegression,
-    survdistr (>= 0.0.2),
+    survdistr (>= 0.0.3),
     survival
 Suggests:
     lgr,
     mirai,
     testthat (>= 3.0.0)
-Remotes:
-    mlr-org/survdistr
 ByteCompile: true
 Config/testthat/edition: 3
 Encoding: UTF-8
