@@ -51,5 +51,19 @@ bibentries = c(
     number = "446",
     pages = "496--509",
     doi = "10.1080/01621459.1999.10474144"
+  ),
+  spitoni_2018 = bibentry("article",
+    author = "Spitoni, Claudia and Lammens, Valerie and Putter, Hein",
+    journal = "Biometrical Journal",
+    pages = "34--48",
+    publisher = "John Wiley & Sons, Ltd",
+    title = "Prediction errors for state occupation and transition probabilities in multi-state models",
+    year = "2018",
+    doi = "10.1002/BIMJ.201600191",
+    issn = "0323-3847",
+    month = "January",
+    number = "1",
+    volume = "60",
+    url = "https://doi.org/10.1002/BIMJ.201600191"
   )
 )

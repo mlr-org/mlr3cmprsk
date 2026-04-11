@@ -1,5 +1,7 @@
-# Wrapper around `riskRegression::Score()`
-riskRegr_score = function(mat_list, metric, data, formula, times, cause) {
+#' Wrapper around `riskRegression::Score()`
+#' @keywords internal
+#' @noRd
+riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary = NULL) {
   assert_choice(metric, c("auc", "brier"))
 
   invoke(
@@ -8,7 +10,7 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause) {
     data = data, # (time, event) values for `formula` => n_rows == n_obs
     # `Hist(time, event) ~ 1 => cens.model = 'km') or `Hist(time, event) ~ vars` for 'cox'
     formula = formula,
-    summary = base::switch(metric == "brier", "ibs"), # `NULL` otherwise
+    summary = summary,
     se.fit = 0L,
     metrics = metric,
     cens.method = "ipcw",
@@ -19,6 +21,47 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause) {
     times = times,
     cause = cause
   )
+}
+
+#' Validates the `cause` parameter for aggregation of cause-specific scores
+#' @keywords internal
+#' @noRd
+validate_cause_aggregation = function(cause, causes) {
+  if (test_int(cause)) {
+    cause = as.character(cause)
+    if (cause %nin% causes) {
+      stopf("Invalid cause. Use one of: %s", paste(causes, collapse = ", "))
+    }
+    return(list(mode = "single", cause = cause))
+  }
+
+  # cause can be "mean" or "sum" depending on the aggregation method
+  list(mode = "aggregate", cause = cause)
+}
+
+#' Aggregates cause-specific scores into a single summary score using
+#' the specified method and weights
+#' @keywords internal
+#' @noRd
+aggregate_cause_scores = function(scores, event, cause_weights = NULL) {
+  if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
+    mlr3misc::warning_mlr3(
+      msg = "At least one of the scores is NaN",
+      class = "RiskRegressionScoreNaN"
+    )
+  }
+
+  if (!is.null(cause_weights)) {
+    w = cause_weights
+  } else {
+    # remove censored observations if present (event == 0)
+    event = event[event != 0]
+    # observed proportions per cause
+    # `table()` sorts in increasing order, i.e. cause 1, cause 2, ...
+    w = as.numeric(prop.table(table(event)))
+  }
+
+  sum(w * scores)
 }
 
 #' @title Align CIF matrices on a common time grid

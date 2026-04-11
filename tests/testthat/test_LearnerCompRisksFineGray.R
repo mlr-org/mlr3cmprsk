@@ -36,3 +36,33 @@ test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
     }
   })
 })
+
+test_that("train params of cmprsk.fg", {
+  learner = lrn("cmprsk.fg")
+  fun = list(cmprsk::crr)
+  exclude = c(
+    "ftime", # handled by mlr3
+    "fstatus", # handled by mlr3
+    "cov1", # handled by mlr3
+    "cov2", # not supported
+    "tf", # not supported
+    "failcode", # handled by mlr3
+    "cencode", # handled by mlr3
+    "subset", # hanlded by mlr3
+    "na.action" # not supported
+  )
+  res = run_paramtest(learner, fun, exclude, tag = "train")
+  expect_true(res, info = res$error)
+})
+
+test_that("predict params of cmprsk.fg", {
+  learner = lrn("cmprsk.fg")
+  fun = list(cmprsk::predict.crr)
+  exclude = c(
+    "object", # handled by mlr3
+    "cov1", # handled by mlr3
+    "cov2" # not supported
+  )
+  res = run_paramtest(learner, fun, exclude, tag = "predict")
+  expect_true(res, info = res$error)
+})

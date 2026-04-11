@@ -37,6 +37,7 @@ pak::pak("mlr-org/mlr3cmprsk")
 
 ```{r, message = FALSE}
 library(mlr3cmprsk)
+set.seed(42)
 
 task = tsk("pbc")
 task$select(c("age", "chol", "albumin", "bili"))
@@ -46,10 +47,17 @@ learners = lrns(c("cmprsk.fg", "cmprsk.aalen"))
 
 bm_grid = benchmark_grid(task, learners, rsmp("cv", folds = 3))
 bm = benchmark(bm_grid)
-bm$score()
+
+# AUC at t = 100 (mean over causes, weighted by event frequencies)
+bm$score(msr("cmprsk.auc", time = 100))
+
+# Brier score at t = 100 (mean over causes, weighted by event frequencies)
+bm$score(msr("cmprsk.brier", time = 100))
 ```
 
 For more competing risk learners, see the [available list](https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners) at `mlr3extralearners`.
+
+For more details about available measures and their parameters, see [reference list](https://mlr3cmprsk.mlr-org.com/reference/index.html#competing-risks-measures).
 
 ## Code of Conduct
 
