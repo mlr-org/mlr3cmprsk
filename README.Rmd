@@ -49,10 +49,10 @@ bm_grid = benchmark_grid(task, learners, rsmp("cv", folds = 3))
 bm = benchmark(bm_grid)
 
 # AUC at t = 100 (mean over causes, weighted by event frequencies)
-bm$score(msr("cmprsk.auc", time = 100))
+bm$score(msr("cmprsk.auc", time = 100))[, .(task_id, learner_id, iteration, cmprsk.auc)]
 
 # Brier score at t = 100 (mean over causes, weighted by event frequencies)
-bm$score(msr("cmprsk.brier", time = 100))
+bm$score(msr("cmprsk.brier", time = 100))[, .(task_id, learner_id, iteration, cmprsk.brier)]
 ```
 
 For more competing risk learners, see the [available list](https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners) at `mlr3extralearners`.
