@@ -35,48 +35,32 @@ bm_grid = benchmark_grid(task, learners, rsmp("cv", folds = 3))
 bm = benchmark(bm_grid)
 
 # AUC at t = 100 (mean over causes, weighted by event frequencies)
-bm$score(msr("cmprsk.auc", time = 100))
+bm$score(msr("cmprsk.auc", time = 100))[, .(task_id, learner_id, iteration, cmprsk.auc)]
 ```
 
 ``` R
-##    nr task_id   learner_id resampling_id iteration       prediction_test
-## 1:  1     pbc    cmprsk.fg            cv         1 <PredictionCompRisks>
-## 2:  1     pbc    cmprsk.fg            cv         2 <PredictionCompRisks>
-## 3:  1     pbc    cmprsk.fg            cv         3 <PredictionCompRisks>
-## 4:  2     pbc cmprsk.aalen            cv         1 <PredictionCompRisks>
-## 5:  2     pbc cmprsk.aalen            cv         2 <PredictionCompRisks>
-## 6:  2     pbc cmprsk.aalen            cv         3 <PredictionCompRisks>
-##    cmprsk.auc
-## 1:  0.7813865
-## 2:  0.7663073
-## 3:  0.8390308
-## 4:  0.5000000
-## 5:  0.5000000
-## 6:  0.5000000
-## Hidden columns: uhash, task, learner, resampling
+##    task_id   learner_id iteration cmprsk.auc
+## 1:     pbc    cmprsk.fg         1  0.7813865
+## 2:     pbc    cmprsk.fg         2  0.7663073
+## 3:     pbc    cmprsk.fg         3  0.8390308
+## 4:     pbc cmprsk.aalen         1  0.5000000
+## 5:     pbc cmprsk.aalen         2  0.5000000
+## 6:     pbc cmprsk.aalen         3  0.5000000
 ```
 
 ``` r
 # Brier score at t = 100 (mean over causes, weighted by event frequencies)
-bm$score(msr("cmprsk.brier", time = 100))
+bm$score(msr("cmprsk.brier", time = 100))[, .(task_id, learner_id, iteration, cmprsk.brier)]
 ```
 
 ``` R
-##    nr task_id   learner_id resampling_id iteration       prediction_test
-## 1:  1     pbc    cmprsk.fg            cv         1 <PredictionCompRisks>
-## 2:  1     pbc    cmprsk.fg            cv         2 <PredictionCompRisks>
-## 3:  1     pbc    cmprsk.fg            cv         3 <PredictionCompRisks>
-## 4:  2     pbc cmprsk.aalen            cv         1 <PredictionCompRisks>
-## 5:  2     pbc cmprsk.aalen            cv         2 <PredictionCompRisks>
-## 6:  2     pbc cmprsk.aalen            cv         3 <PredictionCompRisks>
-##    cmprsk.brier
-## 1:    0.1564736
-## 2:    0.1750273
-## 3:    0.1371346
-## 4:    0.2182071
-## 5:    0.2200391
-## 6:    0.2181846
-## Hidden columns: uhash, task, learner, resampling
+##    task_id   learner_id iteration cmprsk.brier
+## 1:     pbc    cmprsk.fg         1    0.1564736
+## 2:     pbc    cmprsk.fg         2    0.1750273
+## 3:     pbc    cmprsk.fg         3    0.1371346
+## 4:     pbc cmprsk.aalen         1    0.2182071
+## 5:     pbc cmprsk.aalen         2    0.2200391
+## 6:     pbc cmprsk.aalen         3    0.2181846
 ```
 
 For more competing risk learners, see the [available
@@ -112,12 +96,12 @@ By contributing to this project, you agree to abide by its terms.
 - [`MeasureCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/MeasureCompRisks.md)
   : Competing Risks Measure
 
-## Competing Risk Tasks
+## Competing Risks Tasks
 
 - [`mlr_tasks_pbc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_pbc.md)
   : Primary Biliary Cholangitis Competing Risks Task
 
-## Competing Risk Learners
+## Competing Risks Learners
 
 - [`mlr_learners_cmprsk.aalen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.md)
   [`LearnerCompRisksAalenJohansen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.md)
@@ -126,7 +110,7 @@ By contributing to this project, you agree to abide by its terms.
   [`LearnerCompRisksFineGray`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
   : Fine-Gray Competing Risks Learner
 
-## Competing Risk Measures
+## Competing Risks Measures
 
 - [`mlr_measures_cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
   [`MeasureCompRisksAUC`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)

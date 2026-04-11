@@ -17,12 +17,12 @@
 - [`MeasureCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/MeasureCompRisks.md)
   : Competing Risks Measure
 
-## Competing Risk Tasks
+## Competing Risks Tasks
 
 - [`mlr_tasks_pbc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_pbc.md)
   : Primary Biliary Cholangitis Competing Risks Task
 
-## Competing Risk Learners
+## Competing Risks Learners
 
 - [`mlr_learners_cmprsk.aalen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.md)
   [`LearnerCompRisksAalenJohansen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.md)
@@ -31,7 +31,7 @@
   [`LearnerCompRisksFineGray`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
   : Fine-Gray Competing Risks Learner
 
-## Competing Risk Measures
+## Competing Risks Measures
 
 - [`mlr_measures_cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
   [`MeasureCompRisksAUC`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
