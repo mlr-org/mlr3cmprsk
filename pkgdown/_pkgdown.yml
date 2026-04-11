@@ -55,13 +55,13 @@ reference:
       - LearnerCompRisks
       - PredictionCompRisks
       - MeasureCompRisks
-  - title: Competing Risk Tasks
+  - title: Competing Risks Tasks
     contents:
       - mlr_tasks_pbc
-  - title: Competing Risk Learners
+  - title: Competing Risks Learners
     contents:
       - starts_with("mlr_learners_cmprsk")
-  - title: Competing Risk Measures
+  - title: Competing Risks Measures
     contents:
       - starts_with("mlr_measures_cmprsk")
   - title: Converters
