@@ -149,7 +149,7 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Define the Learner
+# Define the Learner (Aalen-Johansen/AJ estimator)
 learner = lrn("cmprsk.aalen")
 learner
 #> 
@@ -198,9 +198,15 @@ predictions
 #>      256   29     1 <list[2]>
 #>      262   17     1 <list[2]>
 
-# Score the predictions: Aalen-Johansen estimator
-# has random discriminative performance
-predictions$score()
+# Score the predictions
+# AJ has random discriminative performance
+predictions$score(msr("cmprsk.auc", time = 100))
 #> cmprsk.auc 
 #>        0.5 
+
+# Prediction error (Brier score) at specific time point
+# BS(t) => weighted mean score across causes (default)
+predictions$score(msr("cmprsk.brier", time = 100))
+#> cmprsk.brier 
+#>    0.2248736 
 ```

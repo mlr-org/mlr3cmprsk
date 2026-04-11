@@ -1,22 +1,24 @@
-# Blanche's AUC Competing Risks Measure
+# Brier Score Competing Risks Measure
 
-Calculates the time-dependent ROC-AUC at a **specific time point**, as
-described in Blanche et al. (2013).
+Calculates the competing risks prediction error (Brier score, BS) at a
+**specific time point**, using IPCW as described in Schopp et al.
+(2011).
 
 ## Details
 
-By default, this measure returns a **cause-independent AUC(t)** score,
-calculated as a weighted average of the cause-specific AUCs. The weights
-correspond to the relative event frequencies of each cause, following
-Equation (7) in Heyard et al. (2020). User-supplied weights are also
-supported. Alternatively, users can obtain the **cause-specific AUC(t)**
-for any individual cause by specifying the `cause` parameter.
+By default, this measure returns a **cause-independent BS(t)** score,
+calculated as a weighted average of the cause-specific Brier scores. The
+weights correspond to the relative event frequencies of each cause,
+following Equation (8) in Spitoni et al. (2018). User-supplied weights
+are also supported. Alternatively, users can obtain the
+**cause-specific** Brier score for any individual cause by specifying
+the `cause` parameter.
 
 Calls
 [`riskRegression::Score()`](https://rdrr.io/pkg/riskRegression/man/Score.html)
 with:
 
-- `metric = "auc"`
+- `metric = "brier"`
 
 - `cens.method = "ipcw"`
 
@@ -30,11 +32,6 @@ Notes on the `riskRegression` implementation:
 2.  No extrapolation is supported: if `time` exceeds the maximum
     observed time on the test data, an error is thrown.
 
-3.  The choice of `time` is critical: if, at that time, no events of a
-    given cause have occurred and all predicted CIFs are zero,
-    `riskRegression` will return `NaN` for that cause-specific AUC (and
-    subsequently for the summary AUC).
-
 ## Dictionary
 
 This [Measure](https://mlr3.mlr-org.com/reference/Measure.html) can be
@@ -44,16 +41,16 @@ instantiated via the
 with the associated sugar function
 [msr()](https://mlr3.mlr-org.com/reference/mlr_sugar.html):
 
-    mlr_measures$get("cmprsk.auc")
-    msr("cmprsk.auc")
+    mlr_measures$get("cmprsk.brier")
+    msr("cmprsk.brier")
 
 ## Meta Information
 
 - Task type: “cmprsk”
 
-- Range: \\\[0, 1\]\\
+- Range: \\\[0, \infty)\\
 
-- Minimize: FALSE
+- Minimize: TRUE
 
 - Average: macro
 
@@ -77,14 +74,15 @@ with the associated sugar function
 - `cause` (`numeric(1)|"mean"`)  
   Integer number indicating which cause to use. Default value is
   `"mean"` which returns an event-frequency weighted mean of the
-  cause-specific AUCs.
+  cause-specific Brier scores.
 
 - `cause_weights` ([`numeric()`](https://rdrr.io/r/base/numeric.html) \|
   `NULL`)  
   Optional custom weights for `cause = "mean"`. If `NULL`, observed
   cause frequencies in the test data are used. The weights must be
   non-negative, sum to 1 and match the number of causes 1-1, i.e. first
-  weight for first cause, second weight for second cause, etc.
+  weight for first cause, second weight for second cause, etc. See
+  Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
 
 - `time` (`numeric(1)`)  
   Single time point at which to return the score. If `NULL`, the
@@ -92,12 +90,10 @@ with the associated sugar function
 
 ## References
 
-Blanche, Paul, Dartigues, Francois J, Jacqmin-Gadda, Helene (2013).
-“Estimating and comparing time-dependent areas under receiver operating
-characteristic curves for censored event times with competing risks.”
-*Statistics in Medicine*, **32**(30), 5381–5397. ISSN 1097-0258,
-[doi:10.1002/SIM.5958](https://doi.org/10.1002/SIM.5958) ,
-<https://onlinelibrary.wiley.com/doi/10.1002/sim.5958>.
+Schoop, Roland, Beyersmann, Jan, Schumacher, Martin, Binder, Harald
+(2011). “Quantifying the predictive accuracy of time-to-event models in
+the presence of competing risks.” *Biometrical Journal*, **53**(1),
+88–112. <https://doi.org/10.1002/BIMJ.201000073>.
 
 Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018). “Prediction
 errors for state occupation and transition probabilities in multi-state
@@ -105,24 +101,19 @@ models.” *Biometrical Journal*, **60**(1), 34–48. ISSN 0323-3847,
 [doi:10.1002/BIMJ.201600191](https://doi.org/10.1002/BIMJ.201600191) ,
 <https://doi.org/10.1002/BIMJ.201600191>.
 
-Heyard, Rachel, Timsit, Jean-Francois, Held, Leonhard (2020).
-“Validation of discrete time-to-event prediction models in the presence
-of competing risks.” *Biometrical Journal*, **62**(3), 643–657.
-<https://doi.org/10.1002/BIMJ.201800293>.
-
 ## Super classes
 
 [`mlr3::Measure`](https://mlr3.mlr-org.com/reference/Measure.html) -\>
 [`mlr3cmprsk::MeasureCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/MeasureCompRisks.md)
--\> `MeasureCompRisksAUC`
+-\> `MeasureCompRisksBrierScore`
 
 ## Methods
 
 ### Public methods
 
-- [`MeasureCompRisksAUC$new()`](#method-MeasureCompRisksAUC-new)
+- [`MeasureCompRisksBrierScore$new()`](#method-MeasureCompRisksBrierScore-new)
 
-- [`MeasureCompRisksAUC$clone()`](#method-MeasureCompRisksAUC-clone)
+- [`MeasureCompRisksBrierScore$clone()`](#method-MeasureCompRisksBrierScore-clone)
 
 Inherited methods
 
@@ -142,7 +133,7 @@ Creates a new instance of this
 
 #### Usage
 
-    MeasureCompRisksAUC$new()
+    MeasureCompRisksBrierScore$new()
 
 ------------------------------------------------------------------------
 
@@ -152,7 +143,7 @@ The objects of this class are cloneable with this method.
 
 #### Usage
 
-    MeasureCompRisksAUC$clone(deep = FALSE)
+    MeasureCompRisksBrierScore$clone(deep = FALSE)
 
 #### Arguments
 
@@ -198,23 +189,23 @@ learner$native_model
 #> convergence:  TRUE 
 #> coefficients:
 #>       age   albumin       ast      bili      chol   protime 
-#> -0.081820 -0.233000  0.002990  0.028350  0.001049 -0.938500 
+#> -0.117600 -0.152500 -0.006422  0.011550  0.001069 -0.512700 
 #> standard errors:
-#> [1] 0.024320 1.002000 0.005755 0.130700 0.001832 0.536000
+#> [1] 0.025500 0.843100 0.004029 0.098670 0.001572 0.372900
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 0.00077 0.82000 0.60000 0.83000 0.57000 0.08000 
+#> 4.0e-06 8.6e-01 1.1e-01 9.1e-01 5.0e-01 1.7e-01 
 #> 
 #> $`2`
 #> convergence:  TRUE 
 #> coefficients:
-#>        age    albumin        ast       bili       chol    protime 
-#>  5.774e-02 -1.034e+00  8.724e-03  8.646e-02  1.455e-05  2.868e-01 
+#>       age   albumin       ast      bili      chol   protime 
+#>  0.036580 -1.230000  0.004897  0.089950 -0.000172  0.506000 
 #> standard errors:
-#> [1] 0.0143300 0.2537000 0.0021420 0.0198900 0.0004309 0.1157000
+#> [1] 0.0141600 0.2469000 0.0020640 0.0221700 0.0004223 0.1372000
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 5.6e-05 4.6e-05 4.7e-05 1.4e-05 9.7e-01 1.3e-02 
+#> 9.8e-03 6.3e-07 1.8e-02 5.0e-05 6.8e-01 2.3e-04 
 #> 
 #> attr(,"class")
 #> [1] "fine_gray"
@@ -225,49 +216,49 @@ predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>       20   22     2 <list[2]>
-#>       25    2     2 <list[2]>
+#>        3   33     2 <list[2]>
+#>        9    1     2 <list[2]>
+#>       16    4     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      221   24     1 <list[2]>
-#>      229   42     1 <list[2]>
+#>      256   29     1 <list[2]>
+#>      260   28     1 <list[2]>
 #>      262   17     1 <list[2]>
 
 # Score the predictions
 # AUC(t = 100), weighted mean score across causes (default)
 predictions$score(msr("cmprsk.auc", cause = "mean", time = 100))
 #> cmprsk.auc 
-#>  0.8275552 
+#>  0.6810654 
 
 # AUC(t = 100), with user-specified weights
 predictions$score(msr("cmprsk.auc", cause = "mean", cause_weights = c(0.2, 0.8),
   time = 100))
 #> cmprsk.auc 
-#>  0.8233853 
+#>  0.6874814 
 
 # AUC(t = 100), 1st cause
 predictions$score(msr("cmprsk.auc", cause = 1, time = 100))
 #> cmprsk.auc 
-#>  0.7682148 
+#>  0.7723702 
 
 # AUC(t = 100), 2nd cause
 predictions$score(msr("cmprsk.auc", cause = 2, time = 100))
 #> cmprsk.auc 
-#>  0.8371779 
+#>  0.6662592 
 
 # Prediction error (Brier score) at specific time point
 # BS(t = 100) => weighted mean score across causes (default)
 predictions$score(msr("cmprsk.brier", time = 100))
 #> cmprsk.brier 
-#>    0.1562471 
+#>    0.2280758 
 
 # BS(t = 100), 1st cause
 predictions$score(msr("cmprsk.brier", cause = 1, time = 100))
 #> cmprsk.brier 
-#>   0.07497659 
+#>   0.06184316 
 
 # BS(t = 100), 2nd cause
 predictions$score(msr("cmprsk.brier", cause = 2, time = 100))
 #> cmprsk.brier 
-#>     0.169426 
+#>    0.2550324 
 ```

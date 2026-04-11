@@ -1,5 +1,15 @@
 # Changelog
 
+## mlr3cmprsk 0.0.5
+
+- Refactored `MeasureCompRisksAUC`, added `cause_weights` parameter,
+  renamed `time_horizon` to `time`
+- Added parameter tests for AJ and FG learners
+- Added more tests =\> \>80% code coverage
+- Added `MeasureCompRisksBrierScore`, i.e. `msr("cmprsk.brier")` for
+  fixed time point prediction error evaluation
+- Use `survdistr` from CRAN
+
 ## mlr3cmprsk 0.0.4
 
 - Added `LearnerCompRisksFineGray` via `cmprsk` R package

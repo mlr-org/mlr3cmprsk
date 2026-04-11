@@ -11,11 +11,11 @@
 ## Citation
 
 Zobolas J (2026). *mlr3cmprsk: Competing Risks Machine Learning for
-'mlr3'*. R package version 0.0.4.
+'mlr3'*. R package version 0.0.5.
 
     @Manual{,
       title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
       author = {John Zobolas},
       year = {2026},
-      note = {R package version 0.0.4},
+      note = {R package version 0.0.5},
     }

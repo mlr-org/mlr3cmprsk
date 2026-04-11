@@ -36,6 +36,9 @@
 - [`mlr_measures_cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
   [`MeasureCompRisksAUC`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
   : Blanche's AUC Competing Risks Measure
+- [`mlr_measures_cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
+  [`MeasureCompRisksBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
+  : Brier Score Competing Risks Measure
 
 ## Converters
 
