@@ -28,8 +28,7 @@ assert_surv = function(x, len = NULL, any.missing = TRUE, null.ok = FALSE, .var.
 #' @param n_rows (`numeric(1)`)\cr
 #' Expected number of rows of each matrix element of the input list.
 #' @param n_cmp_events (`numeric(1)`)\cr
-#' Expected number of competing events which is the number of elements in input
-#' CIF list.
+#' Expected number of competing events which is the number of elements of the input list.
 #'
 #' @return if the assertion fails an error occurs, otherwise `NULL` is returned
 #' invisibly.
@@ -48,7 +47,7 @@ assert_cif_list = function(x, n_rows = NULL, n_cmp_events = NULL) {
     }
     # check column names => time points
     assert_numeric(as.numeric(colnames(mat)), lower = 0, unique = TRUE, sorted = TRUE,
-                   any.missing = FALSE, null.ok = FALSE, .var.name = "Colnames must be coersable to positive, unique, increasing numeric time points")
+                   any.missing = FALSE, null.ok = FALSE, .var.name = "Colnames must be coercible to positive, unique, increasing numeric time points")
   }
 
   invisible(NULL)

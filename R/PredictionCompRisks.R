@@ -5,7 +5,7 @@
 #'
 #' The `task_type` is set to `"cmprsk"`.
 #'
-#' For accessing survival and hazard functions, as well as other complex methods
+#' Accessing all-cause survival or cause-specific hazard functions and similar methods
 #' from a [LearnerCompRisks] object is not possible atm.
 #'
 #' @family Prediction
