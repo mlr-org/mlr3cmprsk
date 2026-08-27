@@ -5,14 +5,18 @@
 #'
 #' @description
 #' Calculates the time-dependent ROC-AUC at a **specific time point**,
-#' as described in Blanche et al. (2013).
+#' as described in Blanche et al. (2013), Equation 4.
+#' This (second) definition defines as controls the subjects who survive beyond
+#' the time horizon plus those who experience a competing event before
+#' the horizon.
 #'
 #' @details
 #' By default, this measure returns a **cause-independent AUC(t)** score,
 #' calculated as a weighted average of the cause-specific AUCs.
 #' The weights correspond to the relative event frequencies of each cause,
-#' following Equation (7) in Heyard et al. (2020).
+#' following Equation 7 in Heyard et al. (2020).
 #' User-supplied weights are also supported.
+#'
 #' Alternatively, users can obtain the **cause-specific AUC(t)** for any
 #' individual cause by specifying the `cause` parameter.
 #'
