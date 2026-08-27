@@ -18,7 +18,7 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
     use.event.times = FALSE,
     null.model = FALSE,
     contrasts = FALSE,
-    times = times,
+    times = times, # must be the same exactly time points as in the risk prediction matrix
     cause = cause
   )
 }
