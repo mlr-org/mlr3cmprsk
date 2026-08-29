@@ -21,5 +21,9 @@
 ^CONTRIBUTING.md
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
-
 ^CODE_OF_CONDUCT\.md$
+^AGENTS\.md$
+^\.?air\.toml$
+^attic$
+^cspell\.json$
+^extra-rules$
