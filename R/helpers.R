@@ -23,27 +23,26 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
   )
 }
 
-#' Validates the `cause` parameter for aggregation of cause-specific scores
+#' Validates the `cause` parameter (against the `causes` from the prediction object)
 #' @keywords internal
 #' @noRd
-validate_cause_aggregation = function(cause, causes) {
+assert_cause = function(cause, causes) {
   if (test_int(cause)) {
     cause = as.character(cause)
     if (cause %nin% causes) {
-      stopf("Invalid cause. Use one of: %s", paste(causes, collapse = ", "))
+      mlr3misc::error_config("Invalid cause. Use one of: %s", paste(causes, collapse = ", "))
     }
-    return(list(mode = "single", cause = cause))
   }
 
-  # cause can be "mean" or "sum" depending on the aggregation method
-  list(mode = "aggregate", cause = cause)
+  cause
 }
 
-#' Aggregates cause-specific scores into a single summary score using
-#' the specified method and weights
+#' Aggregates cause-specific scores into a single summary score. Weights can be:
+#' 1. The observed proportions of competing events in the test data or
+#' 2. User-specified weights (must sum to 1).
 #' @keywords internal
 #' @noRd
-aggregate_cause_scores = function(scores, event, cause_weights = NULL) {
+aggregate_scores = function(scores, event, cause_weights = NULL) {
   if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
     mlr3misc::warning_mlr3(
       msg = "At least one of the scores is NaN",
@@ -57,7 +56,7 @@ aggregate_cause_scores = function(scores, event, cause_weights = NULL) {
     # remove censored observations if present (event == 0)
     event = event[event != 0]
     # observed proportions per cause
-    # `table()` sorts in increasing order, i.e. cause 1, cause 2, ...
+    # `table()` results are in increasing order, i.e. cause 1, cause 2, ...
     w = as.numeric(prop.table(table(event)))
   }
 
