@@ -49,7 +49,7 @@ Rpart
 Rscript
 rsmp
 rsmps
-Schopp
+Schoop
 seealso
 spitoni
 stackoverflow

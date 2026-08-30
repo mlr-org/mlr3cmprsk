@@ -5,7 +5,7 @@
 #'
 #' @description
 #' Calculates the competing risks prediction error (Brier score, BS) at a
-#' **specific time point**, using IPCW as described in Schopp et al. (2011).
+#' **specific time point**, using IPCW as described in Schoop et al. (2011).
 #'
 #' @details
 #' By default, this measure returns a **cause-independent BS(t)** score,
