@@ -1,3 +1,7 @@
+# mlr3cmprsk (development version)
+
+* Add config files for code formatting and for AI agents.
+
 # mlr3cmprsk 0.0.5
 
 * Refactored `MeasureCompRisksAUC`, added `cause_weights` parameter, renamed `time_horizon` to `time`
