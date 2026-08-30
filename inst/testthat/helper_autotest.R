@@ -9,7 +9,9 @@ generate_tasks.LearnerCompRisks = function(learner, N = 20L, ...) {
 
   # Generate sanity task
   # Ensure N is even
-  if (N %% 2 == 1L) N = N + 1L
+  if (N %% 2 == 1L) {
+    N = N + 1L
+  }
   N_half = N / 2L
 
   # Generate unique times
@@ -32,8 +34,12 @@ generate_tasks.LearnerCompRisks = function(learner, N = 20L, ...) {
     time = c(times_group0, times_group1),
     event = c(event_group0, event_group1)
   )
-  tasks$sanity = mlr3cmprsk::TaskCompRisks$new("sanity", mlr3::as_data_backend(data),
-                                              time = "time", event = "event")
+  tasks$sanity = mlr3cmprsk::TaskCompRisks$new(
+    "sanity",
+    mlr3::as_data_backend(data),
+    time = "time",
+    event = "event"
+  )
 
   tasks
 }

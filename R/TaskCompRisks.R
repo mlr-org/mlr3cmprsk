@@ -39,7 +39,8 @@
 #' task$cens_prop()
 #'
 #' @export
-TaskCompRisks = R6Class("TaskCompRisks",
+TaskCompRisks = R6Class(
+  "TaskCompRisks",
   inherit = TaskSupervised,
   public = list(
     #' @description
@@ -53,8 +54,7 @@ TaskCompRisks = R6Class("TaskCompRisks",
     #' @template param_time
     #' @template param_event
     #' @template param_label
-    initialize = function(id, backend, time = "time", event = "event",
-                          label = NA_character_) {
+    initialize = function(id, backend, time = "time", event = "event", label = NA_character_) {
       # only right-censoring supported
       private$.cens_type = "right"
       backend = as_data_backend(backend)
@@ -66,16 +66,18 @@ TaskCompRisks = R6Class("TaskCompRisks",
       # check that there is at least two competing events
       n_cmp_events = sum(unique(event_col) != 0)
       if (n_cmp_events < 2) {
-        stopf("Define at least two competing events, there are only %i in the data",
-              n_cmp_events)
+        stopf("Define at least two competing events, there are only %i in the data", n_cmp_events)
       }
 
       # keep all the event levels
       private$.event_levels = levels(as.factor(event_col))
 
       super$initialize(
-        id = id, task_type = "cmprsk", backend = backend,
-        target = c(time, event), label = label
+        id = id,
+        task_type = "cmprsk",
+        backend = backend,
+        target = c(time, event),
+        label = label
       )
     },
 
@@ -195,7 +197,12 @@ TaskCompRisks = R6Class("TaskCompRisks",
       # check that we don't remove the competing events from the data
       uevents = self$unique_events(rows)
       if (length(uevents) != length(self$cmp_events)) {
-        stopf("Can't filter task %s: %i competing events found, but row filtering results in %i unique competing event(s)", self$id, length(self$cmp_events), length(uevents)) #nolint
+        stopf(
+          "Can't filter task %s: %i competing events found, but row filtering results in %i unique competing event(s)",
+          self$id,
+          length(self$cmp_events),
+          length(uevents)
+        )
       }
 
       super$filter(rows)

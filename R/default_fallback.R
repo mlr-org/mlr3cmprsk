@@ -4,7 +4,11 @@ default_fallback.LearnerCompRisks = function(learner, ...) {
 
   # set predict type
   if (learner$predict_type %nin% fallback$predict_types) {
-    stopf("Fallback learner '%s' does not support predict type '%s'.", fallback$id, learner$predict_type)
+    stopf(
+      "Fallback learner '%s' does not support predict type '%s'.",
+      fallback$id,
+      learner$predict_type
+    )
   }
 
   fallback$predict_type = learner$predict_type

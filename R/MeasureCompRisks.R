@@ -32,11 +32,21 @@ MeasureCompRisks = R6Class(
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id, param_set = ps(), range, minimize = NA, average = "macro",
-                          aggregator = NULL, properties = character(), predict_type = "cif",
-                          predict_sets = "test", task_properties = character(), packages = character(),
-                          label = NA_character_, man = NA_character_) {
-
+    initialize = function(
+      id,
+      param_set = ps(),
+      range,
+      minimize = NA,
+      average = "macro",
+      aggregator = NULL,
+      properties = character(),
+      predict_type = "cif",
+      predict_sets = "test",
+      task_properties = character(),
+      packages = character(),
+      label = NA_character_,
+      man = NA_character_
+    ) {
       super$initialize(
         id,
         task_type = "cmprsk",

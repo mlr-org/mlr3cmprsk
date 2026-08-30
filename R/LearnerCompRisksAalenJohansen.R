@@ -17,7 +17,8 @@
 #'
 #' @template example_aalen
 #' @export
-LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
+LearnerCompRisksAalenJohansen = R6Class(
+  "LearnerCompRisksAalenJohansen",
   inherit = LearnerCompRisks,
   public = list(
     #' @description

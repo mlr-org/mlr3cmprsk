@@ -25,7 +25,7 @@ as_prediction_cmprsk = function(x, ...) {
 
 #' @rdname as_prediction_cmprsk
 #' @export
-as_prediction_cmprsk.PredictionCompRisks = function(x, ...) { # nolint
+as_prediction_cmprsk.PredictionCompRisks = function(x, ...) {
   x
 }
 
@@ -43,7 +43,9 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
       do.call(rbind, lapply(x$CIF, function(obs_cif) obs_cif[[event_id]]))
     })
     set_names(mat_list, cmp_event_ids)
-  } else NULL
+  } else {
+    NULL
+  }
 
   setDT(x) # if just a `data.frame`, with = FALSE below will not work!
   x_subset = x[, setdiff(names(x), c("time", "event", "CIF")), with = FALSE]

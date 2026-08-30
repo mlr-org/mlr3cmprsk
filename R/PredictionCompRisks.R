@@ -29,7 +29,8 @@
 #' tab$CIF[[1]] # for first test observation, list of CIF vectors
 #'
 #' @export
-PredictionCompRisks = R6Class("PredictionCompRisks",
+PredictionCompRisks = R6Class(
+  "PredictionCompRisks",
   inherit = Prediction,
   public = list(
     #' @description
@@ -57,8 +58,13 @@ PredictionCompRisks = R6Class("PredictionCompRisks",
     #'
     #' @param check (`logical(1)`)\cr
     #'   If `TRUE`, performs argument checks and predict type conversions.
-    initialize = function(task = NULL, row_ids = task$row_ids, truth = task$truth(),
-                          cif = NULL, check = TRUE) {
+    initialize = function(
+      task = NULL,
+      row_ids = task$row_ids,
+      truth = task$truth(),
+      cif = NULL,
+      check = TRUE
+    ) {
       pdata = list(row_ids = row_ids, truth = truth, cif = cif)
       pdata = discard(pdata, is.null)
       class(pdata) = c("PredictionDataCompRisks", "PredictionData")

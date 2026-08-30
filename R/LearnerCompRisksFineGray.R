@@ -24,7 +24,8 @@
 #'
 #' @template example_fine_gray
 #' @export
-LearnerCompRisksFineGray = R6Class("LearnerCompRisksFineGray",
+LearnerCompRisksFineGray = R6Class(
+  "LearnerCompRisksFineGray",
   inherit = LearnerCompRisks,
   public = list(
     #' @description

@@ -2,8 +2,22 @@ library(checkmate)
 library(mlr3)
 
 # source helper files from mlr3 and mlr3cmprsk
-lapply(list.files(system.file("testthat", package = "mlr3"), pattern = "^helper.*\\.[rR]$", full.names = TRUE), source)
-lapply(list.files(system.file("testthat", package = "mlr3cmprsk"), pattern = "^helper.*\\.[rR]", full.names = TRUE), source)
+lapply(
+  list.files(
+    system.file("testthat", package = "mlr3"),
+    pattern = "^helper.*\\.[rR]$",
+    full.names = TRUE
+  ),
+  source
+)
+lapply(
+  list.files(
+    system.file("testthat", package = "mlr3cmprsk"),
+    pattern = "^helper.*\\.[rR]",
+    full.names = TRUE
+  ),
+  source
+)
 
 # TODO: make Task Generator???
 gen_cmprsk_task = function(n = 50, n_events = 2) {
@@ -11,8 +25,7 @@ gen_cmprsk_task = function(n = 50, n_events = 2) {
   times = stats::rexp(n, rate = 0.2)
 
   # Generate competing risks event types (0 = censored, 1 to n_events = events)
-  event = sample(0:n_events, size = n, replace = TRUE,
-                 prob = c(0.3, rep(0.7 / n_events, n_events)))
+  event = sample(0:n_events, size = n, replace = TRUE, prob = c(0.3, rep(0.7 / n_events, n_events)))
 
   # Covariate (could be expanded)
   x = runif(n)
@@ -32,8 +45,7 @@ gen_cif = function(n = 20, n_events = 2, n_times = 20, max_time = 5) {
   # Random cause-specific hazards for each subject & cause =>
   # h_j => CONSTANT for j cause (and per observation)
   # shape: [n x n_events]
-  hazards = matrix(runif(n * n_events, min = 0.1, max = 0.5),
-                   nrow = n, ncol = n_events)
+  hazards = matrix(runif(n * n_events, min = 0.1, max = 0.5), nrow = n, ncol = n_events)
 
   # Total hazard per subject
   h_total = rowSums(hazards)

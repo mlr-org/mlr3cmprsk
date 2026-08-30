@@ -93,17 +93,22 @@ align_cifs = function(cif_list, bind_rows = TRUE) {
   common_times = sort(unique(unlist(times_list)))
 
   # Interpolate each CIF matrix to the common time grid
-  aligned_cifs = mapply(function(mat, times) {
-    out = survdistr::interp_cif(
-      x          = mat,
-      times      = times,
-      eval_times = common_times,
-      add_times  = FALSE,
-      check      = FALSE
-    )
-    colnames(out) = common_times
-    out
-  }, cif_list, times_list, SIMPLIFY = FALSE)
+  aligned_cifs = mapply(
+    function(mat, times) {
+      out = survdistr::interp_cif(
+        x = mat,
+        times = times,
+        eval_times = common_times,
+        add_times = FALSE,
+        check = FALSE
+      )
+      colnames(out) = common_times
+      out
+    },
+    cif_list,
+    times_list,
+    SIMPLIFY = FALSE
+  )
 
   if (!bind_rows) {
     return(aligned_cifs)
