@@ -1,6 +1,7 @@
 # mlr3cmprsk (development version)
 
 * Add config files for code formatting and for AI agents.
+* Raise the minimum required versions of `mlr3` to 1.8.0 and `mlr3misc` to 0.23.0. (#22)
 
 # mlr3cmprsk 0.0.5
 
