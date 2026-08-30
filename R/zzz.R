@@ -9,7 +9,7 @@
 #' @importFrom stats median
 "_PACKAGE"
 
-# to silence RCMD check - IF NEEDED
+# to silence R CMD check - IF NEEDED
 # utils::globalVariables(c(
 #   "ShortName", "ClassName", "missing", "task", "value", "variable", "y"
 # ))

@@ -48,7 +48,7 @@ test_that("train params of cmprsk.fg", {
     "tf", # not supported
     "failcode", # handled by mlr3
     "cencode", # handled by mlr3
-    "subset", # hanlded by mlr3
+    "subset", # handled by mlr3
     "na.action" # not supported
   )
   res = run_paramtest(learner, fun, exclude, tag = "train")
