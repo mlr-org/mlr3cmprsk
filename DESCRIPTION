@@ -44,7 +44,7 @@ Collate:
     'TaskCompRisks.R'
     'Task_pbc.R'
     'as_prediction_cmprsk.R'
-    'as_task_cmprisk.R'
+    'as_task_cmprsk.R'
     'assertions.R'
     'bibentries.R'
     'default_fallback.R'
