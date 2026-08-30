@@ -24,7 +24,7 @@ assert_surv = function(x, len = NULL, any.missing = TRUE, null.ok = FALSE, .var.
 #' matrices.
 #'
 #' @param x (`list()`)\cr
-#' A list of CIF matrices. Each matrix should have dimensions [obs x times].
+#' A list of CIF matrices. Each matrix should have dimensions (obs x times).
 #' @param n_rows (`numeric(1)`)\cr
 #' Expected number of rows of each CIF matrix.
 #' @param n_cmp_events (`numeric(1)`)\cr

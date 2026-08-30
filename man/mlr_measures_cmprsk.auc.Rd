@@ -77,7 +77,7 @@ msr("cmprsk.auc")
 Integer number indicating which cause to use.
 Default value is \code{"mean"} which returns an event-frequency weighted mean of
 the cause-specific AUCs.
-\item \code{cause_weights} (\code{numeric()} | \code{NULL})\cr
+\item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
 If \code{NULL}, observed cause frequencies in the test data are used.
 The weights must be non-negative, sum to 1 and match the number of causes 1-1,

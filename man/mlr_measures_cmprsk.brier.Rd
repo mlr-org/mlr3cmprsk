@@ -6,7 +6,7 @@
 \title{Brier Score Competing Risks Measure}
 \description{
 Calculates the competing risks prediction error (Brier score, BS) at a
-\strong{specific time point}, using IPCW as described in Schopp et al. (2011).
+\strong{specific time point}, using IPCW as described in Schoop et al. (2011).
 }
 \details{
 By default, this measure returns a \strong{cause-independent BS(t)} score,
@@ -14,7 +14,7 @@ calculated as a weighted average of the cause-specific Brier scores.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (8) in Spitoni et al. (2018).
 User-supplied weights are also supported.
-Alternatively, users can obtain the \strong{cause-specific} Brier score for any
+Alternatively, users can obtain the \strong{cause-specific Brier score} for any
 individual cause by specifying the \code{cause} parameter.
 
 Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
@@ -69,7 +69,7 @@ msr("cmprsk.brier")
 Integer number indicating which cause to use.
 Default value is \code{"mean"} which returns an event-frequency weighted mean of
 the cause-specific Brier scores.
-\item \code{cause_weights} (\code{numeric()} | \code{NULL})\cr
+\item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
 If \code{NULL}, observed cause frequencies in the test data are used.
 The weights must be non-negative, sum to 1 and match the number of causes 1-1,
