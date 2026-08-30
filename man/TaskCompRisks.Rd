@@ -362,6 +362,9 @@ Row indices.}
 \subsection{\code{TaskCompRisks$filter()}}{
   Subsets the task, keeping only the rows specified via row ids \code{rows}.
 This operation mutates the task in-place.
+A warning is thrown if the filtering results in less competing events
+than the original task.
+An error is thrown if no competing event remains after filtering.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TaskCompRisks$filter(rows = NULL)}
