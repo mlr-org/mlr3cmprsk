@@ -4,6 +4,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.ccache$
+^\.cspell$
 ^\.editorconfig$
 ^\.git$
 ^\.github$
