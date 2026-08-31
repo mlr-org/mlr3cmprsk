@@ -3,6 +3,14 @@
 #' @description
 #' Convert object to a [PredictionCompRisks].
 #'
+#' @details
+#' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
+#' - Cols `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
+#' - `CIF` per observation must be a named list of numeric vectors (one per event, names should be e.g. `"1"`, `"2"`, ...).
+#' - Event names should be identical across observations and in the same order;
+#' per-event CIF vectors should be of equal length (same time points).
+#' No check is performed.
+#'
 #' @inheritParams mlr3::as_prediction
 #'
 #' @return [PredictionCompRisks].

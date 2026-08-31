@@ -25,6 +25,16 @@ Additional arguments.}
 \description{
 Convert object to a \link{PredictionCompRisks}.
 }
+\details{
+If \code{x} is a \code{data.frame}/\code{data.table} input, the following requirements must be met:
+\itemize{
+\item Cols \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
+\item \code{CIF} per observation must be a named list of numeric vectors (one per event, names should be e.g. \code{"1"}, \code{"2"}, ...).
+\item Event names should be identical across observations and in the same order;
+per-event CIF vectors should be of equal length (same time points).
+No check is performed.
+}
+}
 \examples{
 library(mlr3)
 task = tsk("pbc")

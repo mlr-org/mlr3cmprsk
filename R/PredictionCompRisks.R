@@ -107,6 +107,7 @@ as.data.table.PredictionCompRisks = function(x, ...) {
     tab$CIF = lapply(1:n_obs, function(i) {
       # we use a list since there is a possibility that each CIF matrix has
       # different number of time points (columns) per competing risk
+      # TODO: check that this is not the case anywhere in the code
       cif_list = lapply(x$cif, function(mat) mat[i, , drop = TRUE])
       names(cif_list) = names(x$cif) # preserve the competing risk names/ids
       cif_list
