@@ -66,7 +66,10 @@ TaskCompRisks = R6Class(
       # check that there is at least two competing events
       n_cmp_events = sum(unique(event_col) != 0)
       if (n_cmp_events < 2) {
-        stopf("Define at least two competing events, there are only %i in the data", n_cmp_events)
+        error_input(
+          "Define at least two competing events, there are only %i in the data",
+          n_cmp_events
+        )
       }
 
       # keep all the event levels

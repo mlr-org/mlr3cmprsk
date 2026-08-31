@@ -30,7 +30,7 @@ assert_cause = function(cause, causes) {
   if (test_int(cause)) {
     cause = as.character(cause)
     if (cause %nin% causes) {
-      mlr3misc::error_config("Invalid cause. Use one of: %s", paste(causes, collapse = ", "))
+      error_input("Invalid cause. Use one of: %s", paste(causes, collapse = ", "))
     }
   }
 
@@ -44,7 +44,7 @@ assert_cause = function(cause, causes) {
 #' @noRd
 aggregate_scores = function(scores, event, cause_weights = NULL) {
   if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
-    mlr3misc::warning_mlr3(
+    warning_mlr3(
       msg = "At least one of the scores is NaN",
       class = "RiskRegressionScoreNaN"
     )

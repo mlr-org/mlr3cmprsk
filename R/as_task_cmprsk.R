@@ -38,7 +38,10 @@ as_task_cmprsk.data.frame = function(
 
   ii = which(map_lgl(keep(x, is.double), anyInfinite))
   if (length(ii)) {
-    warningf("Detected columns with unsupported Inf values in data: %s", str_collapse(names(ii)))
+    warning_input(
+      "Detected columns with unsupported Inf values in data: %s",
+      str_collapse(names(ii))
+    )
   }
 
   TaskCompRisks$new(id = id, backend = x, time = time, event = event, ...)

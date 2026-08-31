@@ -44,7 +44,7 @@ LearnerCompRisksAalenJohansen = R6Class(
     #' @return Named `numeric()`.
     importance = function() {
       if (is.null(self$model)) {
-        stopf("No model stored")
+        error_learner("No model stored")
       }
 
       fn = self$model$features
@@ -59,7 +59,7 @@ LearnerCompRisksAalenJohansen = R6Class(
     #' @return `character(0)`.
     selected_features = function() {
       if (is.null(self$model)) {
-        stopf("No model stored")
+        error_learner("No model stored")
       }
 
       character()
