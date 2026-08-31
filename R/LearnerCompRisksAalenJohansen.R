@@ -17,7 +17,8 @@
 #'
 #' @template example_aalen
 #' @export
-LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
+LearnerCompRisksAalenJohansen = R6Class(
+  "LearnerCompRisksAalenJohansen",
   inherit = LearnerCompRisks,
   public = list(
     #' @description
@@ -43,7 +44,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     #' @return Named `numeric()`.
     importance = function() {
       if (is.null(self$model)) {
-        stopf("No model stored")
+        error_learner("No model stored")
       }
 
       fn = self$model$features
@@ -58,7 +59,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     #' @return `character(0)`.
     selected_features = function() {
       if (is.null(self$model)) {
-        stopf("No model stored")
+        error_learner("No model stored")
       }
 
       character()

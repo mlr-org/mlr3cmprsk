@@ -15,8 +15,15 @@ Every row corresponds to one subject/observation.
 Predefined tasks are stored in \link[mlr3:mlr_tasks]{mlr3::mlr_tasks}.
 
 The \code{task_type} is set to \code{"cmprsk"}.
-
-\strong{Note:} Currently only right-censoring is supported.
+}
+\details{
+The following design choices are made for this task:
+\itemize{
+\item Currently only right-censoring is supported.
+\item Competing risks tasks must always contain \strong{at least two non-censoring event types}, i.e \eqn{K \geq 2}.
+Use stratified resampling (for example via the \code{"stratum"} role) to reduce the risk
+of creating training splits with fewer than two causes.
+}
 }
 \examples{
 library(mlr3)
@@ -40,7 +47,7 @@ task$cens_prop()
 
 }
 \seealso{
-Other Task: 
+Other Task:
 \code{\link{mlr_tasks_pbc}}
 }
 \concept{Task}
@@ -48,341 +55,358 @@ Other Task:
 \code{\link[mlr3:Task]{mlr3::Task}} -> \code{\link[mlr3:TaskSupervised]{mlr3::TaskSupervised}} -> \code{TaskCompRisks}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{cens_type}}{(\code{character(1)})\cr
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{cens_type}}{(\code{character(1)})\cr
 Returns the type of censoring.
 
 Currently, only the \code{"right"} censoring type is fully supported.
 The API might change in the future to support left and interval censoring.}
 
-\item{\code{cmp_events}}{(\code{character(1)})\cr
+    \item{\code{cmp_events}}{(\code{character(1)})\cr
 Returns the names of the competing events.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-TaskCompRisks-new}{\code{TaskCompRisks$new()}}
-\item \href{#method-TaskCompRisks-truth}{\code{TaskCompRisks$truth()}}
-\item \href{#method-TaskCompRisks-formula}{\code{TaskCompRisks$formula()}}
-\item \href{#method-TaskCompRisks-times}{\code{TaskCompRisks$times()}}
-\item \href{#method-TaskCompRisks-event}{\code{TaskCompRisks$event()}}
-\item \href{#method-TaskCompRisks-unique_events}{\code{TaskCompRisks$unique_events()}}
-\item \href{#method-TaskCompRisks-unique_times}{\code{TaskCompRisks$unique_times()}}
-\item \href{#method-TaskCompRisks-unique_event_times}{\code{TaskCompRisks$unique_event_times()}}
-\item \href{#method-TaskCompRisks-aalen_johansen}{\code{TaskCompRisks$aalen_johansen()}}
-\item \href{#method-TaskCompRisks-cens_prop}{\code{TaskCompRisks$cens_prop()}}
-\item \href{#method-TaskCompRisks-filter}{\code{TaskCompRisks$filter()}}
-\item \href{#method-TaskCompRisks-clone}{\code{TaskCompRisks$clone()}}
+  \itemize{
+    \item \href{#method-TaskCompRisks-initialize}{\code{TaskCompRisks$new()}}
+    \item \href{#method-TaskCompRisks-truth}{\code{TaskCompRisks$truth()}}
+    \item \href{#method-TaskCompRisks-formula}{\code{TaskCompRisks$formula()}}
+    \item \href{#method-TaskCompRisks-times}{\code{TaskCompRisks$times()}}
+    \item \href{#method-TaskCompRisks-event}{\code{TaskCompRisks$event()}}
+    \item \href{#method-TaskCompRisks-unique_events}{\code{TaskCompRisks$unique_events()}}
+    \item \href{#method-TaskCompRisks-unique_times}{\code{TaskCompRisks$unique_times()}}
+    \item \href{#method-TaskCompRisks-unique_event_times}{\code{TaskCompRisks$unique_event_times()}}
+    \item \href{#method-TaskCompRisks-aalen_johansen}{\code{TaskCompRisks$aalen_johansen()}}
+    \item \href{#method-TaskCompRisks-cens_prop}{\code{TaskCompRisks$cens_prop()}}
+    \item \href{#method-TaskCompRisks-filter}{\code{TaskCompRisks$filter()}}
+    \item \href{#method-TaskCompRisks-clone}{\code{TaskCompRisks$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="add_strata"><a href='../../mlr3/html/Task.html#method-Task-add_strata'><code>mlr3::Task$add_strata()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="cbind"><a href='../../mlr3/html/Task.html#method-Task-cbind'><code>mlr3::Task$cbind()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="data"><a href='../../mlr3/html/Task.html#method-Task-data'><code>mlr3::Task$data()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="divide"><a href='../../mlr3/html/Task.html#method-Task-divide'><code>mlr3::Task$divide()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="droplevels"><a href='../../mlr3/html/Task.html#method-Task-droplevels'><code>mlr3::Task$droplevels()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="format"><a href='../../mlr3/html/Task.html#method-Task-format'><code>mlr3::Task$format()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="head"><a href='../../mlr3/html/Task.html#method-Task-head'><code>mlr3::Task$head()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="help"><a href='../../mlr3/html/Task.html#method-Task-help'><code>mlr3::Task$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="levels"><a href='../../mlr3/html/Task.html#method-Task-levels'><code>mlr3::Task$levels()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="materialize_view"><a href='../../mlr3/html/Task.html#method-Task-materialize_view'><code>mlr3::Task$materialize_view()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="missings"><a href='../../mlr3/html/Task.html#method-Task-missings'><code>mlr3::Task$missings()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="print"><a href='../../mlr3/html/Task.html#method-Task-print'><code>mlr3::Task$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="rbind"><a href='../../mlr3/html/Task.html#method-Task-rbind'><code>mlr3::Task$rbind()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="rename"><a href='../../mlr3/html/Task.html#method-Task-rename'><code>mlr3::Task$rename()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="select"><a href='../../mlr3/html/Task.html#method-Task-select'><code>mlr3::Task$select()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="set_col_roles"><a href='../../mlr3/html/Task.html#method-Task-set_col_roles'><code>mlr3::Task$set_col_roles()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="set_levels"><a href='../../mlr3/html/Task.html#method-Task-set_levels'><code>mlr3::Task$set_levels()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="set_row_roles"><a href='../../mlr3/html/Task.html#method-Task-set_row_roles'><code>mlr3::Task$set_row_roles()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="add_strata"><a href='../../mlr3/html/Task.html#method-Task-add_strata'><code>mlr3::Task$add_strata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="cbind"><a href='../../mlr3/html/Task.html#method-Task-cbind'><code>mlr3::Task$cbind()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="data"><a href='../../mlr3/html/Task.html#method-Task-data'><code>mlr3::Task$data()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="droplevels"><a href='../../mlr3/html/Task.html#method-Task-droplevels'><code>mlr3::Task$droplevels()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="format"><a href='../../mlr3/html/Task.html#method-Task-format'><code>mlr3::Task$format()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="head"><a href='../../mlr3/html/Task.html#method-Task-head'><code>mlr3::Task$head()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="help"><a href='../../mlr3/html/Task.html#method-Task-help'><code>mlr3::Task$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="levels"><a href='../../mlr3/html/Task.html#method-Task-levels'><code>mlr3::Task$levels()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="materialize_view"><a href='../../mlr3/html/Task.html#method-Task-materialize_view'><code>mlr3::Task$materialize_view()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="missings"><a href='../../mlr3/html/Task.html#method-Task-missings'><code>mlr3::Task$missings()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="print"><a href='../../mlr3/html/Task.html#method-Task-print'><code>mlr3::Task$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="rbind"><a href='../../mlr3/html/Task.html#method-Task-rbind'><code>mlr3::Task$rbind()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="rename"><a href='../../mlr3/html/Task.html#method-Task-rename'><code>mlr3::Task$rename()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="select"><a href='../../mlr3/html/Task.html#method-Task-select'><code>mlr3::Task$select()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="set_col_roles"><a href='../../mlr3/html/Task.html#method-Task-set_col_roles'><code>mlr3::Task$set_col_roles()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="set_levels"><a href='../../mlr3/html/Task.html#method-Task-set_levels'><code>mlr3::Task$set_levels()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="set_row_roles"><a href='../../mlr3/html/Task.html#method-Task-set_row_roles'><code>mlr3::Task$set_row_roles()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TaskCompRisks-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TaskCompRisks-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$new(
+\if{html}{\out{<a id="method-TaskCompRisks-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-TaskCompRisks-initialize}{}}}
+\subsection{\code{TaskCompRisks$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$new(
   id,
   backend,
   time = "time",
   event = "event",
   label = NA_character_
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{id}}{(\code{character(1)})\cr
 Identifier for the new instance.}
-
-\item{\code{backend}}{(\link[mlr3:DataBackend]{mlr3::DataBackend})\cr
+      \item{\code{backend}}{(\link[mlr3:DataBackend]{mlr3::DataBackend})\cr
 Either a \link[mlr3:DataBackend]{DataBackend}, or any object which is convertible to a \link[mlr3:DataBackend]{DataBackend} with \code{as_data_backend()}.
 E.g., a \code{data.frame()} will be converted to a \link[mlr3:DataBackendDataTable]{DataBackendDataTable}.}
-
-\item{\code{time}}{(\code{character(1)})\cr
+      \item{\code{time}}{(\code{character(1)})\cr
 Name of the column for outcome time.}
-
-\item{\code{event}}{(\code{character(1)})\cr
+      \item{\code{event}}{(\code{character(1)})\cr
 Name of column giving that holds the event indicator.
 \eqn{0} corresponds to censoring, values \eqn{> 0} correspond to different
 competing events.}
-
-\item{\code{label}}{(\code{character(1)})\cr
+      \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-Only right-censoring competing risk tasks are currently supported.
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    Only right-censoring competing risk tasks are currently supported.
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-truth"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-truth}{}}}
-\subsection{Method \code{truth()}}{
-True response for specified \code{row_ids}. This is the multi-state format
+\subsection{\code{TaskCompRisks$truth()}}{
+  True response for specified \code{row_ids}. This is the multi-state format
 using \link[survival:Surv]{Surv} with the \code{event} target column as a \code{factor}:
 \code{Surv(time, as.factor(event))}
 
 Defaults to all rows with role \code{"use"}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$truth(rows = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$truth(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{\link[survival:Surv]{survival::Surv()}}.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{\link[survival:Surv]{survival::Surv()}}.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-formula"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-formula}{}}}
-\subsection{Method \code{formula()}}{
-Creates a formula for competing risk models with \code{\link[survival:Surv]{survival::Surv()}} on
+\subsection{\code{TaskCompRisks$formula()}}{
+  Creates a formula for competing risk models with \code{\link[survival:Surv]{survival::Surv()}} on
 the LHS (left hand side).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$formula(rhs = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$formula(rhs = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rhs}}{If \code{NULL}, RHS (right hand side) is \code{"."}, otherwise RHS is \code{"rhs"}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{\link[stats:formula]{stats::formula()}}.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rhs}}{If \code{NULL}, RHS (right hand side) is \code{"."}, otherwise RHS is \code{"rhs"}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{\link[stats:formula]{stats::formula()}}.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-times"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-times}{}}}
-\subsection{Method \code{times()}}{
-Returns the (unsorted) outcome times.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$times(rows = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{TaskCompRisks$times()}}{
+  Returns the (unsorted) outcome times.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$times(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{numeric()}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{numeric()}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-event"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-event}{}}}
-\subsection{Method \code{event()}}{
-Returns the event indicator.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$event(rows = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{TaskCompRisks$event()}}{
+  Returns the event indicator.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$event(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{integer()}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{integer()}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-unique_events"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-unique_events}{}}}
-\subsection{Method \code{unique_events()}}{
-Returns the unique events (excluding censoring).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$unique_events(rows = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{TaskCompRisks$unique_events()}}{
+  Returns the unique events (excluding censoring).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$unique_events(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{integer()}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{integer()}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-unique_times"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-unique_times}{}}}
-\subsection{Method \code{unique_times()}}{
-Returns the sorted unique outcome times.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$unique_times(rows = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{TaskCompRisks$unique_times()}}{
+  Returns the sorted unique outcome times.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$unique_times(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{numeric()}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{numeric()}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-unique_event_times"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-unique_event_times}{}}}
-\subsection{Method \code{unique_event_times()}}{
-Returns the sorted unique event outcome times (by any cause).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$unique_event_times(rows = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{TaskCompRisks$unique_event_times()}}{
+  Returns the sorted unique event outcome times (by any cause).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$unique_event_times(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{numeric()}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{numeric()}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-aalen_johansen"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-aalen_johansen}{}}}
-\subsection{Method \code{aalen_johansen()}}{
-Calls \code{\link[survival:survfit]{survival::survfit()}} to calculate the Aalen–Johansen estimator.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$aalen_johansen(strata = NULL, rows = NULL, ...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{strata}}{(\code{character()})\cr
+\subsection{\code{TaskCompRisks$aalen_johansen()}}{
+  Calls \code{\link[survival:survfit]{survival::survfit()}} to calculate the Aalen–Johansen estimator.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$aalen_johansen(strata = NULL, rows = NULL, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{strata}}{(\code{character()})\cr
 Stratification variables to use.}
-
-\item{\code{rows}}{(\code{integer()})\cr
+      \item{\code{rows}}{(\code{integer()})\cr
 Subset of row indices.}
-
-\item{\code{...}}{(any)\cr
+      \item{\code{...}}{(any)\cr
 Additional arguments passed down to \code{\link[survival:survfit.formula]{survival::survfit.formula()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \link[survival:survfit.object]{survival::survfit.object}.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\link[survival:survfit.object]{survival::survfit.object}.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-cens_prop"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-cens_prop}{}}}
-\subsection{Method \code{cens_prop()}}{
-Returns the \strong{proportion of censoring} for this competing risks task.
+\subsection{\code{TaskCompRisks$cens_prop()}}{
+  Returns the \strong{proportion of censoring} for this competing risks task.
 By default, this is returned for all observations, otherwise only the
 specified ones (\code{rows}).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$cens_prop(rows = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$cens_prop(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{numeric()}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{numeric()}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-filter"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-filter}{}}}
-\subsection{Method \code{filter()}}{
-Subsets the task, keeping only the rows specified via row ids \code{rows}.
+\subsection{\code{TaskCompRisks$filter()}}{
+  Subsets the task, keeping only the rows specified via row ids \code{rows}.
 This operation mutates the task in-place.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$filter(rows = NULL)}\if{html}{\out{</div>}}
+A warning is thrown if the filtering results in fewer competing events
+than the original task.
+An error is thrown if fewer than two competing events remain after filtering.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$filter(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Returns the object itself, but modified \strong{by reference.}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Returns the object itself, but modified \strong{by reference.}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TaskCompRisks$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{TaskCompRisks$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

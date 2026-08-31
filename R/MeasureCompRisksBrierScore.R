@@ -5,7 +5,7 @@
 #'
 #' @description
 #' Calculates the competing risks prediction error (Brier score, BS) at a
-#' **specific time point**, using IPCW as described in Schopp et al. (2011).
+#' **specific time point**, using IPCW as described in Schoop et al. (2011).
 #'
 #' @details
 #' By default, this measure returns a **cause-independent BS(t)** score,
@@ -13,7 +13,7 @@
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (8) in Spitoni et al. (2018).
 #' User-supplied weights are also supported.
-#' Alternatively, users can obtain the **cause-specific** Brier score for any
+#' Alternatively, users can obtain the **cause-specific Brier score** for any
 #' individual cause by specifying the `cause` parameter.
 #'
 #' Calls [riskRegression::Score()] with:
@@ -32,7 +32,7 @@
 #'  Integer number indicating which cause to use.
 #'  Default value is `"mean"` which returns an event-frequency weighted mean of
 #'  the cause-specific Brier scores.
-#' - `cause_weights` (`numeric()` | `NULL`)\cr
+#' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
 #'  If `NULL`, observed cause frequencies in the test data are used.
 #'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
@@ -96,6 +96,8 @@ MeasureCompRisksBrierScore = R6Class(
       # list of predicted CIF matrices
       cif_list = prediction$cif
       causes = names(cif_list)
+      # cause should be 1,2,... or "mean"
+      cause = assert_cause(pv$cause, causes)
 
       # check weights
       cause_weights = pv$cause_weights
@@ -114,9 +116,7 @@ MeasureCompRisksBrierScore = R6Class(
         }
       }
 
-      aggregation = validate_cause_aggregation(pv$cause, causes)
-
-      cause_brier = function(cause) {
+      brier_score = function(cause) {
         # get CIF on the given time point
         mat = survdistr::interp_cif(
           x = cif_list[[cause]], # cause-specific CIF
@@ -138,13 +138,13 @@ MeasureCompRisksBrierScore = R6Class(
         res$Brier$score$Brier # one time point => one Brier score value
       }
 
-      if (aggregation$mode == "single") {
-        return(cause_brier(aggregation$cause))
+      if (cause != "mean") {
+        return(brier_score(cause))
       }
 
-      brier_scores = vapply(causes, cause_brier, numeric(1L))
+      brier_scores = vapply(causes, brier_score, numeric(1L))
 
-      aggregate_cause_scores(brier_scores, data$event, cause_weights)
+      aggregate_scores(brier_scores, data$event, cause_weights)
     }
   )
 )

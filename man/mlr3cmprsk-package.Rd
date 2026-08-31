@@ -13,6 +13,11 @@ Provides a unified interface for right-censored competing risks tasks in 'mlr3'.
 \author{
 \strong{Maintainer}: John Zobolas \email{bblodfon@gmail.com} (\href{https://orcid.org/0000-0002-3609-8674}{ORCID})
 
+Authors:
+\itemize{
+  \item John Zobolas \email{bblodfon@gmail.com} (\href{https://orcid.org/0000-0002-3609-8674}{ORCID})
+}
+
 Other contributors:
 \itemize{
   \item Andrzej Galecki \email{agalecki@umich.edu} (\href{https://orcid.org/0000-0003-1542-4001}{ORCID}) [contributor]

@@ -3,6 +3,14 @@
 #' @description
 #' Convert object to a [PredictionCompRisks].
 #'
+#' @details
+#' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
+#' - Cols `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
+#' - `CIF` per observation must be a named list of numeric vectors (one per event, names should be e.g. `"1"`, `"2"`, ...).
+#' - Event names should be identical across observations and in the same order;
+#' per-event CIF vectors should be of equal length (same time points).
+#' No check is performed.
+#'
 #' @inheritParams mlr3::as_prediction
 #'
 #' @return [PredictionCompRisks].
@@ -25,7 +33,7 @@ as_prediction_cmprsk = function(x, ...) {
 
 #' @rdname as_prediction_cmprsk
 #' @export
-as_prediction_cmprsk.PredictionCompRisks = function(x, ...) { # nolint
+as_prediction_cmprsk.PredictionCompRisks = function(x, ...) {
   x
 }
 
@@ -43,7 +51,9 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
       do.call(rbind, lapply(x$CIF, function(obs_cif) obs_cif[[event_id]]))
     })
     set_names(mat_list, cmp_event_ids)
-  } else NULL
+  } else {
+    NULL
+  }
 
   setDT(x) # if just a `data.frame`, with = FALSE below will not work!
   x_subset = x[, setdiff(names(x), c("time", "event", "CIF")), with = FALSE]
