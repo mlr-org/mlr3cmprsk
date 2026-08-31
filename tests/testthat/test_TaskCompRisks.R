@@ -20,10 +20,10 @@ test_that("TaskCompRisks + methods work", {
   df2 = data.frame(time = times, event = as.factor(event), x = runif(6))
   expect_error(TaskCompRisks$new(id = "test", backend = df2), "Must be of type")
 
-  # filtering errors if less than original competing events are left in the task
-  expect_error(task$filter(1:3), "Can't filter") # events = 0 and 1 (no 2)
-  expect_error(task$filter(4:6), "Can't filter") # events = 0 and 2 (no 1)
-  expect_error(task$filter(c(2, 4)), "Can't filter") # only censored obs left
+  # filtering errors if fewer than two competing events are left
+  expect_error(task$clone()$filter(1:3), class = "Mlr3ErrorInput") # events = 0 and 1 (no 2)
+  expect_error(task$clone()$filter(4:6), class = "Mlr3ErrorInput") # events = 0 and 2 (no 1)
+  expect_error(task$clone()$filter(c(2, 4)), class = "Mlr3ErrorInput") # only censored obs left
 
   # check that after task filtering the cmp events don't change and the events
   # are reported correctly
@@ -41,7 +41,14 @@ test_that("TaskCompRisks + methods work", {
   df = data.frame(time = 1:2, event = c(0, 1), x = runif(2))
   expect_error(TaskCompRisks$new(id = "test", backend = df), "at least two competing events")
 
-  # works with no censoring at all!
+  # filtering updates cmp_events when the number of causes is reduced but remains >= 2
+  df = data.frame(time = 1:8, event = c(0, 1, 1, 2, 2, 3, 3, 0), x = runif(8))
+  task = TaskCompRisks$new(id = "test", backend = df)
+  expect_equal(task$cmp_events, c("1", "2", "3"))
+  expect_warning(task$filter(1:5), "competing events found")
+  expect_equal(task$cmp_events, c("1", "2"))
+
+  # creating a task with no censoring at all works!
   df = data.frame(time = 1:2, event = c(2, 1), x = runif(2))
   task = TaskCompRisks$new(id = "test", backend = df)
   expect_equal(task$cmp_events, c("1", "2"))

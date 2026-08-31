@@ -41,6 +41,7 @@ set.seed(42)
 
 task = tsk("pbc")
 task$select(c("age", "chol", "albumin", "bili"))
+# Stratify by event status so all splits keep all available causes
 task$set_col_roles(cols = "status", add_to = "stratum")
 
 learners = lrns(c("cmprsk.fg", "cmprsk.aalen"))

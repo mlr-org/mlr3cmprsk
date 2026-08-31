@@ -2,6 +2,7 @@
 
 * Add config files for code formatting and for AI agents.
 * Raise the minimum required versions of `mlr3` to 1.8.0 and `mlr3misc` to 0.23.0. (#22)
+* `TaskCompRisks$filter()` now errors when row filtering leaves fewer than two competing events, and updates competing-event levels after valid filtering. (#24)
 
 # mlr3cmprsk 0.0.5
 

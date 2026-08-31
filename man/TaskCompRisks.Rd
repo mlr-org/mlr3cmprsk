@@ -15,8 +15,15 @@ Every row corresponds to one subject/observation.
 Predefined tasks are stored in \link[mlr3:mlr_tasks]{mlr3::mlr_tasks}.
 
 The \code{task_type} is set to \code{"cmprsk"}.
-
-\strong{Note:} Currently only right-censoring is supported.
+}
+\details{
+The following design choices are made for this task:
+\itemize{
+\item Currently only right-censoring is supported.
+\item Competing risks tasks must always contain \strong{at least two non-censoring event types}, i.e \eqn{K \geq 2}.
+Use stratified resampling (for example via the \code{"stratum"} role) to reduce the risk
+of creating training splits with fewer than two causes.
+}
 }
 \examples{
 library(mlr3)
@@ -362,6 +369,9 @@ Row indices.}
 \subsection{\code{TaskCompRisks$filter()}}{
   Subsets the task, keeping only the rows specified via row ids \code{rows}.
 This operation mutates the task in-place.
+A warning is thrown if the filtering results in fewer competing events
+than the original task.
+An error is thrown if fewer than two competing events remain after filtering.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TaskCompRisks$filter(rows = NULL)}
