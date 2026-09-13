@@ -5,7 +5,7 @@
 #' @import paradox
 #' @importFrom R6 R6Class
 #' @importFrom survival Surv
-#' @importFrom utils getFromNamespace
+#' @importFrom utils getFromNamespace tail
 #' @importFrom stats median
 "_PACKAGE"
 
