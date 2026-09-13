@@ -65,20 +65,30 @@ TaskCompRisks = R6Class(
       backend = as_data_backend(backend)
 
       # check event is an integer starting from 0
-      event_col = get_private(backend)$.data[, event, with = FALSE][[1L]]
-      assert_integerish(event_col, lower = 0L, any.missing = FALSE)
+      event_vals = get_private(backend)$.data[, event, with = FALSE][[1L]]
+      assert_integerish(event_vals, lower = 0L, any.missing = FALSE)
 
-      # check that there is at least two competing events
-      n_cmp_events = sum(unique(event_col) != 0)
-      if (n_cmp_events < 2) {
+      # competing events must be encoded as 1, 2, ..., K
+      cmp_events = sort(setdiff(unique(event_vals), 0L))
+      n_cmp_events = length(cmp_events)
+      if (n_cmp_events < 2L) {
         error_input(
           "Define at least two competing events, there are only %i in the data",
           n_cmp_events
         )
       }
 
+      cmp_events = as.integer(cmp_events)
+      expected_cmp_events = seq_len(n_cmp_events)
+      if (!identical(cmp_events, expected_cmp_events)) {
+        error_input(
+          "Competing events must be consecutive integers starting at 1 (1, 2, ..., K), but got: %s",
+          str_collapse(cmp_events)
+        )
+      }
+
       # keep all the event levels
-      private$.event_levels = levels(as.factor(event_col))
+      private$.event_levels = levels(as.factor(event_vals))
 
       super$initialize(
         id = id,

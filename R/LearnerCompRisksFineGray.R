@@ -32,7 +32,7 @@ LearnerCompRisksFineGray = R6Class(
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       param_set = ps(
-        cengroup = p_dbl(tags = "train"),
+        cengroup = p_uty(tags = "train"),
         gtol = p_dbl(default = 1e-06, lower = 0, tags = "train"),
         maxiter = p_int(default = 10L, lower = 0L, tags = "train"),
         init = p_uty(tags = "train"),
