@@ -57,14 +57,25 @@ test_that("TaskCompRisks + methods work", {
 })
 
 test_that("as_task_cmprsk", {
-  expect_task_cmprsk(as_task_cmprsk(data.frame(time = c(1, 2), event = c(1, 4))))
-  expect_task_cmprsk(as_task_cmprsk(data.frame(time = c(1, 2), status = c(1, 2)), event = "status"))
-  expect_task_cmprsk(as_task_cmprsk(
-    data.frame(t = c(1, 2, 3), s = c(0, 1, 2)),
-    time = "t",
-    event = "s",
-    id = "test"
-  ))
+  # events must be coded as 1, 2, ..., K (censoring (0) is not needed)
+  expect_error(
+    as_task_cmprsk(data.frame(time = c(1, 2, 3), event = c(1, 4, 2))),
+    regexp = "Competing events must be consecutive integers starting at 1",
+    class = "Mlr3ErrorInput"
+  )
+
+  expect_task_cmprsk(
+    as_task_cmprsk(data.frame(time = c(1, 2), status = c(1, 2)), event = "status")
+  )
+
+  expect_task_cmprsk(
+    as_task_cmprsk(
+      data.frame(t = c(1, 2, 3), s = c(0, 1, 2)),
+      time = "t",
+      event = "s",
+      id = "test"
+    )
+  )
 
   t1 = tsk("pbc")
   t2 = as_task_cmprsk(t1, clone = TRUE)
