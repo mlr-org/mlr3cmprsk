@@ -97,12 +97,14 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
       t_max = max(data$time)
       is_larger_than_t_max = times > t_max
       if (any(is_larger_than_t_max)) {
-        warning_mlr3(sprintf(
-          "RiskRegression doesn't evaluate for time points larger than the
-        maximum test set time point (%f). We remove %d time point(s) from `times`",
-          t_max,
-          sum(is_larger_than_t_max)
-        ))
+        warning_mlr3(
+          sprintf(
+            "RiskRegression cannot evaluate time points larger than the maximum
+            test-set time (%f). We remove %d time point(s) from `times`",
+            t_max,
+            sum(is_larger_than_t_max)
+          )
+        )
         times = times[!is_larger_than_t_max]
       }
 
