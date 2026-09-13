@@ -4,15 +4,16 @@
 #' @template cmprsk_measure
 #'
 #' @description
-#' Calculates the competing risks prediction error (Brier score, BS) at a
+#' Calculates the competing risks prediction error (Brier score, BS(t)) at a
 #' **specific time point**, using IPCW as described in Schoop et al. (2011).
 #'
 #' @details
-#' By default, this measure returns a **cause-independent BS(t)** score,
-#' calculated as a weighted average of the cause-specific Brier scores.
+#' By default, this measure returns a **cause-independent BS(t)** (or all-cause)
+#' score, calculated as a weighted average of the cause-specific Brier scores.
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (8) in Spitoni et al. (2018).
 #' User-supplied weights are also supported.
+#'
 #' Alternatively, users can obtain the **cause-specific Brier score** for any
 #' individual cause by specifying the `cause` parameter.
 #'
@@ -34,7 +35,7 @@
 #'  the cause-specific Brier scores.
 #' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
-#'  If `NULL`, observed cause frequencies in the test data are used.
+#'  If `NULL`, observed cause frequencies **from the test data** are used.
 #'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 #'  i.e. first weight for first cause, second weight for second cause, etc.
 #'  See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
@@ -112,7 +113,7 @@ MeasureCompRisksBrierScore = R6Class(
         )
 
         if (abs(sum(cause_weights) - 1) > 1e-8) {
-          stop("Cause weights must sum to 1.")
+          error_input("Cause weights must sum to 1.")
         }
       }
 
