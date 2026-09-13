@@ -94,6 +94,17 @@ MeasureCompRisksBrierScore = R6Class(
         assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
 
+      # RiskRegression can't evaluate for time > max time point from the test set
+      t_max = max(data$time)
+      if (time > t_max) {
+        error_input(
+          sprintf(
+            "RiskRegression cannot evaluate time points larger than the maximum test-set time (%f).",
+            t_max
+          )
+        )
+      }
+
       # list of predicted CIF matrices
       cif_list = prediction$cif
       causes = names(cif_list)
