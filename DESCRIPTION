@@ -39,6 +39,7 @@ Collate:
     'MeasureCompRisks.R'
     'MeasureCompRisksAUC.R'
     'MeasureCompRisksBrierScore.R'
+    'MeasureCompRisksIntegratedBrierScore.R'
     'PredictionCompRisks.R'
     'PredictionDataCompRisks.R'
     'TaskCompRisks.R'
