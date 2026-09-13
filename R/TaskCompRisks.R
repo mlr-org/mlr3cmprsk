@@ -1,22 +1,23 @@
 #' @title Competing Risks Task
 #'
 #' @description
-#' This task extends [mlr3::Task] and [mlr3::TaskSupervised] to handle survival
-#' problems with **competing risks**.
-#' The target variable consists of survival times and an event indicator, which
-#' must be a non-negative integer in the set \eqn{(0,1,2,...,K)}.
-#' \eqn{0} represents censored observations, while other integers correspond to
-#' distinct competing events.
-#' Every row corresponds to one subject/observation.
+#'
+#' This task extends [mlr3::Task] and [mlr3::TaskSupervised] for competing risks survival analysis.
+#' The target consists of a survival time and an event indicator.
+#' Event codes must be non-negative integers in \eqn{(0, 1, 2, ..., K)}.
+#' \eqn{0} denotes censoring, and positive integers denote distinct event causes.
+#' Each row represents one observation.
 #'
 #' Predefined tasks are stored in [mlr3::mlr_tasks].
 #'
 #' The `task_type` is set to `"cmprsk"`.
 #'
 #' @details
-#' The following design choices are made for this task:
-#' - Currently only right-censoring is supported.
-#' - Competing risks tasks must always contain **at least two non-censoring event types**, i.e \eqn{K \geq 2}.
+#' The following design choices apply to this task:
+#' - Only right-censoring is currently supported.
+#' - Tasks must contain at least two non-censoring event types, i.e., \eqn{K \geq 2}.
+#' - Competing events must be encoded as consecutive integers, i.e., \eqn{1, 2, ..., K}.
+#'
 #' Use stratified resampling (for example via the `"stratum"` role) to reduce the risk
 #' of creating training splits with fewer than two causes.
 #'
