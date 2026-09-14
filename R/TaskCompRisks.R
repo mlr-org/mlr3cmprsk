@@ -1,19 +1,25 @@
 #' @title Competing Risks Task
 #'
 #' @description
-#' This task extends [mlr3::Task] and [mlr3::TaskSupervised] to handle survival
-#' problems with **competing risks**.
-#' The target variable consists of survival times and an event indicator, which
-#' must be a non-negative integer in the set \eqn{(0,1,2,...,K)}.
-#' \eqn{0} represents censored observations, while other integers correspond to
-#' distinct competing events.
-#' Every row corresponds to one subject/observation.
+#'
+#' This task extends [mlr3::Task] and [mlr3::TaskSupervised] for competing risks survival analysis.
+#' The target consists of a survival time and an event indicator.
+#' Event codes must be non-negative integers in \eqn{(0, 1, 2, ..., K)}.
+#' \eqn{0} denotes censoring, and positive integers denote distinct event causes.
+#' Each row represents one observation.
 #'
 #' Predefined tasks are stored in [mlr3::mlr_tasks].
 #'
 #' The `task_type` is set to `"cmprsk"`.
 #'
-#' **Note:** Currently only right-censoring is supported.
+#' @details
+#' The following design choices apply to this task:
+#' - Only right-censoring is currently supported.
+#' - Tasks must contain at least two non-censoring event types, i.e., \eqn{K \geq 2}.
+#' - Competing events must be encoded as consecutive integers, i.e., \eqn{1, 2, ..., K}.
+#'
+#' Use stratified resampling (for example via the `"stratum"` role) to reduce the risk
+#' of creating training splits with fewer than two causes.
 #'
 #' @template param_rows
 #'
@@ -39,7 +45,8 @@
 #' task$cens_prop()
 #'
 #' @export
-TaskCompRisks = R6Class("TaskCompRisks",
+TaskCompRisks = R6Class(
+  "TaskCompRisks",
   inherit = TaskSupervised,
   public = list(
     #' @description
@@ -53,29 +60,43 @@ TaskCompRisks = R6Class("TaskCompRisks",
     #' @template param_time
     #' @template param_event
     #' @template param_label
-    initialize = function(id, backend, time = "time", event = "event",
-                          label = NA_character_) {
+    initialize = function(id, backend, time = "time", event = "event", label = NA_character_) {
       # only right-censoring supported
       private$.cens_type = "right"
       backend = as_data_backend(backend)
 
       # check event is an integer starting from 0
-      event_col = get_private(backend)$.data[, event, with = FALSE][[1L]]
-      assert_integerish(event_col, lower = 0L, any.missing = FALSE)
+      event_vals = get_private(backend)$.data[, event, with = FALSE][[1L]]
+      assert_integerish(event_vals, lower = 0L, any.missing = FALSE)
 
-      # check that there is at least two competing events
-      n_cmp_events = sum(unique(event_col) != 0)
-      if (n_cmp_events < 2) {
-        stopf("Define at least two competing events, there are only %i in the data",
-              n_cmp_events)
+      # competing events must be encoded as 1, 2, ..., K
+      cmp_events = sort(setdiff(unique(event_vals), 0L))
+      n_cmp_events = length(cmp_events)
+      if (n_cmp_events < 2L) {
+        error_input(
+          "Define at least two competing events, there are only %i in the data",
+          n_cmp_events
+        )
+      }
+
+      cmp_events = as.integer(cmp_events)
+      expected_cmp_events = seq_len(n_cmp_events)
+      if (!identical(cmp_events, expected_cmp_events)) {
+        error_input(
+          "Competing events must be consecutive integers starting at 1 (1, 2, ..., K), but got: %s",
+          str_collapse(cmp_events)
+        )
       }
 
       # keep all the event levels
-      private$.event_levels = levels(as.factor(event_col))
+      private$.event_levels = levels(as.factor(event_vals))
 
       super$initialize(
-        id = id, task_type = "cmprsk", backend = backend,
-        target = c(time, event), label = label
+        id = id,
+        task_type = "cmprsk",
+        backend = backend,
+        target = c(time, event),
+        label = label
       )
     },
 
@@ -189,15 +210,34 @@ TaskCompRisks = R6Class("TaskCompRisks",
     #' @description
     #' Subsets the task, keeping only the rows specified via row ids `rows`.
     #' This operation mutates the task in-place.
+    #' A warning is thrown if the filtering results in fewer competing events
+    #' than the original task.
+    #' An error is thrown if fewer than two competing events remain after filtering.
     #'
     #' @return Returns the object itself, but modified **by reference.**
     filter = function(rows = NULL) {
-      # check that we don't remove the competing events from the data
-      uevents = self$unique_events(rows)
-      if (length(uevents) != length(self$cmp_events)) {
-        stopf("Can't filter task %s: %i competing events found, but row filtering results in %i unique competing event(s)", self$id, length(self$cmp_events), length(uevents)) #nolint
+      n_events_before = length(self$cmp_events)
+      event_levels_after = levels(as.factor(self$event(rows)))
+      n_events_after = length(setdiff(event_levels_after, "0"))
+
+      if (n_events_after < 2L) {
+        error_input(
+          "Can't filter task %s: row filtering leaves %i competing event(s), but at least 2 are required",
+          self$id,
+          n_events_after
+        )
       }
 
+      if (n_events_after < n_events_before) {
+        warning_mlr3(
+          "While filtering task %s: %i competing events found, but row filtering results in %i unique competing events",
+          self$id,
+          n_events_before,
+          n_events_after
+        )
+      }
+
+      private$.event_levels = event_levels_after
       super$filter(rows)
     }
   ),

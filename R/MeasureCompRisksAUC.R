@@ -5,14 +5,18 @@
 #'
 #' @description
 #' Calculates the time-dependent ROC-AUC at a **specific time point**,
-#' as described in Blanche et al. (2013).
+#' as described in Blanche et al. (2013), Equation 4.
+#' This (second) definition defines as controls the subjects who survive beyond
+#' the time horizon plus those who experience a competing event before
+#' the horizon.
 #'
 #' @details
 #' By default, this measure returns a **cause-independent AUC(t)** score,
 #' calculated as a weighted average of the cause-specific AUCs.
 #' The weights correspond to the relative event frequencies of each cause,
-#' following Equation (7) in Heyard et al. (2020).
+#' following Equation 7 in Heyard et al. (2020).
 #' User-supplied weights are also supported.
+#'
 #' Alternatively, users can obtain the **cause-specific AUC(t)** for any
 #' individual cause by specifying the `cause` parameter.
 #'
@@ -36,7 +40,7 @@
 #'  Integer number indicating which cause to use.
 #'  Default value is `"mean"` which returns an event-frequency weighted mean of
 #'  the cause-specific AUCs.
-#' - `cause_weights` (`numeric()` | `NULL`)\cr
+#' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
 #'  If `NULL`, observed cause frequencies in the test data are used.
 #'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
@@ -98,6 +102,8 @@ MeasureCompRisksAUC = R6Class(
       # list of predicted CIF matrices
       cif_list = prediction$cif
       causes = names(cif_list)
+      # cause should be 1,2,... or "mean"
+      cause = assert_cause(pv$cause, causes)
 
       # check weights
       cause_weights = pv$cause_weights
@@ -116,9 +122,7 @@ MeasureCompRisksAUC = R6Class(
         }
       }
 
-      aggregation = validate_cause_aggregation(pv$cause, causes)
-
-      cause_auc = function(cause) {
+      auc_score = function(cause) {
         # get CIF on the given time point
         mat = survdistr::interp_cif(
           x = cif_list[[cause]], # cause-specific CIF
@@ -140,13 +144,13 @@ MeasureCompRisksAUC = R6Class(
         res$AUC$score$AUC # one time point => one AUC value
       }
 
-      if (aggregation$mode == "single") {
-        return(cause_auc(aggregation$cause))
+      if (cause != "mean") {
+        return(auc_score(cause))
       }
 
-      aucs = vapply(causes, cause_auc, numeric(1L))
+      aucs = vapply(causes, auc_score, numeric(1L))
 
-      aggregate_cause_scores(aucs, data$event, cause_weights)
+      aggregate_scores(aucs, data$event, cause_weights)
     }
   )
 )

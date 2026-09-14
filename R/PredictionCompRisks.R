@@ -5,7 +5,7 @@
 #'
 #' The `task_type` is set to `"cmprsk"`.
 #'
-#' For accessing survival and hazard functions, as well as other complex methods
+#' Accessing all-cause survival or cause-specific hazard functions and similar methods
 #' from a [LearnerCompRisks] object is not possible atm.
 #'
 #' @family Prediction
@@ -29,7 +29,8 @@
 #' tab$CIF[[1]] # for first test observation, list of CIF vectors
 #'
 #' @export
-PredictionCompRisks = R6Class("PredictionCompRisks",
+PredictionCompRisks = R6Class(
+  "PredictionCompRisks",
   inherit = Prediction,
   public = list(
     #' @description
@@ -57,8 +58,13 @@ PredictionCompRisks = R6Class("PredictionCompRisks",
     #'
     #' @param check (`logical(1)`)\cr
     #'   If `TRUE`, performs argument checks and predict type conversions.
-    initialize = function(task = NULL, row_ids = task$row_ids, truth = task$truth(),
-                          cif = NULL, check = TRUE) {
+    initialize = function(
+      task = NULL,
+      row_ids = task$row_ids,
+      truth = task$truth(),
+      cif = NULL,
+      check = TRUE
+    ) {
       pdata = list(row_ids = row_ids, truth = truth, cif = cif)
       pdata = discard(pdata, is.null)
       class(pdata) = c("PredictionDataCompRisks", "PredictionData")
@@ -101,6 +107,7 @@ as.data.table.PredictionCompRisks = function(x, ...) {
     tab$CIF = lapply(1:n_obs, function(i) {
       # we use a list since there is a possibility that each CIF matrix has
       # different number of time points (columns) per competing risk
+      # TODO: check that this is not the case anywhere in the code
       cif_list = lapply(x$cif, function(mat) mat[i, , drop = TRUE])
       names(cif_list) = names(x$cif) # preserve the competing risk names/ids
       cif_list

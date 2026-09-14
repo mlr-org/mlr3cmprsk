@@ -1,5 +1,6 @@
 bibentries = c(
-  aalen_1978 = bibentry("article",
+  aalen_1978 = bibentry(
+    "article",
     author = "Aalen, Odd O and Johansen, Soren",
     journal = "Scandinavian journal of statistics",
     pages = "141--150",
@@ -7,7 +8,8 @@ bibentries = c(
     title = "An empirical transition matrix for non-homogeneous Markov chains based on censored observations",
     year = "1978"
   ),
-  blanche_2013 = bibentry("article",
+  blanche_2013 = bibentry(
+    "article",
     author = "Blanche, Paul and Dartigues, Jean Francois and Jacqmin-Gadda, Helene",
     journal = "Statistics in Medicine",
     pages = "5381--5397",
@@ -22,27 +24,30 @@ bibentries = c(
     volume = "32",
     url = "https://onlinelibrary.wiley.com/doi/10.1002/sim.5958"
   ),
-  heyard_2020 = bibentry("article",
-    author  = "Heyard, Rachel and Timsit, Jean-Francois and Held, Leonhard",
-    title   = "Validation of discrete time-to-event prediction models in the presence of competing risks",
+  heyard_2020 = bibentry(
+    "article",
+    author = "Heyard, Rachel and Timsit, Jean-Francois and Held, Leonhard",
+    title = "Validation of discrete time-to-event prediction models in the presence of competing risks",
     journal = "Biometrical Journal",
-    volume  = "62",
-    number  = "3",
-    pages   = "643--657",
-    year    = "2020",
-    url     = "https://doi.org/10.1002/BIMJ.201800293"
+    volume = "62",
+    number = "3",
+    pages = "643--657",
+    year = "2020",
+    url = "https://doi.org/10.1002/BIMJ.201800293"
   ),
-  schoop_2011 = bibentry("article",
-    author  = "Schoop, Roland and Beyersmann, Jan and Schumacher, Martin and Binder, Harald",
-    title   = "Quantifying the predictive accuracy of time-to-event models in the presence of competing risks",
+  schoop_2011 = bibentry(
+    "article",
+    author = "Schoop, Roland and Beyersmann, Jan and Schumacher, Martin and Binder, Harald",
+    title = "Quantifying the predictive accuracy of time-to-event models in the presence of competing risks",
     journal = "Biometrical Journal",
-    volume  = "53",
-    number  = "1",
-    pages   = "88--112",
-    year    = "2011",
-    url     = "https://doi.org/10.1002/BIMJ.201000073"
+    volume = "53",
+    number = "1",
+    pages = "88--112",
+    year = "2011",
+    url = "https://doi.org/10.1002/BIMJ.201000073"
   ),
-  fine_1999 = bibentry("article",
+  fine_1999 = bibentry(
+    "article",
     author = "Fine, Jason P and Gray, Robert J",
     title = "A Proportional Hazards Model for the Subdistribution of a Competing Risk",
     journal = "Journal of the American Statistical Association",
@@ -52,7 +57,8 @@ bibentries = c(
     pages = "496--509",
     doi = "10.1080/01621459.1999.10474144"
   ),
-  spitoni_2018 = bibentry("article",
+  spitoni_2018 = bibentry(
+    "article",
     author = "Spitoni, Claudia and Lammens, Valerie and Putter, Hein",
     journal = "Biometrical Journal",
     pages = "34--48",

@@ -29,18 +29,31 @@
 #' # get a specific learner from mlr_learners:
 #' mlr_learners$get("cmprsk.aalen")
 #' lrn("cmprsk.aalen")
-LearnerCompRisks = R6Class("LearnerCompRisks",
+LearnerCompRisks = R6Class(
+  "LearnerCompRisks",
   inherit = Learner,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id, param_set = ps(), predict_types = "cif",
-      feature_types = character(), properties = character(),
-      packages = character(), label = NA_character_, man = NA_character_) {
-
+    initialize = function(
+      id,
+      param_set = ps(),
+      predict_types = "cif",
+      feature_types = character(),
+      properties = character(),
+      packages = character(),
+      label = NA_character_,
+      man = NA_character_
+    ) {
       super$initialize(
-        id = id, task_type = "cmprsk", param_set = param_set, predict_types = predict_types,
-        feature_types = feature_types, properties = properties,
-        packages = c("mlr3cmprsk", packages), label = label, man = man
+        id = id,
+        task_type = "cmprsk",
+        param_set = param_set,
+        predict_types = predict_types,
+        feature_types = feature_types,
+        properties = properties,
+        packages = c("mlr3cmprsk", packages),
+        label = label,
+        man = man
       )
     }
   )

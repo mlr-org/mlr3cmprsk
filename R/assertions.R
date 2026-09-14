@@ -15,7 +15,7 @@
 #' Optional variable name to return if assertion fails.
 #'
 #' @noRd
-assert_surv = function(x, len = NULL, any.missing = TRUE, null.ok = FALSE, .var.name = vname(x)) { # nolint
+assert_surv = function(x, len = NULL, any.missing = TRUE, null.ok = FALSE, .var.name = vname(x)) {
   assert_class(x, "Surv", null.ok = null.ok, .var.name = .var.name)
   assert_matrix(x, any.missing = any.missing, nrows = len, null.ok = null.ok, .var.name = .var.name)
 }
@@ -24,12 +24,12 @@ assert_surv = function(x, len = NULL, any.missing = TRUE, null.ok = FALSE, .var.
 #' matrices.
 #'
 #' @param x (`list()`)\cr
-#' A list of CIF matrices, each one with dimensions (observations x times).
+#' A list of CIF matrices. Each matrix should have dimensions (obs x times).
 #' @param n_rows (`numeric(1)`)\cr
-#' Expected number of rows of each matrix element of the input list.
+#' Expected number of rows of each CIF matrix.
 #' @param n_cmp_events (`numeric(1)`)\cr
-#' Expected number of competing events which is the number of elements in input
-#' CIF list.
+#' Expected number of competing events. This should be equal to the number of elements
+#' of the input list.
 #'
 #' @return if the assertion fails an error occurs, otherwise `NULL` is returned
 #' invisibly.
@@ -37,18 +37,38 @@ assert_surv = function(x, len = NULL, any.missing = TRUE, null.ok = FALSE, .var.
 #' @noRd
 assert_cif_list = function(x, n_rows = NULL, n_cmp_events = NULL) {
   # List of matrices, with at least 2 elements/competing risks
-  assert_list(x, types = "matrix", any.missing = FALSE, min.len = 2,
-              len = n_cmp_events, names = "named")
+  assert_list(
+    x,
+    types = "matrix",
+    any.missing = FALSE,
+    min.len = 2,
+    len = n_cmp_events,
+    names = "named"
+  )
   for (mat in x) {
     # Each element a matrix
     assert_matrix(mat, any.missing = FALSE, min.rows = 1, min.cols = 1, col.names = "named")
     # check `nrow` == `n_obs`
     if (!is.null(n_rows)) {
-      assert_true(nrow(mat) == n_rows, .var.name = sprintf("CIF matrix has %i rows and not %i (number of observations)", nrow(mat), n_rows))
+      assert_true(
+        nrow(mat) == n_rows,
+        .var.name = sprintf(
+          "CIF matrix has %i rows and not %i (number of observations)",
+          nrow(mat),
+          n_rows
+        )
+      )
     }
     # check column names => time points
-    assert_numeric(as.numeric(colnames(mat)), lower = 0, unique = TRUE, sorted = TRUE,
-                   any.missing = FALSE, null.ok = FALSE, .var.name = "Colnames must be coersable to positive, unique, increasing numeric time points")
+    assert_numeric(
+      as.numeric(colnames(mat)),
+      lower = 0,
+      unique = TRUE,
+      sorted = TRUE,
+      any.missing = FALSE,
+      null.ok = FALSE,
+      .var.name = "Colnames must be coercible to positive, unique, increasing numeric time points"
+    )
   }
 
   invisible(NULL)

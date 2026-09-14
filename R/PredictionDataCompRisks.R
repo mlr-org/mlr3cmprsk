@@ -9,6 +9,7 @@ as_prediction.PredictionDataCompRisks = function(x, check = TRUE, ...) {
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   n_obs = length(assert_row_ids(pdata$row_ids))
   assert_surv(pdata$truth, "Surv", len = n_obs, any.missing = TRUE, null.ok = TRUE)
+  # all the causes for which we have predictions must also be present in the test data
   n_cmp_events = length(attr(pdata$truth, "states"))
   assert_cif_list(pdata$cif, n_obs, n_cmp_events)
 
@@ -35,7 +36,7 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
   predict_types = names(mlr_reflections$learner_predict_types$cmprsk)
   predict_types = map(dots, function(x) intersect(names(x), predict_types))
   if (!every(predict_types[-1L], setequal, y = predict_types[[1L]])) {
-    stopf("Cannot combine predictions: Different prediction types")
+    error_input("Cannot combine predictions: Different prediction types")
   }
 
   predict_types = predict_types[[1L]]

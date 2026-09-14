@@ -43,8 +43,8 @@ test_that("train params of cmprsk.aalen", {
   exclude = c(
     "formula", # handled by mlr3
     "data", # handled by mlr3
-    "weights", # hanlded by mlr3
-    "subset", # hanlded by mlr3
+    "weights", # handled by mlr3
+    "subset", # handled by mlr3
     "na.action", # not supported
     "stype", # not supported
     "ctype", # not supported
