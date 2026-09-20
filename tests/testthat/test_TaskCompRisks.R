@@ -1,4 +1,4 @@
-test_that("TaskCompRisks + methods work", {
+test_that("TaskCompRisks methods work", {
   event = c(1, 0, 1, 0, 2, 2)
   times = c(1, 3, 2, 4, 4, 5)
   df = data.frame(time = times, event = event, x = runif(6))
@@ -6,7 +6,6 @@ test_that("TaskCompRisks + methods work", {
 
   expect_equal(task$task_type, "cmprsk")
   assert_integer(task$event(), len = 6, lower = 0, upper = 2)
-  expect_equal(task$unique_events(), c(1, 2))
   assert_class(task$truth(), "Surv", null.ok = FALSE)
   assert_formula(task$formula())
   assert_numeric(task$times(), len = 6)
@@ -25,34 +24,35 @@ test_that("TaskCompRisks + methods work", {
   expect_error(task$clone()$filter(4:6), class = "Mlr3ErrorInput") # events = 0 and 2 (no 1)
   expect_error(task$clone()$filter(c(2, 4)), class = "Mlr3ErrorInput") # only censored obs left
 
-  # check that after task filtering the cmp events don't change and the events
-  # are reported correctly
+  # check that after task filtering the causes don't change and
+  # the events are reported correctly
   task2 = task$clone()$filter(3:5) # both events are kept
   expect_equal(task2$event(), c(1, 0, 2))
-  expect_equal(task2$unique_events(), c(1, 2))
   expect_equal(task2$cmp_events, c("1", "2")) # competing events don't change
 
   task3 = task$clone()$filter(c(3, 5)) # only events are kept (no censoring)
   expect_equal(task3$event(), c(1, 2))
-  expect_equal(task2$unique_events(), c(1, 2))
   expect_equal(task2$cmp_events, c("1", "2")) # competing events don't change
 
   # at least two competing risks are needed upon construction
   df = data.frame(time = 1:2, event = c(0, 1), x = runif(2))
-  expect_error(TaskCompRisks$new(id = "test", backend = df), "at least two competing events")
+  expect_error(
+    TaskCompRisks$new(id = "test", backend = df),
+    regexp = "at least two causes"
+  )
 
-  # filtering updates cmp_events when the number of causes is reduced but remains >= 2
+  # filtering issues a warning when the number of competing events is reduced but remains >= 2
   df = data.frame(time = 1:8, event = c(0, 1, 1, 2, 2, 3, 3, 0), x = runif(8))
   task = TaskCompRisks$new(id = "test", backend = df)
   expect_equal(task$cmp_events, c("1", "2", "3"))
   expect_warning(task$filter(1:5), "competing events found")
-  expect_equal(task$cmp_events, c("1", "2"))
+  # competing events reflect the original task, not the filtered one
+  expect_equal(task$cmp_events, c("1", "2", "3"))
 
   # creating a task with no censoring at all works!
   df = data.frame(time = 1:2, event = c(2, 1), x = runif(2))
   task = TaskCompRisks$new(id = "test", backend = df)
   expect_equal(task$cmp_events, c("1", "2"))
-  expect_equal(task$unique_events(), c(1, 2))
   expect_equal(task$cens_prop(), 0)
 })
 
@@ -60,7 +60,7 @@ test_that("as_task_cmprsk", {
   # events must be coded as 1, 2, ..., K (censoring (0) is not needed)
   expect_error(
     as_task_cmprsk(data.frame(time = c(1, 2, 3), event = c(1, 4, 2))),
-    regexp = "Competing events must be consecutive integers starting at 1",
+    regexp = "Causes must be consecutive integers starting at 1",
     class = "Mlr3ErrorInput"
   )
 
@@ -77,6 +77,7 @@ test_that("as_task_cmprsk", {
     )
   )
 
+  # Deep-cloning: changing one task, doesn't change the other
   t1 = tsk("pbc")
   t2 = as_task_cmprsk(t1, clone = TRUE)
   expect_task_cmprsk(t2)
@@ -84,6 +85,7 @@ test_that("as_task_cmprsk", {
   expect_false("sex" %in% names(t1$data()))
   expect_true("sex" %in% names(t2$data()))
 
+  # Non-deep cloning: changing one task (t1), changes the other (t2)
   t1 = tsk("pbc")
   t2 = as_task_cmprsk(t1, clone = FALSE)
   expect_task_cmprsk(t2)
