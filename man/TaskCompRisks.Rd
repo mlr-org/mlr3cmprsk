@@ -4,46 +4,55 @@
 \alias{TaskCompRisks}
 \title{Competing Risks Task}
 \description{
-This task extends \link[mlr3:Task]{mlr3::Task} and \link[mlr3:TaskSupervised]{mlr3::TaskSupervised} to handle survival
-problems with \strong{competing risks}.
-The target variable consists of survival times and an event indicator, which
-must be a non-negative integer in the set \eqn{(0,1,2,...,K)}.
-\eqn{0} represents censored observations, while other integers correspond to
-distinct competing events.
-Every row corresponds to one subject/observation.
+This task extends \link[mlr3:Task]{mlr3::Task} and \link[mlr3:TaskSupervised]{mlr3::TaskSupervised} for competing risks survival analysis.
+The target consists of a survival time and an event indicator.
+Event codes must be non-negative integers in \eqn{(0, 1, 2, ..., K)}.
+\eqn{0} denotes censoring, and positive integers denote distinct event causes.
+Each row represents one observation.
 
 Predefined tasks are stored in \link[mlr3:mlr_tasks]{mlr3::mlr_tasks}.
 
 The \code{task_type} is set to \code{"cmprsk"}.
 }
 \details{
-The following design choices are made for this task:
+The following design choices apply to this task:
 \itemize{
-\item Currently only right-censoring is supported.
-\item Competing risks tasks must always contain \strong{at least two non-censoring event types}, i.e \eqn{K \geq 2}.
-Use stratified resampling (for example via the \code{"stratum"} role) to reduce the risk
-of creating training splits with fewer than two causes.
+\item Only \strong{right-censoring} is currently supported.
+\item Tasks must contain at \strong{least two event causes}, i.e., \eqn{K \geq 2},
+encoded as consecutive integers \eqn{1, 2, ..., K}.
 }
+
+It is advised to use \strong{stratified resampling} to reduce the risk of creating
+training splits with fewer than two causes, which may cause issues during
+model training (and later prediction).
+Task filtering specifically issues a warning when the number of competing events
+is reduced but remains >= 2, and an error if fewer than two causes remain.
 }
 \examples{
 library(mlr3)
 task = tsk("pbc")
 
-# meta data
-task$target_names # target is always (time, status) for right-censoring tasks
+# Time and event target columns
+task$target_names
+# Feature names
 task$feature_names
-task$formula()
+# Censoring type
+task$cens_type
 
 # survival data
+task$formula(c("age", "sex")) # formula with survival::Surv() on LHS
 task$truth() # survival::Surv() object
 task$times() # (unsorted) times
 task$event() # event indicators (0 = censored, >0 = different causes)
 task$unique_times() # sorted unique times
 task$unique_event_times() # sorted unique event times (from any cause)
-task$aalen_johansen(strata = "sex") # Aalen-Johansen estimator
+task$cens_prop() # proportion of censored observations
 
-# proportion of censored observations across all dataset
-task$cens_prop()
+# Aalen-Johansen estimator
+task$aalen_johansen(strata = "sex")
+
+# Causes
+task$cmp_events
 
 }
 \seealso{
@@ -60,11 +69,11 @@ Other Task:
     \item{\code{cens_type}}{(\code{character(1)})\cr
 Returns the type of censoring.
 
-Currently, only the \code{"right"} censoring type is fully supported.
+Currently, only \code{"right"} censoring type is supported.
 The API might change in the future to support left and interval censoring.}
 
-    \item{\code{cmp_events}}{(\code{character(1)})\cr
-Returns the names of the competing events.}
+    \item{\code{cmp_events}}{(\code{character()})\cr
+Returns the competing event names: \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order.}
   }
   \if{html}{\out{</div>}}
 }
@@ -76,7 +85,6 @@ Returns the names of the competing events.}
     \item \href{#method-TaskCompRisks-formula}{\code{TaskCompRisks$formula()}}
     \item \href{#method-TaskCompRisks-times}{\code{TaskCompRisks$times()}}
     \item \href{#method-TaskCompRisks-event}{\code{TaskCompRisks$event()}}
-    \item \href{#method-TaskCompRisks-unique_events}{\code{TaskCompRisks$unique_events()}}
     \item \href{#method-TaskCompRisks-unique_times}{\code{TaskCompRisks$unique_times()}}
     \item \href{#method-TaskCompRisks-unique_event_times}{\code{TaskCompRisks$unique_event_times()}}
     \item \href{#method-TaskCompRisks-aalen_johansen}{\code{TaskCompRisks$aalen_johansen()}}
@@ -133,9 +141,9 @@ E.g., a \code{data.frame()} will be converted to a \link[mlr3:DataBackendDataTab
       \item{\code{time}}{(\code{character(1)})\cr
 Name of the column for outcome time.}
       \item{\code{event}}{(\code{character(1)})\cr
-Name of column giving that holds the event indicator.
+Name of column that holds the event indicator.
 \eqn{0} corresponds to censoring, values \eqn{> 0} correspond to different
-competing events.}
+competing events (or causes).}
       \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
     }
@@ -151,9 +159,7 @@ Label for the new instance.}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-truth}{}}}
 \subsection{\code{TaskCompRisks$truth()}}{
   True response for specified \code{row_ids}. This is the multi-state format
-using \link[survival:Surv]{Surv} with the \code{event} target column as a \code{factor}:
-\code{Surv(time, as.factor(event))}
-
+using \link[survival:Surv]{Surv} with the \code{event} target column as a \code{factor}.
 Defaults to all rows with role \code{"use"}.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
@@ -223,33 +229,11 @@ Row indices.}
 \if{html}{\out{<a id="method-TaskCompRisks-event"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-event}{}}}
 \subsection{\code{TaskCompRisks$event()}}{
-  Returns the event indicator.
+  Returns the event indicators.
+\eqn{0} denotes censoring, and positive integers denote distinct event causes.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TaskCompRisks$event(rows = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{rows}}{(\code{integer()})\cr
-Row indices.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    \code{integer()}
-  }
-}
-
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TaskCompRisks-unique_events"></a>}}
-\if{latex}{\out{\hypertarget{method-TaskCompRisks-unique_events}{}}}
-\subsection{\code{TaskCompRisks$unique_events()}}{
-  Returns the unique events (excluding censoring).
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{TaskCompRisks$unique_events(rows = NULL)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -342,9 +326,7 @@ Additional arguments passed down to \code{\link[survival:survfit.formula]{surviv
 \if{html}{\out{<a id="method-TaskCompRisks-cens_prop"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-cens_prop}{}}}
 \subsection{\code{TaskCompRisks$cens_prop()}}{
-  Returns the \strong{proportion of censoring} for this competing risks task.
-By default, this is returned for all observations, otherwise only the
-specified ones (\code{rows}).
+  Returns the \strong{proportion of censored observations} for this competing risks task.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TaskCompRisks$cens_prop(rows = NULL)}
@@ -367,7 +349,7 @@ Row indices.}
 \if{html}{\out{<a id="method-TaskCompRisks-filter"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-filter}{}}}
 \subsection{\code{TaskCompRisks$filter()}}{
-  Subsets the task, keeping only the rows specified via row ids \code{rows}.
+  Subsets the task, keeping only the rows specified via the row ids \code{rows}.
 This operation mutates the task in-place.
 A warning is thrown if the filtering results in fewer competing events
 than the original task.
