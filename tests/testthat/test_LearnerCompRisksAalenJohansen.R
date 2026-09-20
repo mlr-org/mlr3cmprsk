@@ -63,3 +63,13 @@ test_that("train params of cmprsk.aalen", {
   expect_true(res, info = res$error)
 })
 # no predict wrapped function is used for this learner, so we do not test predict params
+
+test_that("check that training works with no censored observations", {
+  task = as_task_cmprsk(
+    data.frame(time = 1:6, event = rep(c(1L, 2L), 3L), x = 1:6)
+  )
+  learner = lrn("cmprsk.aalen")
+  p = learner$train(task)$predict(task)
+
+  expect_prediction_cmprsk(p)
+})

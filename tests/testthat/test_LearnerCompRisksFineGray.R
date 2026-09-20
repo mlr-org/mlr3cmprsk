@@ -67,3 +67,13 @@ test_that("predict params of cmprsk.fg", {
   res = run_paramtest(learner, fun, exclude, tag = "predict")
   expect_true(res, info = res$error)
 })
+
+test_that("check that training works with no censored observations", {
+  task = as_task_cmprsk(
+    data.frame(time = 1:6, event = rep(c(1L, 2L), 3L), x = 1:6)
+  )
+  learner = lrn("cmprsk.fg")
+  p = learner$train(task)$predict(task)
+
+  expect_prediction_cmprsk(p)
+})

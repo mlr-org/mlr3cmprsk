@@ -85,7 +85,7 @@ LearnerCompRisksAalenJohansen = R6Class(
     .predict = function(task) {
       survfit_model = self$native_model
       trans_mat = survfit_model$pstate
-      trans_mat = trans_mat[, -1] # remove (s0) => prob of 'staying' censored (state 0)
+      trans_mat = trans_mat[, -1L, drop = FALSE] # remove state 0 (probability of being censored)
 
       times = survfit_model$time # unique time points from train set
       event_times = self$model$event_times # unique event times from train set
