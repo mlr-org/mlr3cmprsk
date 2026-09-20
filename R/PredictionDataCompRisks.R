@@ -8,10 +8,9 @@ as_prediction.PredictionDataCompRisks = function(x, check = TRUE, ...) {
 #' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   n_obs = length(assert_row_ids(pdata$row_ids))
-  assert_surv(pdata$truth, "Surv", len = n_obs, any.missing = TRUE, null.ok = TRUE)
-  # all the causes for which we have predictions must also be present in the test data
-  n_cmp_events = length(attr(pdata$truth, "states"))
-  assert_cif_list(pdata$cif, n_obs, n_cmp_events)
+  assert_surv(pdata$truth, len = n_obs)
+  causes = attr(pdata$truth, "states")
+  assert_cif_list(pdata$cif, n_rows = n_obs, n_causes = length(causes))
 
   pdata
 }
@@ -52,28 +51,23 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
     result[[elem]] = do.call(c, map(dots, elem))[ii]
   }
 
+  # combine CIFs (list of matrices) for each cause
   if ("cif" %in% predict_types) {
     # Extract list of CIF lists
     cif_lists = map(dots, "cif")
 
-    # Check that all CIF lists have the same number of competing risks
-    # Note: we assume that the causes are in the same order, eg "1", "2", etc.
-    # so just checking for their number is enough
-    n_cmp_events = unique(sapply(cif_lists, length))
-    if (length(n_cmp_events) != 1) {
-      stop("Error: Can't combine CIFs with different numbers of competing events")
+    # Check that all CIF lists have the same causes (names)
+    causes = as.character(seq_along(cif_lists[[1L]]))
+    for (cif_list in cif_lists) {
+      assert_names(names(cif_list), identical.to = causes)
     }
 
-    # Check time points for each cause and merge accordingly
-    merged_cifs = vector("list", n_cmp_events)
-    for (cause_idx in seq_len(n_cmp_events)) {
-      # get the cause-specific CIFs
-      cs_cifs = lapply(cif_lists, function(cif_list) cif_list[[cause_idx]])
-      # merge them by finding the common time points and using constant interpolation
-      merged_cifs[[cause_idx]] = align_cifs(cs_cifs, bind_rows = TRUE)[ii, , drop = FALSE]
+    # Combine CIFs for each cause and align them on a common time grid
+    merged_cifs = named_list(causes)
+    for (cause in causes) {
+      cs_cifs = map(cif_lists, function(cif_list) cif_list[[cause]])
+      merged_cifs[[cause]] = align_cifs(cs_cifs, bind_rows = TRUE)[ii, , drop = FALSE]
     }
-    # add the causes names
-    names(merged_cifs) = names(cif_lists[[1]])
     result$cif = merged_cifs
   }
 
