@@ -34,7 +34,7 @@ as_task_cmprsk.data.frame = function(
   id = deparse(substitute(x)),
   ...
 ) {
-  assert_data_frame(x, min.rows = 1L, min.cols = 1L, col.names = "unique")
+  assert_data_frame(x, min.rows = 1L, min.cols = 2L, col.names = "unique")
 
   ii = which(map_lgl(keep(x, is.double), anyInfinite))
   if (length(ii)) {
