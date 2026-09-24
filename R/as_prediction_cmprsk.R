@@ -6,10 +6,13 @@
 #' @details
 #' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
 #' - Cols `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
-#' - `CIF` per observation must be a named list of numeric vectors (one per event, names should be e.g. `"1"`, `"2"`, ...).
-#' - Event names should be identical across observations and in the same order;
-#' per-event CIF vectors should be of equal length (same time points).
-#' No check is performed.
+#' - The per-observation `CIF` object must be a named list of numeric vectors
+#' (one per cause), with names exactly `"1"`, `"2"`, ..., `"K"`, in that order
+#' (where `K` is the number of competing risks).
+#' - Cause names should be identical across observations and in the same order;
+#' CIF vectors corresponding to the same cause should be of equal length (same time points).
+#' - Values for the `event` column must be 0 (censoring) or one of the consecutive
+#' cause codes 1, 2, ..., K.
 #'
 #' @inheritParams mlr3::as_prediction
 #'
@@ -45,8 +48,17 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
   assert_names(names(x), must.include = mandatory, subset.of = c(mandatory, optional))
 
   cmp_event_ids = unique(unlist(lapply(x$CIF, names)))
+  # Check that the cause names are exactly "1", "2", ..., "K" in that order
+  assert_names(cmp_event_ids, identical.to = as.character(seq_along(cmp_event_ids)))
+  # Check that each observation's CIF list has the same cause names
+  for (obs_cif in x$CIF) {
+    assert_names(names(obs_cif), identical.to = cmp_event_ids)
+  }
+  # Check that the event column contains only 0 (censoring) or one of the cause codes
+  assert_integerish(x$event, lower = 0L, upper = length(cmp_event_ids), any.missing = FALSE)
+
+  # Reconstruct the list of CIF matrices (one per cause)
   cif = if ("CIF" %in% names(x)) {
-    # Reconstruct the list of matrices (one per competing risk)
     mat_list = lapply(cmp_event_ids, function(event_id) {
       do.call(rbind, lapply(x$CIF, function(obs_cif) obs_cif[[event_id]]))
     })
@@ -55,12 +67,13 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
     NULL
   }
 
-  setDT(x) # if just a `data.frame`, with = FALSE below will not work!
+  # we need to convert here, because if `x` is a data.frame, `with = FALSE` below does not work!
+  setDT(x)
   x_subset = x[, setdiff(names(x), c("time", "event", "CIF")), with = FALSE]
 
   invoke(
     PredictionCompRisks$new,
-    truth = Surv(x$time, factor(x$event, levels = c("0", sort(cmp_event_ids)))),
+    truth = Surv(x$time, factor(x$event, levels = c("0", cmp_event_ids))),
     cif = cif,
     .args = x_subset
   )
