@@ -29,10 +29,13 @@ Convert object to a \link{PredictionCompRisks}.
 If \code{x} is a \code{data.frame}/\code{data.table} input, the following requirements must be met:
 \itemize{
 \item Cols \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
-\item \code{CIF} per observation must be a named list of numeric vectors (one per event, names should be e.g. \code{"1"}, \code{"2"}, ...).
-\item Event names should be identical across observations and in the same order;
-per-event CIF vectors should be of equal length (same time points).
-No check is performed.
+\item The per-observation \code{CIF} object must be a named list of numeric vectors
+(one per cause), with names exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order
+(where \code{K} is the number of competing risks).
+\item Cause names should be identical across observations and in the same order;
+CIF vectors corresponding to the same cause should be of equal length (same time points).
+\item Values for the \code{event} column must be 0 (censoring) or one of the consecutive
+cause codes 1, 2, ..., K.
 }
 }
 \examples{

@@ -8,8 +8,12 @@ This object stores the predictions returned by a learner of class \link{LearnerC
 
 The \code{task_type} is set to \code{"cmprsk"}.
 
-Accessing all-cause survival or cause-specific hazard functions and similar methods
-from a \link{LearnerCompRisks} object is not possible atm.
+Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
+Filtering prediction rows retains all cause levels and CIFs, even for unobserved causes.
+Combining predictions requires the same cause set.
+
+Accessing all-cause survival or cause-specific hazard functions or similar quantities
+from a \link{LearnerCompRisks} object is not possible at the moment.
 }
 \examples{
 library(mlr3)
@@ -87,21 +91,22 @@ Task, used to extract defaults for \code{row_ids} and \code{truth}.}
       \item{\code{row_ids}}{(\code{integer()})\cr
 Row ids of the predicted observations, i.e. the row ids of the test set.}
       \item{\code{truth}}{(\code{survival::Surv()})\cr
-True (observed) response.}
+True (observed) response.
+State names must be \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order, matching the CIF list.}
       \item{\code{cif}}{(\code{list()})\cr
 A \code{list} of two or more \code{matrix} objects.
-Each matrix represents a different competing event and it stores the
+Each matrix represents a different competing event (or cause) and stores the
 \strong{Cumulative Incidence function} for each test observation.
 In each matrix, rows represent observations and columns time points.
-The names of the \code{list} must correspond to the competing event names
-(\code{task$cmp_events}).}
+The names of the \code{list} must correspond to the cause names in the \code{truth}
+object, i.e. \code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
       \item{\code{check}}{(\code{logical(1)})\cr
-If \code{TRUE}, performs argument checks and predict type conversions.}
+If \code{TRUE}, performs argument checks.}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Details}{
-    The \code{cif} input currently is a list of CIF matrices.
+    The \code{cif} input is a list of CIF matrices.
   }
 }
 

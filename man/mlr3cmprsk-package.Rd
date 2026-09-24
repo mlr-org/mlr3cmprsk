@@ -10,6 +10,14 @@
 
 Provides a unified interface for right-censored competing risks tasks in 'mlr3'.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/mlr-org/mlr3cmprsk}
+  \item Report bugs at \url{https://github.com/mlr-org/mlr3cmprsk/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: John Zobolas \email{bblodfon@gmail.com} (\href{https://orcid.org/0000-0002-3609-8674}{ORCID})
 
