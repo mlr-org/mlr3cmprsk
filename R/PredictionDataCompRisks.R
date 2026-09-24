@@ -1,7 +1,7 @@
 # Here we define some mlr3-mandatory S3 methods of the `PredictionDataSurv` object
 
 #' @export
-as_prediction.PredictionDataCompRisks = function(x, check = TRUE, ...) {
+as_prediction.PredictionDataCompRisks = function(x, check = FALSE, ...) {
   invoke(PredictionCompRisks$new, check = check, .args = x)
 }
 
