@@ -10,7 +10,7 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   n_obs = length(assert_row_ids(pdata$row_ids))
   if (n_obs > 0) {
     assert_class(pdata$truth, "Surv")
-    expect_equal(length(pdata$truth), n_obs)
+    assert_true(length(pdata$truth) == n_obs)
 
     causes = attr(pdata$truth, "states")
     assert_cif_list(pdata$cif, n_rows = n_obs, causes = causes)
