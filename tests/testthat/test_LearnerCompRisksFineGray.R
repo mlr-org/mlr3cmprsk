@@ -21,7 +21,7 @@ test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
     expect_list(model, len = length(task$cmp_events), types = "crr")
     expect_equal(names(model), task$cmp_events)
 
-    p = learner$predict(task, part$test)
+    p = suppressWarnings(learner$predict(task, part$test))
     cif_list = p$cif
     expect_equal(names(cif_list), task$cmp_events)
 
@@ -73,7 +73,7 @@ test_that("check that training works with no censored observations", {
     data.frame(time = 1:6, event = rep(c(1L, 2L), 3L), x = 1:6)
   )
   learner = lrn("cmprsk.fg")
-  p = learner$train(task)$predict(task)
+  p = suppressWarnings(learner$train(task)$predict(task))
 
   expect_prediction_cmprsk(p)
 })

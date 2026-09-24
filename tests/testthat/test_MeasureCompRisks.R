@@ -11,7 +11,7 @@ task$select(feats)
 l1 = lrn("cmprsk.aalen")
 l2 = lrn("cmprsk.fg")
 p1 = l1$train(task)$predict(task)
-p2 = l2$train(task)$predict(task)
+p2 = suppressWarnings(l2$train(task)$predict(task))
 
 test_that("cmprsk.auc works", {
   m = msr("cmprsk.auc")
@@ -170,7 +170,7 @@ test_that("cmprsk.ibs works", {
   expect_gte(p1$score(m), 0)
   expect_gte(p2$score(m), 0)
 
-  # bs_meanrequest for cause that doesn't exist should give an error
+  # request for cause that doesn't exist should give an error
   m = msr("cmprsk.ibs", cause = 3)
   expect_error(p2$score(m), "Invalid cause")
 
