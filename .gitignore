@@ -184,3 +184,5 @@ revdep/
 **/*.quarto_ipynb
 
 .posit/*
+
+attic/*
