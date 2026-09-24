@@ -8,9 +8,27 @@ as_prediction.PredictionDataCompRisks = function(x, check = TRUE, ...) {
 #' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   n_obs = length(assert_row_ids(pdata$row_ids))
-  assert_surv(pdata$truth, len = n_obs)
-  causes = attr(pdata$truth, "states")
-  assert_cif_list(pdata$cif, n_rows = n_obs, n_causes = length(causes))
+  if (n_obs > 0) {
+    assert_surv(pdata$truth, len = n_obs)
+
+    causes = attr(pdata$truth, "states")
+    assert_cif_list(pdata$cif, n_rows = n_obs, causes = causes)
+
+    # Joint coherence between CIFs is desirable but not required
+    # Independently fitted cause-specific models (e.g. Fine-Gray)
+    # can produce CIFs whose sum exceeds 1.
+    aligned_cifs = align_cifs(pdata$cif, bind_rows = FALSE)
+    cif_sum = Reduce(`+`, aligned_cifs)
+    tol = sqrt(.Machine$double.eps)
+
+    if (any(cif_sum > 1 + tol)) {
+      warning_mlr3(
+        "Predicted cause-specific CIFs are not jointly coherent: their sum
+        exceeds 1 for some observations/time points.",
+        class = "Mlr3WarningCIFSumExceedsOne"
+      )
+    }
+  }
 
   pdata
 }
