@@ -27,38 +27,53 @@ assert_surv = function(x, len = NULL, any.missing = FALSE, null.ok = FALSE, .var
 #' A list of CIF matrices. Each matrix should have dimensions (obs x times).
 #' @param n_rows (`numeric(1)`)\cr
 #' Expected number of rows of each CIF matrix.
-#' @param n_causes (`numeric(1)`)\cr
-#' Expected number of competing events/causes.
-#' This should be equal to the number of elements of the input list.
+#' @param causes (`character()`)\cr
+#' Expected causes.
+#' These must be consecutive integers starting at 1 (i.e. `"1"`, `"2"`, ...)
+#' and match the names of the list.
 #'
 #' @return if the assertion fails an error occurs, otherwise `NULL` is returned
 #' invisibly.
 #'
 #' @noRd
-assert_cif_list = function(x, n_rows = NULL, n_causes = NULL) {
+assert_cif_list = function(x, n_rows = NULL, causes = NULL) {
   # List of matrices, with at least 2 elements/competing risks
   assert_list(
     x,
     types = "matrix",
     any.missing = FALSE,
     min.len = 2L,
-    len = n_causes,
+    len = if (is.null(causes)) NULL else length(causes),
     names = "unique"
   )
 
-  # Element names should be "1", "2", ..., "K" for K competing events
-  assert_names(names(x), identical.to = as.character(seq_along(x)))
+  # Competing events must be "1", ..., "K"
+  expected_causes = as.character(seq_along(x))
+
+  if (!is.null(causes) && !identical(causes, expected_causes)) {
+    error_learner_predict(
+      "Expected competing causes to be %s, but got %s.",
+      str_collapse(expected_causes),
+      str_collapse(causes)
+    )
+  }
+
+  if (!identical(names(x), expected_causes)) {
+    error_learner_predict(
+      "CIF list names must be %s, and not %s.",
+      str_collapse(expected_causes),
+      str_collapse(names(x))
+    )
+  }
 
   for (mat in x) {
-    # Each element a matrix
-    assert_matrix(
-      mat,
-      mode = "numeric",
-      any.missing = FALSE,
-      min.rows = 1L,
-      min.cols = 1L,
-      col.names = "named" # for now, names of columns = times
-    )
+    # Checks:
+    # - numeric matrix, no missing values
+    # - valid, unique, increasing non-negative times
+    # - CIF values in [0,1]
+    # - non-decreasing CIF
+    # - CIF(0) = 0 if t = 0 is present
+    survdistr::assert_prob(mat, type = "cif")
 
     # check `nrow` == `n_obs`
     if (!is.null(n_rows)) {
@@ -71,18 +86,6 @@ assert_cif_list = function(x, n_rows = NULL, n_causes = NULL) {
         )
       )
     }
-
-    # check column names => time points
-    assert_numeric(
-      as.numeric(colnames(mat)),
-      lower = 0,
-      unique = TRUE,
-      sorted = TRUE,
-      finite = TRUE,
-      any.missing = FALSE,
-      null.ok = FALSE,
-      .var.name = "Colnames must be coercible to positive, unique, increasing numeric time points"
-    )
   }
 
   invisible(NULL)
