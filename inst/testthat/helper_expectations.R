@@ -24,10 +24,9 @@ expect_prediction_cmprsk = function(p) {
     classes = c("Prediction", "PredictionCompRisks"),
     public = c("row_ids", "truth", "predict_types", "cif")
   )
-  expect_r6(
+  expect_class(
     p$data,
-    classes = c("PredictionData", "PredictionDataCompRisks"),
-    public = c("row_ids", "truth", "cif")
+    classes = c("PredictionData", "PredictionDataCompRisks")
   )
   testthat::expect_output(print(p), "Prediction")
   expect_data_table(data.table::as.data.table(p), nrows = length(p$row_ids))
