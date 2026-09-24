@@ -67,3 +67,6 @@ reference:
   - title: Converters
     contents:
       - starts_with("as_")
+  - title: Assertions
+    contents:
+      - assert_cif_list

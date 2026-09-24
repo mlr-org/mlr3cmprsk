@@ -20,22 +20,47 @@ assert_surv = function(x, len = NULL, any.missing = FALSE, null.ok = FALSE, .var
   assert_matrix(x, any.missing = any.missing, nrows = len, null.ok = null.ok, .var.name = .var.name)
 }
 
-#' @description Asserts if the given input list is a list of Cumulative Incidence
-#' matrices.
+#' @title Assert a List of Cumulative Incidence Matrices
+#'
+#' @description
+#' Checks the structure, cause names, and probabilities of a list of cumulative incidence function (CIF) matrices.
+#' This is the format used by [PredictionCompRisks] to store predictions for competing events.
 #'
 #' @param x (`list()`)\cr
-#' A list of CIF matrices. Each matrix should have dimensions (obs x times).
-#' @param n_rows (`numeric(1)`)\cr
-#' Expected number of rows of each CIF matrix.
-#' @param causes (`character()`)\cr
-#' Expected causes.
-#' These must be consecutive integers starting at 1 (i.e. `"1"`, `"2"`, ...)
-#' and match the names of the list.
+#'   A list of at least two numeric matrices, one per competing event.
+#'   List names must be exactly `"1"`, `"2"`, ..., `"K"`, in that order, where `K` is the number of matrices.
+#'   Rows represent observations, and columns represent time points.
+#' @param n_rows (`integer(1)`|`NULL`)\cr
+#'   Expected number of observations in each matrix.
+#'   If `NULL`, no specific row count is required.
+#' @param causes (`character()`|`NULL`)\cr
+#'   Expected competing event names: `"1"`, `"2"`, ..., `"K"`, in that order.
+#'   If supplied, these must match the list names exactly.
+#'   If `NULL`, the expected names are determined from the length of `x`.
 #'
-#' @return if the assertion fails an error occurs, otherwise `NULL` is returned
-#' invisibly.
+#' @details
+#' Each matrix is checked with [survdistr::assert_prob()] using `type = "cif"`:
+#' - At least one row and one column are required, and missing values are not allowed.
+#' - Column names must represent unique, increasing, non-negative numeric time points.
+#' - Probabilities must be between 0 and 1 and non-decreasing over time within each row.
+#' - If time 0 is included, its probabilities must all be 0.
 #'
-#' @noRd
+#' Matrices are checked individually and may use different time grids.
+#'
+#' @return Returns `NULL` invisibly if all checks pass, otherwise raises an error.
+#' @export
+#' @examples
+#' cif = list(
+#'   "1" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4), nrow = 2L),
+#'   "2" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
+#' )
+#' cif = lapply(cif, function(x) {
+#'   colnames(x) = c("0", "1", "2")
+#'   x
+#' })
+#'
+#' assert_cif_list(cif)
+#' assert_cif_list(cif, n_rows = 2L, causes = c("1", "2"))
 assert_cif_list = function(x, n_rows = NULL, causes = NULL) {
   # List of matrices, with at least 2 elements/competing risks
   assert_list(
