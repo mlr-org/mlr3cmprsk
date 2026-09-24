@@ -30,7 +30,8 @@ expect_prediction_cmprsk = function(p) {
   )
   testthat::expect_output(print(p), "Prediction")
   expect_data_table(data.table::as.data.table(p), nrows = length(p$row_ids))
-  assert_surv(p$truth, len = length(p$row_ids))
+  assert_class(p$truth, "Surv")
+  expect_equal(length(p$truth), length(p$row_ids))
   assert_list(p$cif, types = "matrix", len = length(attr(p$truth, "states")))
   expect_equal(names(p$cif), attr(p$truth, "states"))
 }
