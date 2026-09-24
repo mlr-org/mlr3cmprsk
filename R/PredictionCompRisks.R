@@ -5,8 +5,12 @@
 #'
 #' The `task_type` is set to `"cmprsk"`.
 #'
-#' Accessing all-cause survival or cause-specific hazard functions and similar methods
-#' from a [LearnerCompRisks] object is not possible atm.
+#' Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
+#' Filtering prediction rows retains all cause levels and CIFs, even for unobserved causes.
+#' Combining predictions requires the same cause set.
+#'
+#' Accessing all-cause survival or cause-specific hazard functions or similar quantities
+#' from a [LearnerCompRisks] object is not possible at the moment.
 #'
 #' @family Prediction
 #' @examples
@@ -37,7 +41,7 @@ PredictionCompRisks = R6Class(
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
     #' @details
-    #' The `cif` input currently is a list of CIF matrices.
+    #' The `cif` input is a list of CIF matrices.
     #'
     #' @param task ([TaskCompRisks])\cr
     #'   Task, used to extract defaults for `row_ids` and `truth`.
@@ -47,17 +51,18 @@ PredictionCompRisks = R6Class(
     #'
     #' @param truth (`survival::Surv()`)\cr
     #'   True (observed) response.
+    #'   State names must be `"1"`, `"2"`, ..., `"K"`, in that order, matching the CIF list.
     #'
     #' @param cif (`list()`)\cr
     #'   A `list` of two or more `matrix` objects.
-    #'   Each matrix represents a different competing event and it stores the
+    #'   Each matrix represents a different competing event (or cause) and stores the
     #'   **Cumulative Incidence function** for each test observation.
     #'   In each matrix, rows represent observations and columns time points.
-    #'   The names of the `list` must correspond to the competing event names
-    #'   (`task$cmp_events`).
+    #'   The names of the `list` must correspond to the cause names in the `truth`
+    #'   object, i.e. `"1"`, `"2"`, ..., `"K"`, exactly in that order.
     #'
     #' @param check (`logical(1)`)\cr
-    #'   If `TRUE`, performs argument checks and predict type conversions.
+    #'   If `TRUE`, performs argument checks.
     initialize = function(
       task = NULL,
       row_ids = task$row_ids,
@@ -100,16 +105,15 @@ PredictionCompRisks = R6Class(
 as.data.table.PredictionCompRisks = function(x, ...) {
   tab = as.data.table(x$data["row_ids"])
   tab$time = x$data$truth[, 1L]
-  tab$event = x$data$truth[, 2L]
+  tab$event = as.integer(x$data$truth[, 2L])
   n_obs = length(x$row_ids)
 
   if ("cif" %in% x$predict_types && n_obs > 0) {
     tab$CIF = lapply(1:n_obs, function(i) {
       # we use a list since there is a possibility that each CIF matrix has
       # different number of time points (columns) per competing risk
-      # TODO: check that this is not the case anywhere in the code
       cif_list = lapply(x$cif, function(mat) mat[i, , drop = TRUE])
-      names(cif_list) = names(x$cif) # preserve the competing risk names/ids
+      names(cif_list) = names(x$cif) # preserve the cause ids
       cif_list
     })
   }
