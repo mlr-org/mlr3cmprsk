@@ -19,11 +19,11 @@ test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
     model = learner$model
     expect_s3_class(model, "fine_gray")
     expect_list(model, len = length(task$cmp_events), types = "crr")
-    expect_setequal(names(model), task$cmp_events)
+    expect_equal(names(model), task$cmp_events)
 
     p = learner$predict(task, part$test)
     cif_list = p$cif
-    expect_setequal(names(cif_list), task$cmp_events)
+    expect_equal(names(cif_list), task$cmp_events)
 
     # CIF grids should match the training event-time grid for every cause (within tolerance)
     time_grids = lapply(cif_list, function(x) as.numeric(colnames(x)))

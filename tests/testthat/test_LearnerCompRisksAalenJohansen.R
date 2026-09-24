@@ -24,7 +24,7 @@ test_that("cmprsk.aalen returns aligned CIF time grids", {
 
     p = learner$predict(task, part$test)
     cif_list = p$cif
-    expect_setequal(names(cif_list), task$cmp_events)
+    expect_equal(names(cif_list), task$cmp_events)
 
     # CIF grids should match the training event-time grid for every cause (within tolerance)
     time_grids = lapply(cif_list, function(x) as.numeric(colnames(x)))
