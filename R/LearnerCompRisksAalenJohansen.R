@@ -17,7 +17,8 @@
 #'
 #' @template example_aalen
 #' @export
-LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
+LearnerCompRisksAalenJohansen = R6Class(
+  "LearnerCompRisksAalenJohansen",
   inherit = LearnerCompRisks,
   public = list(
     #' @description
@@ -43,7 +44,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     #' @return Named `numeric()`.
     importance = function() {
       if (is.null(self$model)) {
-        stopf("No model stored")
+        error_learner("No model stored")
       }
 
       fn = self$model$features
@@ -58,7 +59,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     #' @return `character(0)`.
     selected_features = function() {
       if (is.null(self$model)) {
-        stopf("No model stored")
+        error_learner("No model stored")
       }
 
       character()
@@ -84,7 +85,7 @@ LearnerCompRisksAalenJohansen = R6Class("LearnerCompRisksAalenJohansen",
     .predict = function(task) {
       survfit_model = self$native_model
       trans_mat = survfit_model$pstate
-      trans_mat = trans_mat[, -1] # remove (s0) => prob of 'staying' censored (state 0)
+      trans_mat = trans_mat[, -1L, drop = FALSE] # remove state 0 (probability of being censored)
 
       times = survfit_model$time # unique time points from train set
       event_times = self$model$event_times # unique event times from train set

@@ -1,7 +1,7 @@
 test_that("competing risks measures are available", {
   expect_r6(msr("cmprsk.auc"), "MeasureCompRisksAUC")
   expect_r6(msr("cmprsk.brier"), "MeasureCompRisksBrierScore")
-  #expect_r6(msr("cmprsk.ibs"), "MeasureCompRisksIntegratedBrierScore")
+  expect_r6(msr("cmprsk.ibs"), "MeasureCompRisksIntegratedBrierScore")
 })
 
 task = tsk("pbc")
@@ -11,7 +11,7 @@ task$select(feats)
 l1 = lrn("cmprsk.aalen")
 l2 = lrn("cmprsk.fg")
 p1 = l1$train(task)$predict(task)
-p2 = l2$train(task)$predict(task)
+p2 = suppressWarnings(l2$train(task)$predict(task))
 
 test_that("cmprsk.auc works", {
   m = msr("cmprsk.auc")
@@ -81,16 +81,16 @@ test_that("cmprsk.brier works", {
   expect_equal(m$minimize, TRUE)
   expect_equal(m$param_set$values$cause, "mean")
 
-  # BS(t) for AJ estimator should be higher compared to Fine-Gray model
+  # Fine-Gray is better than AJ estimator for BS(t) across causes
   bs_aj = p1$score(m)
   bs_fg = p2$score(m)
-  expect_gt(bs_aj, bs_fg)
+  expect_lt(bs_fg, bs_aj)
 
   # BS(t) can't be calculated via RiskRegression beyond the
   # maximum observed time from the test set
   m = msr("cmprsk.brier", time = 160)
-  suppressMessages(expect_error(p1$score(m)))
-  suppressMessages(expect_error(p2$score(m)))
+  expect_error(p1$score(m), class = "Mlr3ErrorInput")
+  expect_error(p2$score(m), class = "Mlr3ErrorInput")
 
   # request for early time point works just fine for BS(t)
   m = msr("cmprsk.brier", time = 3)
@@ -126,7 +126,7 @@ test_that("cmprsk.brier works", {
   expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
   bs_mean = p2$score(m)
   expect_equal(bs_mean, (bs1 + bs2) / 2)
-  # weighted mean BS(t) across causes should be different from mean BS(t) across causes
+  # event-weighted mean BS(t) across causes should be different from mean BS(t) across causes
   expect_true(bs_fg != bs_mean)
 
   # manually calculate weighted mean BS(t) across causes with user-specified weights
@@ -134,4 +134,77 @@ test_that("cmprsk.brier works", {
   weights = unname(prop.table(table(event[event != 0])))
   m = msr("cmprsk.brier", cause = "mean", cause_weights = weights)
   expect_equal(p2$score(m), bs_fg)
+})
+
+test_that("cmprsk.ibs works", {
+  m = msr("cmprsk.ibs")
+  expect_equal(m$properties, "na_score")
+  expect_equal(m$minimize, TRUE)
+  expect_equal(m$param_set$values$cause, "mean")
+
+  # Fine-Gray is better than AJ estimator for IBS (across causes)
+  ibs_aj = p1$score(m)
+  ibs_fg = p2$score(m)
+  expect_lt(ibs_fg, ibs_aj)
+
+  # IBS can't be calculated via RiskRegression beyond the
+  # maximum observed time from the test set (149)
+  m = msr("cmprsk.ibs", times = c(0, 1, 10, 100, 120, 150))
+  expect_warning(p1$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning")
+  expect_warning(p2$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning")
+  m = msr("cmprsk.ibs", times = c(0, 1, 10, 100, 120, 150, 200))
+  expect_warning(p1$score(m), regexp = "We remove 2 time point", class = "Mlr3Warning")
+
+  # IBS must have at least two distinct time points
+  expect_error(msr("cmprsk.ibs", times = 42))
+  m = msr("cmprsk.ibs", times = c(42, 160))
+  # ...even when some are removed due to being larger than the max test set time
+  expect_error(
+    expect_warning(p1$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning"),
+    regexp = "`times` must contain at least two distinct time points.",
+    class = "Mlr3Error"
+  )
+
+  # request for early time point works just fine for IBS
+  m = msr("cmprsk.ibs", times = c(0, 1, 2))
+  expect_gte(p1$score(m), 0)
+  expect_gte(p2$score(m), 0)
+
+  # request for cause that doesn't exist should give an error
+  m = msr("cmprsk.ibs", cause = 3)
+  expect_error(p2$score(m), "Invalid cause")
+
+  # cause weights must sum to 1
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.6))
+  expect_error(p2$score(m), "must sum to 1")
+
+  # check usage of cause_weights for IBS calculation
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(1, 0))
+  expect_equal(m$param_set$values$cause_weights, c(1, 0))
+  ibs1 = p2$score(m)
+
+  m = msr("cmprsk.ibs", cause = 1)
+  ibs11 = p2$score(m)
+  expect_equal(ibs1, ibs11)
+
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0, 1))
+  expect_equal(m$param_set$values$cause_weights, c(0, 1))
+  ibs2 = p2$score(m)
+
+  m = msr("cmprsk.ibs", cause = 2)
+  ibs22 = p2$score(m)
+  expect_equal(ibs2, ibs22)
+
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.5))
+  expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
+  ibs_mean = p2$score(m)
+  expect_equal(ibs_mean, (ibs1 + ibs2) / 2)
+  # event-weighted mean IBS across causes should be different from mean IBS across causes
+  expect_true(ibs_fg != ibs_mean)
+
+  # manually calculate event-weighted mean IBS across causes with user-specified weights
+  event = task$event()
+  weights = unname(prop.table(table(event[event != 0])))
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = weights)
+  expect_equal(p2$score(m), ibs_fg)
 })

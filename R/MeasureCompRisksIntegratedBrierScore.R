@@ -1,32 +1,21 @@
-#' @title Brier Score Competing Risks Measure
-#' @name mlr_measures_cmprsk.brier
-#' @templateVar id cmprsk.brier
+#' @title Competing Risks Integrated Brier Score
+#' @name mlr_measures_cmprsk.ibs
+#' @templateVar id cmprsk.ibs
 #' @template cmprsk_measure
 #'
 #' @description
-#' Calculates the competing risks prediction error (Brier score, BS(t)) at a
-#' **specific time point**, using IPCW as described in Schoop et al. (2011).
+#' Calculates the integrated competing-risks prediction error or Brier Score
+#' (IBS) at given times, using IPCW as described in Schoop et al. (2011).
 #'
 #' @details
-#' By default, this measure returns a **cause-independent BS(t)** (or all-cause)
-#' score, calculated as a weighted average of the cause-specific Brier scores.
+#' By default, this measure returns a **cause-independent IBS** (or all-cause)
+#' score, calculated as a weighted average of the cause-specific IBS (Integrated Brier Score) scores.
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (8) in Spitoni et al. (2018).
 #' User-supplied weights are also supported.
 #'
-#' Alternatively, users can obtain the **cause-specific Brier score** for any
+#' Alternatively, users can obtain the **cause-specific IBS** for any
 #' individual cause by specifying the `cause` parameter.
-#'
-#' Calls [riskRegression::Score()] with:
-#' - `metric = "brier"`
-#' - `cens.method = "ipcw"`
-#' - `cens.model = "km"`
-#'
-#' Notes on the `riskRegression` implementation:
-#' 1. IPCW weights are estimated using the **test data only**, so smaller test
-#' sets may lead to less stable estimates.
-#' 2. No extrapolation is supported: if `time` exceeds the maximum observed
-#' time on the test data, an error is thrown.
 #'
 #' @section Parameter details:
 #' - `cause` (`numeric(1)|"mean"`)\cr
@@ -39,18 +28,18 @@
 #'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
 #'  i.e. first weight for first cause, second weight for second cause, etc.
 #'  See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
-#' - `time` (`numeric(1)`)\cr
-#'  Single time point at which to return the score.
-#'  If `NULL`, the **median observed time point** from the test set is used.
+#' - `times` (`numeric(1)`)\cr
+#'  Time points used for numerical integration. If `NULL`, all unique
+#'  times from the test set are used.
 #'
 #' @references
-#' `r format_bib("schoop_2011", "spitoni_2018")`
+#' `r format_bib("schoop_2011")`
 #'
-#' @templateVar msr_id brier
+#' @templateVar msr_id ibs
 #' @template example_fine_gray
 #' @export
-MeasureCompRisksBrierScore = R6Class(
-  "MeasureCompRisksBrierScore",
+MeasureCompRisksIntegratedBrierScore = R6Class(
+  "MeasureCompRisksIntegratedBrierScore",
   inherit = MeasureCompRisks,
   public = list(
     #' @description
@@ -59,18 +48,29 @@ MeasureCompRisksBrierScore = R6Class(
       param_set = ps(
         cause = p_int(lower = 1, init = "mean", special_vals = list("mean")),
         cause_weights = p_uty(default = NULL, special_vals = list(NULL)),
-        time = p_dbl(lower = 0, default = NULL, special_vals = list(NULL))
+        times = p_uty(default = NULL, special_vals = list(NULL), custom_check = function(x) {
+          checkmate::check_numeric(
+            x,
+            lower = 0,
+            min.len = 2L,
+            unique = TRUE,
+            sorted = TRUE,
+            finite = TRUE,
+            any.missing = FALSE,
+            null.ok = TRUE
+          )
+        })
       )
 
       super$initialize(
-        id = "cmprsk.brier",
+        id = "cmprsk.ibs",
         param_set = param_set,
         range = c(0, Inf),
         minimize = TRUE,
         properties = "na_score",
         packages = "riskRegression",
-        label = "Competing Risks Brier Score (fixed time)",
-        man = "mlr3cmprsk::mlr_measures_cmprsk.brier"
+        label = "Competing Risks Integrated Brier Score",
+        man = "mlr3cmprsk::mlr_measures_cmprsk.ibs"
       )
     }
   ),
@@ -87,21 +87,30 @@ MeasureCompRisksBrierScore = R6Class(
       )
       form = formulate(lhs = "Hist(time, event)", rhs = "1", env = getNamespace("prodlim"))
 
-      # Define evaluation time (single time point for BS)
-      time = if (is.null(pv$time)) {
-        median(data$time)
-      } else {
-        assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
+      # define evaluation/integration time grid
+      times = pv$times
+      if (is.null(times)) {
+        times = sort(unique(data$time))
       }
 
-      # RiskRegression can't evaluate for time > max time point from the test set
+      # RiskRegression can't evaluate for times > max time point from the test set
       t_max = max(data$time)
-      if (time > t_max) {
-        error_input(
+      is_larger_than_t_max = times > t_max
+      if (any(is_larger_than_t_max)) {
+        warning_mlr3(
           sprintf(
-            "RiskRegression cannot evaluate time points larger than the maximum test-set time (%f).",
-            t_max
+            "RiskRegression cannot evaluate time points larger than the maximum
+            test-set time (%f). We remove %d time point(s) from `times`",
+            t_max,
+            sum(is_larger_than_t_max)
           )
+        )
+        times = times[!is_larger_than_t_max]
+      }
+
+      if (length(times) < 2L) {
+        error_mlr3(
+          "`times` must contain at least two distinct time points."
         )
       }
 
@@ -128,38 +137,40 @@ MeasureCompRisksBrierScore = R6Class(
         }
       }
 
-      brier_score = function(cause) {
-        # get CIF on the given time point
+      ibs = function(cause) {
+        # get CIF on the times grid
         mat = survdistr::interp_cif(
           x = cif_list[[cause]], # cause-specific CIF
-          eval_times = time,
+          eval_times = times,
           add_times = FALSE,
           check = FALSE
         )
 
-        # calculate BS(t) score
+        # calculate IBS score
         res = riskRegr_score(
           mat_list = list(mat),
           metric = "brier",
           data = data,
           formula = form,
-          times = time,
-          cause = cause
+          times = times,
+          cause = cause,
+          summary = "ibs"
         )
 
-        res$Brier$score$Brier # one time point => one Brier score value
+        # IBS up until last time point
+        tail(res$Brier$score$IBS, 1L)
       }
 
       if (cause != "mean") {
-        return(brier_score(cause))
+        return(ibs(cause))
       }
 
-      brier_scores = vapply(causes, brier_score, numeric(1L))
+      ibs_scores = vapply(causes, ibs, numeric(1L))
 
-      aggregate_scores(brier_scores, data$event, cause_weights)
+      aggregate_scores(ibs_scores, data$event, cause_weights)
     }
   )
 )
 
 #' @include aaa.R
-measures[["cmprsk.brier"]] = MeasureCompRisksBrierScore
+measures[["cmprsk.ibs"]] = MeasureCompRisksIntegratedBrierScore

@@ -19,11 +19,11 @@ test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
     model = learner$model
     expect_s3_class(model, "fine_gray")
     expect_list(model, len = length(task$cmp_events), types = "crr")
-    expect_setequal(names(model), task$cmp_events)
+    expect_equal(names(model), task$cmp_events)
 
-    p = learner$predict(task, part$test)
+    p = suppressWarnings(learner$predict(task, part$test))
     cif_list = p$cif
-    expect_setequal(names(cif_list), task$cmp_events)
+    expect_equal(names(cif_list), task$cmp_events)
 
     # CIF grids should match the training event-time grid for every cause (within tolerance)
     time_grids = lapply(cif_list, function(x) as.numeric(colnames(x)))
@@ -48,7 +48,8 @@ test_that("train params of cmprsk.fg", {
     "tf", # not supported
     "failcode", # handled by mlr3
     "cencode", # handled by mlr3
-    "subset", # hanlded by mlr3
+    "cengroup", # not supported
+    "subset", # handled by mlr3
     "na.action" # not supported
   )
   res = run_paramtest(learner, fun, exclude, tag = "train")
@@ -65,4 +66,14 @@ test_that("predict params of cmprsk.fg", {
   )
   res = run_paramtest(learner, fun, exclude, tag = "predict")
   expect_true(res, info = res$error)
+})
+
+test_that("check that training works with no censored observations", {
+  task = as_task_cmprsk(
+    data.frame(time = 1:6, event = rep(c(1L, 2L), 3L), x = 1:6)
+  )
+  learner = lrn("cmprsk.fg")
+  p = suppressWarnings(learner$train(task)$predict(task))
+
+  expect_prediction_cmprsk(p)
 })

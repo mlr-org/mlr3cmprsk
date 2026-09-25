@@ -8,8 +8,14 @@ This object stores the predictions returned by a learner of class \link{LearnerC
 
 The \code{task_type} is set to \code{"cmprsk"}.
 
-For accessing survival and hazard functions, as well as other complex methods
-from a \link{LearnerCompRisks} object is not possible atm.
+Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
+By design, predictions contain one CIF matrix for every cause in \code{task$cmp_events},
+including causes that are not observed among the predicted observations.
+Filtering prediction rows retains all cause levels and CIFs, even for unobserved causes.
+Combining predictions requires the same cause set.
+
+Accessing all-cause survival or cause-specific hazard functions or similar quantities
+from a \link{LearnerCompRisks} object is not possible at the moment.
 }
 \examples{
 library(mlr3)
@@ -36,95 +42,107 @@ tab$CIF[[1]] # for first test observation, list of CIF vectors
 \code{\link[mlr3:Prediction]{mlr3::Prediction}} -> \code{PredictionCompRisks}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{truth}}{(\code{Surv})\cr
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{truth}}{(\code{Surv})\cr
 True (observed) outcome.}
 
-\item{\code{cif}}{(\code{list()})\cr
+    \item{\code{cif}}{(\code{list()})\cr
 Access the stored CIFs.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PredictionCompRisks-new}{\code{PredictionCompRisks$new()}}
-\item \href{#method-PredictionCompRisks-clone}{\code{PredictionCompRisks$clone()}}
+  \itemize{
+    \item \href{#method-PredictionCompRisks-initialize}{\code{PredictionCompRisks$new()}}
+    \item \href{#method-PredictionCompRisks-clone}{\code{PredictionCompRisks$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="filter"><a href='../../mlr3/html/Prediction.html#method-Prediction-filter'><code>mlr3::Prediction$filter()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="format"><a href='../../mlr3/html/Prediction.html#method-Prediction-format'><code>mlr3::Prediction$format()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="help"><a href='../../mlr3/html/Prediction.html#method-Prediction-help'><code>mlr3::Prediction$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="obs_loss"><a href='../../mlr3/html/Prediction.html#method-Prediction-obs_loss'><code>mlr3::Prediction$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="print"><a href='../../mlr3/html/Prediction.html#method-Prediction-print'><code>mlr3::Prediction$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="score"><a href='../../mlr3/html/Prediction.html#method-Prediction-score'><code>mlr3::Prediction$score()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="filter"><a href='../../mlr3/html/Prediction.html#method-Prediction-filter'><code>mlr3::Prediction$filter()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="format"><a href='../../mlr3/html/Prediction.html#method-Prediction-format'><code>mlr3::Prediction$format()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="help"><a href='../../mlr3/html/Prediction.html#method-Prediction-help'><code>mlr3::Prediction$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="obs_loss"><a href='../../mlr3/html/Prediction.html#method-Prediction-obs_loss'><code>mlr3::Prediction$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="print"><a href='../../mlr3/html/Prediction.html#method-Prediction-print'><code>mlr3::Prediction$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Prediction" data-id="score"><a href='../../mlr3/html/Prediction.html#method-Prediction-score'><code>mlr3::Prediction$score()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PredictionCompRisks-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PredictionCompRisks-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PredictionCompRisks$new(
+\if{html}{\out{<a id="method-PredictionCompRisks-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PredictionCompRisks-initialize}{}}}
+\subsection{\code{PredictionCompRisks$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PredictionCompRisks$new(
   task = NULL,
   row_ids = task$row_ids,
   truth = task$truth(),
-  cif = NULL,
+  cif,
   check = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link{TaskCompRisks})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link{TaskCompRisks})\cr
 Task, used to extract defaults for \code{row_ids} and \code{truth}.}
-
-\item{\code{row_ids}}{(\code{integer()})\cr
+      \item{\code{row_ids}}{(\code{integer()})\cr
 Row ids of the predicted observations, i.e. the row ids of the test set.}
-
-\item{\code{truth}}{(\code{survival::Surv()})\cr
-True (observed) response.}
-
-\item{\code{cif}}{(\code{list()})\cr
-A \code{list} of two or more \code{matrix} objects.
-Each matrix represents a different competing event and it stores the
+      \item{\code{truth}}{(\code{survival::Surv()})\cr
+True (observed) response.
+State names must be \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order, matching the CIF list.}
+      \item{\code{cif}}{(\code{list()})\cr
+A required \code{list} of two or more \code{matrix} objects.
+Each matrix represents a different competing event (or cause) and stores the
 \strong{Cumulative Incidence function} for each test observation.
 In each matrix, rows represent observations and columns time points.
-The names of the \code{list} must correspond to the competing event names
-(\code{task$cmp_events}).}
+The names of the \code{list} must correspond to the cause names in the \code{truth}
+object, i.e. \code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
+      \item{\code{check}}{(\code{logical(1)})\cr
+If \code{TRUE}, performs argument checks.
+Use \code{TRUE} for user-supplied data.
+With \code{FALSE}, inputs are assumed valid and correct behavior is not guaranteed.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    The \code{cif} input is a list of CIF matrices.
+With \code{check = TRUE}, nonempty predictions are validated using \code{\link[=assert_cif_list]{assert_cif_list()}}.
+This checks the list structure and cause names, the time points used for
+prediction, and validates each CIF matrix, including probabilities in [0, 1]
+and non-decreasing probabilities over time.
 
-\item{\code{check}}{(\code{logical(1)})\cr
-If \code{TRUE}, performs argument checks and predict type conversions.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-The \code{cif} input currently is a list of CIF matrices.
+Joint coherence is checked separately by aligning the CIF matrices on a common time grid
+and summing their probabilities across causes for each observation and time point.
+A sum greater than 1, allowing a numerical tolerance of \code{sqrt(.Machine$double.eps)},
+triggers a warning of class \code{Mlr3WarningCIFSumExceedsOne}.
+The prediction is retained without modifying its probabilities.
+Such sums can occur with independently fitted cause-specific models, such
+as the Fine-Gray model.
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PredictionCompRisks-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PredictionCompRisks-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PredictionCompRisks$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PredictionCompRisks$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PredictionCompRisks$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -1,16 +1,40 @@
 # Here we define some mlr3-mandatory S3 methods of the `PredictionDataSurv` object
 
+#' @rdname as_prediction_cmprsk
+#' @param check (`logical(1)`)\cr
+#'   Whether to validate internal `PredictionDataCompRisks` data during conversion with [mlr3::as_prediction()].
+#'   Use `TRUE` for user-supplied data; `FALSE` is intended for already validated internal data.
+#'   With `FALSE`, correct behavior is not guaranteed if the input is invalid.
 #' @export
-as_prediction.PredictionDataCompRisks = function(x, check = TRUE, ...) {
+as_prediction.PredictionDataCompRisks = function(x, check = FALSE, ...) {
   invoke(PredictionCompRisks$new, check = check, .args = x)
 }
 
 #' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   n_obs = length(assert_row_ids(pdata$row_ids))
-  assert_surv(pdata$truth, "Surv", len = n_obs, any.missing = TRUE, null.ok = TRUE)
-  n_cmp_events = length(attr(pdata$truth, "states"))
-  assert_cif_list(pdata$cif, n_obs, n_cmp_events)
+  if (n_obs > 0) {
+    assert_class(pdata$truth, "Surv")
+    assert_true(length(pdata$truth) == n_obs)
+
+    causes = attr(pdata$truth, "states")
+    assert_cif_list(pdata$cif, n_rows = n_obs, causes = causes)
+
+    # Joint coherence between CIFs is desirable but not required
+    # Independently fitted cause-specific models (e.g. Fine-Gray)
+    # can produce CIFs whose sum exceeds 1.
+    aligned_cifs = align_cifs(pdata$cif, bind_rows = FALSE)
+    cif_sum = Reduce(`+`, aligned_cifs)
+    tol = sqrt(.Machine$double.eps)
+
+    if (any(cif_sum > 1 + tol)) {
+      warning_mlr3(
+        "Predicted cause-specific CIFs are not jointly coherent: their sum
+        exceeds 1 for some observations/time points.",
+        class = "Mlr3WarningCIFSumExceedsOne"
+      )
+    }
+  }
 
   pdata
 }
@@ -35,7 +59,7 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
   predict_types = names(mlr_reflections$learner_predict_types$cmprsk)
   predict_types = map(dots, function(x) intersect(names(x), predict_types))
   if (!every(predict_types[-1L], setequal, y = predict_types[[1L]])) {
-    stopf("Cannot combine predictions: Different prediction types")
+    error_input("Cannot combine predictions: Different prediction types")
   }
 
   predict_types = predict_types[[1L]]
@@ -51,28 +75,23 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
     result[[elem]] = do.call(c, map(dots, elem))[ii]
   }
 
+  # combine CIFs (list of matrices) for each cause
   if ("cif" %in% predict_types) {
     # Extract list of CIF lists
     cif_lists = map(dots, "cif")
 
-    # Check that all CIF lists have the same number of competing risks
-    # Note: we assume that the causes are in the same order, eg "1", "2", etc.
-    # so just checking for their number is enough
-    n_cmp_events = unique(sapply(cif_lists, length))
-    if (length(n_cmp_events) != 1) {
-      stop("Error: Can't combine CIFs with different numbers of competing events")
+    # Check that all CIF lists have the same causes (names)
+    causes = as.character(seq_along(cif_lists[[1L]]))
+    for (cif_list in cif_lists) {
+      assert_names(names(cif_list), identical.to = causes)
     }
 
-    # Check time points for each cause and merge accordingly
-    merged_cifs = vector("list", n_cmp_events)
-    for (cause_idx in seq_len(n_cmp_events)) {
-      # get the cause-specific CIFs
-      cs_cifs = lapply(cif_lists, function(cif_list) cif_list[[cause_idx]])
-      # merge them by finding the common time points and using constant interpolation
-      merged_cifs[[cause_idx]] = align_cifs(cs_cifs, bind_rows = TRUE)[ii, , drop = FALSE]
+    # Combine CIFs for each cause and align them on a common time grid
+    merged_cifs = named_list(causes)
+    for (cause in causes) {
+      cs_cifs = map(cif_lists, function(cif_list) cif_list[[cause]])
+      merged_cifs[[cause]] = align_cifs(cs_cifs, bind_rows = TRUE)[ii, , drop = FALSE]
     }
-    # add the causes names
-    names(merged_cifs) = names(cif_lists[[1]])
     result$cif = merged_cifs
   }
 

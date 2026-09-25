@@ -5,8 +5,14 @@
 #'
 #' The `task_type` is set to `"cmprsk"`.
 #'
-#' For accessing survival and hazard functions, as well as other complex methods
-#' from a [LearnerCompRisks] object is not possible atm.
+#' Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
+#' By design, predictions contain one CIF matrix for every cause in `task$cmp_events`,
+#' including causes that are not observed among the predicted observations.
+#' Filtering prediction rows retains all cause levels and CIFs, even for unobserved causes.
+#' Combining predictions requires the same cause set.
+#'
+#' Accessing all-cause survival or cause-specific hazard functions or similar quantities
+#' from a [LearnerCompRisks] object is not possible at the moment.
 #'
 #' @family Prediction
 #' @examples
@@ -29,14 +35,27 @@
 #' tab$CIF[[1]] # for first test observation, list of CIF vectors
 #'
 #' @export
-PredictionCompRisks = R6Class("PredictionCompRisks",
+PredictionCompRisks = R6Class(
+  "PredictionCompRisks",
   inherit = Prediction,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
     #' @details
-    #' The `cif` input currently is a list of CIF matrices.
+    #' The `cif` input is a list of CIF matrices.
+    #' With `check = TRUE`, nonempty predictions are validated using [assert_cif_list()].
+    #' This checks the list structure and cause names, the time points used for
+    #' prediction, and validates each CIF matrix, including probabilities in \[0, 1\]
+    #' and non-decreasing probabilities over time.
+    #'
+    #' Joint coherence is checked separately by aligning the CIF matrices on a common time grid
+    #' and summing their probabilities across causes for each observation and time point.
+    #' A sum greater than 1, allowing a numerical tolerance of `sqrt(.Machine$double.eps)`,
+    #' triggers a warning of class `Mlr3WarningCIFSumExceedsOne`.
+    #' The prediction is retained without modifying its probabilities.
+    #' Such sums can occur with independently fitted cause-specific models, such
+    #' as the Fine-Gray model.
     #'
     #' @param task ([TaskCompRisks])\cr
     #'   Task, used to extract defaults for `row_ids` and `truth`.
@@ -46,19 +65,27 @@ PredictionCompRisks = R6Class("PredictionCompRisks",
     #'
     #' @param truth (`survival::Surv()`)\cr
     #'   True (observed) response.
+    #'   State names must be `"1"`, `"2"`, ..., `"K"`, in that order, matching the CIF list.
     #'
     #' @param cif (`list()`)\cr
-    #'   A `list` of two or more `matrix` objects.
-    #'   Each matrix represents a different competing event and it stores the
+    #'   A required `list` of two or more `matrix` objects.
+    #'   Each matrix represents a different competing event (or cause) and stores the
     #'   **Cumulative Incidence function** for each test observation.
     #'   In each matrix, rows represent observations and columns time points.
-    #'   The names of the `list` must correspond to the competing event names
-    #'   (`task$cmp_events`).
+    #'   The names of the `list` must correspond to the cause names in the `truth`
+    #'   object, i.e. `"1"`, `"2"`, ..., `"K"`, exactly in that order.
     #'
     #' @param check (`logical(1)`)\cr
-    #'   If `TRUE`, performs argument checks and predict type conversions.
-    initialize = function(task = NULL, row_ids = task$row_ids, truth = task$truth(),
-                          cif = NULL, check = TRUE) {
+    #'   If `TRUE`, performs argument checks.
+    #'   Use `TRUE` for user-supplied data.
+    #'   With `FALSE`, inputs are assumed valid and correct behavior is not guaranteed.
+    initialize = function(
+      task = NULL,
+      row_ids = task$row_ids,
+      truth = task$truth(),
+      cif,
+      check = TRUE
+    ) {
       pdata = list(row_ids = row_ids, truth = truth, cif = cif)
       pdata = discard(pdata, is.null)
       class(pdata) = c("PredictionDataCompRisks", "PredictionData")
@@ -94,7 +121,7 @@ PredictionCompRisks = R6Class("PredictionCompRisks",
 as.data.table.PredictionCompRisks = function(x, ...) {
   tab = as.data.table(x$data["row_ids"])
   tab$time = x$data$truth[, 1L]
-  tab$event = x$data$truth[, 2L]
+  tab$event = as.integer(x$data$truth[, 2L])
   n_obs = length(x$row_ids)
 
   if ("cif" %in% x$predict_types && n_obs > 0) {
@@ -102,7 +129,7 @@ as.data.table.PredictionCompRisks = function(x, ...) {
       # we use a list since there is a possibility that each CIF matrix has
       # different number of time points (columns) per competing risk
       cif_list = lapply(x$cif, function(mat) mat[i, , drop = TRUE])
-      names(cif_list) = names(x$cif) # preserve the competing risk names/ids
+      names(cif_list) = names(x$cif) # preserve the cause ids
       cif_list
     })
   }

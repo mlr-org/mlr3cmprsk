@@ -25,14 +25,21 @@ load_pbc = function() {
   data$id = NULL
   data = map_at(data, c("age"), as.integer)
   data = map_at(data, c("spiders", "hepato", "edema", "ascites"), as.factor)
-  data$trt = factor(ifelse(data$trt == 1, "Dpenicillmain", "placebo"),
-                    levels = c("Dpenicillmain", "placebo"))
+  data$trt = factor(
+    ifelse(data$trt == 1, "Dpenicillmain", "placebo"),
+    levels = c("Dpenicillmain", "placebo")
+  )
   data$stage = factor(data$stage)
   data$time = floor(data$time / 30.44) # convert to months
 
   b = as_data_backend(data)
-  task = TaskCompRisks$new("pbc", b, time = "time", event = "status",
-                           label = "Primary Biliary Cholangitis")
+  task = TaskCompRisks$new(
+    "pbc",
+    b,
+    time = "time",
+    event = "status",
+    label = "Primary Biliary Cholangitis"
+  )
   b$hash = task$man = "mlr3cmprsk::mlr_tasks_pbc"
 
   task

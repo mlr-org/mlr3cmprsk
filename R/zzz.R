@@ -5,11 +5,11 @@
 #' @import paradox
 #' @importFrom R6 R6Class
 #' @importFrom survival Surv
-#' @importFrom utils getFromNamespace
+#' @importFrom utils getFromNamespace tail
 #' @importFrom stats median
 "_PACKAGE"
 
-# to silence RCMD check - IF NEEDED
+# to silence R CMD check - IF NEEDED
 # utils::globalVariables(c(
 #   "ShortName", "ClassName", "missing", "task", "value", "variable", "y"
 # ))
@@ -35,16 +35,34 @@ register_mlr3cmprsk = function() {
   ## tasks
   x = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
   x$task_types = x$task_types[!"cmprsk"] # to ensure we don't have multiple row entries of 'surv'
-  x$task_types = setkeyv(rbind(x$task_types, rowwise_table(
-    ~type,    ~package,       ~task,           ~learner,           ~prediction,            ~prediction_data,          ~measure,
-    "cmprsk", "mlr3cmprsk",   "TaskCompRisks", "LearnerCompRisks", "PredictionCompRisks",  "PredictionDataCompRisks", "MeasureCompRisks"
-  )), "type")
+  x$task_types = setkeyv(
+    rbind(
+      x$task_types,
+      rowwise_table(
+        ~type,
+        ~package,
+        ~task,
+        ~learner,
+        ~prediction,
+        ~prediction_data,
+        ~measure,
+        "cmprsk",
+        "mlr3cmprsk",
+        "TaskCompRisks",
+        "LearnerCompRisks",
+        "PredictionCompRisks",
+        "PredictionDataCompRisks",
+        "MeasureCompRisks"
+      )
+    ),
+    "type"
+  )
   x$task_col_roles$cmprsk = x$task_col_roles$regr
   x$task_properties$cmprsk = x$task_properties$regr
 
   ## measures
   x$measure_properties$cmprsk = x$measure_properties$regr
-  x$default_measures$cmprsk = "cmprsk.auc"
+  x$default_measures$cmprsk = "cmprsk.ibs"
 
   ## learners
   x$learner_properties$cmprsk = x$learner_properties$regr

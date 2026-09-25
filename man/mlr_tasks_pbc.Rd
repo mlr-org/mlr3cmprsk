@@ -11,7 +11,7 @@ A competing risks task for the \link[survival:pbc]{pbc} data set.
 }
 \section{Dictionary}{
 
-This \link[mlr3:Task]{Task} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary} \link[mlr3:mlr_tasks]{mlr_tasks} or with the associated sugar function \link[mlr3:mlr_sugar]{tsk()}:
+This \link[mlr3:Task]{Task} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary} \link[mlr3:mlr_tasks]{mlr_tasks} or with the associated sugar function \link[mlr3:tsk]{tsk()}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{mlr_tasks$get("pbc")
 tsk("pbc")
@@ -52,7 +52,7 @@ to \code{factor}s.
 \item \code{as.data.table(mlr_tasks)} for a table of available \link[mlr3:Task]{Tasks} in the running session
 }
 
-Other Task: 
+Other Task:
 \code{\link{TaskCompRisks}}
 }
 \concept{Task}

@@ -24,7 +24,7 @@ test_that("cmprsk.aalen returns aligned CIF time grids", {
 
     p = learner$predict(task, part$test)
     cif_list = p$cif
-    expect_setequal(names(cif_list), task$cmp_events)
+    expect_equal(names(cif_list), task$cmp_events)
 
     # CIF grids should match the training event-time grid for every cause (within tolerance)
     time_grids = lapply(cif_list, function(x) as.numeric(colnames(x)))
@@ -43,8 +43,8 @@ test_that("train params of cmprsk.aalen", {
   exclude = c(
     "formula", # handled by mlr3
     "data", # handled by mlr3
-    "weights", # hanlded by mlr3
-    "subset", # hanlded by mlr3
+    "weights", # handled by mlr3
+    "subset", # handled by mlr3
     "na.action", # not supported
     "stype", # not supported
     "ctype", # not supported
@@ -63,3 +63,13 @@ test_that("train params of cmprsk.aalen", {
   expect_true(res, info = res$error)
 })
 # no predict wrapped function is used for this learner, so we do not test predict params
+
+test_that("check that training works with no censored observations", {
+  task = as_task_cmprsk(
+    data.frame(time = 1:6, event = rep(c(1L, 2L), 3L), x = 1:6)
+  )
+  learner = lrn("cmprsk.aalen")
+  p = learner$train(task)$predict(task)
+
+  expect_prediction_cmprsk(p)
+})
