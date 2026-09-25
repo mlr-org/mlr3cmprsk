@@ -102,7 +102,8 @@ assert_cause = function(cause, causes) {
 aggregate_scores = function(scores, event, cause_weights = NULL) {
   if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
     warning_mlr3(
-      msg = "At least one of the scores is NaN",
+      msg = "Non-finite score (NaN, NA, or Inf) for cause(s): %s.",
+      str_collapse(names(scores)[!is.finite(scores)]),
       class = "RiskRegressionScoreNaN"
     )
   }
