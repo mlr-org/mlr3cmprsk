@@ -4,6 +4,7 @@
 This is now the main measure for prediction error in the package.
 * Added config files for code formatting and for AI agents.
 * Raised the minimum required versions of `mlr3` to 1.8.0 and `mlr3misc` to 0.23.0. (#22)
+* `as_prediction_cmprsk()` now accepts named lists of prediction data.
 * `assert_cif_list()` is now exported for validating lists of cumulative incidence matrices.
 * fix: `cmprsk.fg` parameter `cengroup` allows now for vector input.
 * fix: `TaskCompRisks` now checks that the event column has 1,2,...,K ordered integer-like numbers for the causes.

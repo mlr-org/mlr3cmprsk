@@ -68,7 +68,7 @@ PredictionCompRisks = R6Class(
     #'   State names must be `"1"`, `"2"`, ..., `"K"`, in that order, matching the CIF list.
     #'
     #' @param cif (`list()`)\cr
-    #'   A `list` of two or more `matrix` objects.
+    #'   A required `list` of two or more `matrix` objects.
     #'   Each matrix represents a different competing event (or cause) and stores the
     #'   **Cumulative Incidence function** for each test observation.
     #'   In each matrix, rows represent observations and columns time points.
@@ -81,7 +81,7 @@ PredictionCompRisks = R6Class(
       task = NULL,
       row_ids = task$row_ids,
       truth = task$truth(),
-      cif = NULL,
+      cif,
       check = TRUE
     ) {
       pdata = list(row_ids = row_ids, truth = truth, cif = cif)

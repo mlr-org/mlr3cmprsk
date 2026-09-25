@@ -80,7 +80,7 @@ Access the stored CIFs.}
   task = NULL,
   row_ids = task$row_ids,
   truth = task$truth(),
-  cif = NULL,
+  cif,
   check = TRUE
 )}
     \if{html}{\out{</div>}}
@@ -96,7 +96,7 @@ Row ids of the predicted observations, i.e. the row ids of the test set.}
 True (observed) response.
 State names must be \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order, matching the CIF list.}
       \item{\code{cif}}{(\code{list()})\cr
-A \code{list} of two or more \code{matrix} objects.
+A required \code{list} of two or more \code{matrix} objects.
 Each matrix represents a different competing event (or cause) and stores the
 \strong{Cumulative Incidence function} for each test observation.
 In each matrix, rows represent observations and columns time points.

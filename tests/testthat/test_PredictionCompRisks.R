@@ -72,6 +72,26 @@ test_that("data.table/frame roundtrip", {
   expect_prediction_cmprsk(p3)
 })
 
+test_that("named lists convert to predictions with validation", {
+  p = learner$train(task)$predict(task)
+  data_list = list(row_ids = p$row_ids, truth = p$truth, cif = p$cif)
+  converted = as_prediction_cmprsk(data_list)
+  expect_prediction_cmprsk(converted)
+  expect_identical(converted$row_ids, p$row_ids)
+  expect_identical(converted$truth, p$truth)
+  expect_identical(converted$cif, p$cif)
+
+  # removing mandatory elements should throw an error
+  expect_error(as_prediction_cmprsk(data_list[-1L])) # no row_ids
+  expect_error(as_prediction_cmprsk(data_list[-2L])) # no truth
+  expect_error(as_prediction_cmprsk(data_list[-3L])) # no cif
+  # adding extra elements should throw an error
+  expect_error(as_prediction_cmprsk(c(data_list, list(extra_element = TRUE))))
+  # invalid CIF values should throw an error
+  data_list$cif[[1L]][1L, 1L] = -1
+  expect_error(as_prediction_cmprsk(data_list))
+})
+
 test_that("filtering", {
   p = learner$train(task)$predict(task)
 
@@ -103,6 +123,9 @@ test_that("prediction validation rejects invalid CIFs and causes", {
     "1" = matrix(0.1, 2L, 2L, dimnames = list(NULL, c("1", "2"))),
     "2" = matrix(0.2, 2L, 2L, dimnames = list(NULL, c("1", "2")))
   )
+
+  # CIF must be given
+  expect_error(PredictionCompRisks$new(row_ids = 1:2, truth = truth, cif = NULL))
 
   # CIF values must be numeric, finite, between 0 and 1, and non-decreasing over time
   for (value in list(-1, 2, Inf, NaN, NA_real_, "0.1")) {
