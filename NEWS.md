@@ -1,8 +1,15 @@
-# mlr3cmprsk (development version)
+# mlr3cmprsk 0.0.6
 
-* Add config files for code formatting and for AI agents.
-* Raise the minimum required versions of `mlr3` to 1.8.0 and `mlr3misc` to 0.23.0. (#22)
-* `TaskCompRisks$filter()` now errors when row filtering leaves fewer than two competing events, and updates competing-event levels after valid filtering. (#24)
+* Added `MeasureCompRisksIntegratedBrierScore` (`msr("cmprsk.ibs")`) via `RiskRegression`.
+This is now the main measure for prediction error in the package.
+* Added config files for code formatting and for AI agents.
+* Raised the minimum required versions of `mlr3` to 1.8.0 and `mlr3misc` to 0.23.0. (#22)
+* `assert_cif_list()` is now exported for validating lists of cumulative incidence matrices.
+* fix: `cmprsk.fg` parameter `cengroup` allows now for vector input.
+* fix: `TaskCompRisks` now checks that the event column has 1,2,...,K ordered integer-like numbers for the causes.
+* feat: more tests, refactoring, better assertions and expectations, better documentation across the package.
+* fix: `TaskCompRisks$filter()` now errors when row filtering leaves fewer than two competing events and gives a warning if less causes than before remain.
+* fix: `check_prediction_data()` was called (indirectly) twice after a learner finished its `.predict()` call, which was not required.
 
 # mlr3cmprsk 0.0.5
 
