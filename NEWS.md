@@ -1,5 +1,8 @@
 # mlr3cmprsk (development version)
 
+* feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now warn when scoring requires constant CIF extrapolation beyond the final prediction anchor time point from a specific cause.
+* feat: `cmprsk.auc` now explicitly rejects scoring times beyond the maximum test-set follow-up, following the behavior of the Brier score.
+
 # mlr3cmprsk 0.0.6
 
 * Added `MeasureCompRisksIntegratedBrierScore` (`msr("cmprsk.ibs")`) via `RiskRegression`.
