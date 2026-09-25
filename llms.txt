@@ -15,6 +15,7 @@ comparison, and integration with the broader `mlr3` framework.
 Install the development version from GitHub:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("mlr-org/mlr3cmprsk")
 ```
@@ -22,11 +23,13 @@ pak::pak("mlr-org/mlr3cmprsk")
 ## Example
 
 ``` r
+
 library(mlr3cmprsk)
 set.seed(42)
 
 task = tsk("pbc")
 task$select(c("age", "chol", "albumin", "bili"))
+# Stratify by event status so all splits keep all available causes
 task$set_col_roles(cols = "status", add_to = "stratum")
 
 learners = lrns(c("cmprsk.fg", "cmprsk.aalen"))
@@ -49,6 +52,7 @@ bm$score(msr("cmprsk.auc", time = 100))[, .(task_id, learner_id, iteration, cmpr
 ```
 
 ``` r
+
 # Brier score at t = 100 (mean over causes, weighted by event frequencies)
 bm$score(msr("cmprsk.brier", time = 100))[, .(task_id, learner_id, iteration, cmprsk.brier)]
 ```
@@ -118,11 +122,20 @@ By contributing to this project, you agree to abide by its terms.
 - [`mlr_measures_cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   [`MeasureCompRisksBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   : Brier Score Competing Risks Measure
+- [`mlr_measures_cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
+  [`MeasureCompRisksIntegratedBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
+  : Competing Risks Integrated Brier Score
 
 ## Converters
 
-- [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+- [`as_prediction(`*`<PredictionDataCompRisks>`*`)`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+  [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
   : Convert to a Competing Risk Prediction
 - [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
   : Convert to a Competing Risks Task
+
+## Assertions
+
+- [`assert_cif_list()`](https://mlr3cmprsk.mlr-org.com/reference/assert_cif_list.md)
+  : Assert a List of Cumulative Incidence Matrices
 

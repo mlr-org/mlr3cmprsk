@@ -3,10 +3,23 @@
 Provides a unified interface for right-censored competing risks tasks in
 'mlr3'.
 
+## See also
+
+Useful links:
+
+- <https://github.com/mlr-org/mlr3cmprsk>
+
+- Report bugs at <https://github.com/mlr-org/mlr3cmprsk/issues>
+
 ## Author
 
 **Maintainer**: John Zobolas <bblodfon@gmail.com>
 ([ORCID](https://orcid.org/0000-0002-3609-8674))
+
+Authors:
+
+- John Zobolas <bblodfon@gmail.com>
+  ([ORCID](https://orcid.org/0000-0002-3609-8674))
 
 Other contributors:
 

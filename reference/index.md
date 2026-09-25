@@ -39,10 +39,19 @@
 - [`mlr_measures_cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   [`MeasureCompRisksBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   : Brier Score Competing Risks Measure
+- [`mlr_measures_cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
+  [`MeasureCompRisksIntegratedBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
+  : Competing Risks Integrated Brier Score
 
 ## Converters
 
-- [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+- [`as_prediction(`*`<PredictionDataCompRisks>`*`)`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+  [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
   : Convert to a Competing Risk Prediction
 - [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
   : Convert to a Competing Risks Task
+
+## Assertions
+
+- [`assert_cif_list()`](https://mlr3cmprsk.mlr-org.com/reference/assert_cif_list.md)
+  : Assert a List of Cumulative Incidence Matrices

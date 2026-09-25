@@ -5,6 +5,11 @@ Fine-Gray subdistribution hazards model for competing risks using
 
 ## Details
 
+A separate Fine-Gray subdistribution hazards model is fitted for every
+cause in `task$cmp_events`. This follows the
+[LearnerCompRisks](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
+design: predictions contain CIFs for all available causes.
+
 The fitted model is an S3 object of class `"fine_gray"` that stores a
 cause-specific list of `crr` class models.
 
@@ -42,14 +47,14 @@ with the associated sugar function
 
 ## Parameters
 
-|          |         |         |             |                       |
-|----------|---------|---------|-------------|-----------------------|
-| Id       | Type    | Default | Levels      | Range                 |
-| cengroup | numeric | \-      |             | \\(-\infty, \infty)\\ |
-| gtol     | numeric | 1e-06   |             | \\\[0, \infty)\\      |
-| maxiter  | integer | 10      |             | \\\[0, \infty)\\      |
-| init     | untyped | \-      |             | \-                    |
-| variance | logical | TRUE    | TRUE, FALSE | \-                    |
+|          |         |         |             |                  |
+|----------|---------|---------|-------------|------------------|
+| Id       | Type    | Default | Levels      | Range            |
+| cengroup | untyped | \-      |             | \-               |
+| gtol     | numeric | 1e-06   |             | \\\[0, \infty)\\ |
+| maxiter  | integer | 10      |             | \\\[0, \infty)\\ |
+| init     | untyped | \-      |             | \-               |
+| variance | logical | TRUE    | TRUE, FALSE | \-               |
 
 ## References
 
@@ -67,14 +72,14 @@ Other competing risk learners:
 ## Super classes
 
 [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html) -\>
-[`mlr3cmprsk::LearnerCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
+[`LearnerCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
 -\> `LearnerCompRisksFineGray`
 
 ## Methods
 
 ### Public methods
 
-- [`LearnerCompRisksFineGray$new()`](#method-LearnerCompRisksFineGray-new)
+- [`LearnerCompRisksFineGray$new()`](#method-LearnerCompRisksFineGray-initialize)
 
 - [`LearnerCompRisksFineGray$clone()`](#method-LearnerCompRisksFineGray-clone)
 
@@ -94,7 +99,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerCompRisksFineGray$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -105,7 +110,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerCompRisksFineGray$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -180,6 +185,10 @@ learner$native_model
 
 # Make predictions for the test set
 predictions = learner$predict(task, row_ids = part$test)
+#> Warning: 
+#> ✖ Predicted cause-specific CIFs are not jointly coherent: their sum exceeds 1
+#>   for some observations/time points.
+#> → Class: Mlr3WarningCIFSumExceedsOne
 predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────

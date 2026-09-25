@@ -15,6 +15,16 @@ risks problems:
   which represents the predicted **cumulative incidence function** for
   each observation in the test set.
 
+## Details
+
+By design, competing risks learners fit all available causes in
+`task$cmp_events` and return a CIF for every cause and observation in
+[PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md).
+For example,
+[LearnerCompRisksFineGray](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
+fits a separate subdistribution hazards model for each available cause
+and returns the CIFs from all of these models.
+
 ## Super class
 
 [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html) -\>
@@ -24,7 +34,7 @@ risks problems:
 
 ### Public methods
 
-- [`LearnerCompRisks$new()`](#method-LearnerCompRisks-new)
+- [`LearnerCompRisks$new()`](#method-LearnerCompRisks-initialize)
 
 - [`LearnerCompRisks$clone()`](#method-LearnerCompRisks-clone)
 
@@ -44,7 +54,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerCompRisks$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -116,7 +126,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerCompRisks$clone()`
 
 The objects of this class are cloneable with this method.
 

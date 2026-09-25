@@ -1,16 +1,20 @@
 # Blanche's AUC Competing Risks Measure
 
 Calculates the time-dependent ROC-AUC at a **specific time point**, as
-described in Blanche et al. (2013).
+described in Blanche et al. (2013), Equation 4. This (second) definition
+defines as controls the subjects who survive beyond the time horizon
+plus those who experience a competing event before the horizon.
 
 ## Details
 
 By default, this measure returns a **cause-independent AUC(t)** score,
 calculated as a weighted average of the cause-specific AUCs. The weights
 correspond to the relative event frequencies of each cause, following
-Equation (7) in Heyard et al. (2020). User-supplied weights are also
-supported. Alternatively, users can obtain the **cause-specific AUC(t)**
-for any individual cause by specifying the `cause` parameter.
+Equation 7 in Heyard et al. (2020). User-supplied weights are also
+supported.
+
+Alternatively, users can obtain the **cause-specific AUC(t)** for any
+individual cause by specifying the `cause` parameter.
 
 Calls
 [`riskRegression::Score()`](https://rdrr.io/pkg/riskRegression/man/Score.html)
@@ -79,8 +83,8 @@ with the associated sugar function
   `"mean"` which returns an event-frequency weighted mean of the
   cause-specific AUCs.
 
-- `cause_weights` ([`numeric()`](https://rdrr.io/r/base/numeric.html) \|
-  `NULL`)  
+- `cause_weights`
+  ([`numeric()`](https://rdrr.io/r/base/numeric.html)\|`NULL`)  
   Optional custom weights for `cause = "mean"`. If `NULL`, observed
   cause frequencies in the test data are used. The weights must be
   non-negative, sum to 1 and match the number of causes 1-1, i.e. first
@@ -113,14 +117,14 @@ of competing risks.” *Biometrical Journal*, **62**(3), 643–657.
 ## Super classes
 
 [`mlr3::Measure`](https://mlr3.mlr-org.com/reference/Measure.html) -\>
-[`mlr3cmprsk::MeasureCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/MeasureCompRisks.md)
+[`MeasureCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/MeasureCompRisks.md)
 -\> `MeasureCompRisksAUC`
 
 ## Methods
 
 ### Public methods
 
-- [`MeasureCompRisksAUC$new()`](#method-MeasureCompRisksAUC-new)
+- [`MeasureCompRisksAUC$new()`](#method-MeasureCompRisksAUC-initialize)
 
 - [`MeasureCompRisksAUC$clone()`](#method-MeasureCompRisksAUC-clone)
 
@@ -135,7 +139,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `MeasureCompRisksAUC$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -146,7 +150,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `MeasureCompRisksAUC$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -221,6 +225,10 @@ learner$native_model
 
 # Make predictions for the test set
 predictions = learner$predict(task, row_ids = part$test)
+#> Warning: 
+#> ✖ Predicted cause-specific CIFs are not jointly coherent: their sum exceeds 1
+#>   for some observations/time points.
+#> → Class: Mlr3WarningCIFSumExceedsOne
 predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────

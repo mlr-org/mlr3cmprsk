@@ -26,7 +26,7 @@ Default competing risks measure:
 
 ### Public methods
 
-- [`MeasureCompRisks$new()`](#method-MeasureCompRisks-new)
+- [`MeasureCompRisks$new()`](#method-MeasureCompRisks-initialize)
 
 - [`MeasureCompRisks$clone()`](#method-MeasureCompRisks-clone)
 
@@ -41,7 +41,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `MeasureCompRisks$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -187,7 +187,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `MeasureCompRisks$clone()`
 
 The objects of this class are cloneable with this method.
 

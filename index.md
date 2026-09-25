@@ -15,6 +15,7 @@ comparison, and integration with the broader `mlr3` framework.
 Install the development version from GitHub:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("mlr-org/mlr3cmprsk")
 ```
@@ -22,11 +23,13 @@ pak::pak("mlr-org/mlr3cmprsk")
 ## Example
 
 ``` r
+
 library(mlr3cmprsk)
 set.seed(42)
 
 task = tsk("pbc")
 task$select(c("age", "chol", "albumin", "bili"))
+# Stratify by event status so all splits keep all available causes
 task$set_col_roles(cols = "status", add_to = "stratum")
 
 learners = lrns(c("cmprsk.fg", "cmprsk.aalen"))
@@ -49,6 +52,7 @@ bm$score(msr("cmprsk.auc", time = 100))[, .(task_id, learner_id, iteration, cmpr
 ```
 
 ``` r
+
 # Brier score at t = 100 (mean over causes, weighted by event frequencies)
 bm$score(msr("cmprsk.brier", time = 100))[, .(task_id, learner_id, iteration, cmprsk.brier)]
 ```

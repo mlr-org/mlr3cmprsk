@@ -10,12 +10,17 @@
 
 ## Citation
 
+Source:
+[`DESCRIPTION`](https://github.com/mlr-org/mlr3cmprsk/blob/main/DESCRIPTION)
+
 Zobolas J (2026). *mlr3cmprsk: Competing Risks Machine Learning for
-'mlr3'*. R package version 0.0.5.
+'mlr3'*. R package version 0.0.6,
+<https://github.com/mlr-org/mlr3cmprsk>.
 
     @Manual{,
       title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
       author = {John Zobolas},
       year = {2026},
-      note = {R package version 0.0.5},
+      note = {R package version 0.0.6},
+      url = {https://github.com/mlr-org/mlr3cmprsk},
     }

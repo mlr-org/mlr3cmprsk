@@ -5,9 +5,15 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Blanche's AUC Competing Risks Measure — mlr_measures_cmprsk.auc"><meta name="description" content="Calculates the time-dependent ROC-AUC at a specific time point,
-as described in Blanche et al. (2013)."><meta property="og:description" content="Calculates the time-dependent ROC-AUC at a specific time point,
-as described in Blanche et al. (2013)."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.com/logo.png"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Blanche's AUC Competing Risks Measure — mlr_measures_cmprsk.auc"><meta name="description" content="Calculates the time-dependent ROC-AUC at a specific time point,
+as described in Blanche et al. (2013), Equation 4.
+This (second) definition defines as controls the subjects who survive beyond
+the time horizon plus those who experience a competing event before
+the horizon."><meta property="og:description" content="Calculates the time-dependent ROC-AUC at a specific time point,
+as described in Blanche et al. (2013), Equation 4.
+This (second) definition defines as controls the subjects who survive beyond
+the time horizon plus those who experience a competing event before
+the horizon."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.com/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -15,7 +21,7 @@ as described in Blanche et al. (2013)."><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.5</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,13 +52,16 @@ as described in Blanche et al. (2013)."><meta property="og:image" content="https
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Blanche's AUC Competing Risks Measure</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/main/R/MeasureCompRisksAUC.R" class="external-link"><code>R/MeasureCompRisksAUC.R</code></a></small>
       <div class="d-none name"><code>mlr_measures_cmprsk.auc.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
     <p>Calculates the time-dependent ROC-AUC at a <strong>specific time point</strong>,
-as described in Blanche et al. (2013).</p>
+as described in Blanche et al. (2013), Equation 4.
+This (second) definition defines as controls the subjects who survive beyond
+the time horizon plus those who experience a competing event before
+the horizon.</p>
     </div>
 
 
@@ -61,9 +70,9 @@ as described in Blanche et al. (2013).</p>
     <p>By default, this measure returns a <strong>cause-independent AUC(t)</strong> score,
 calculated as a weighted average of the cause-specific AUCs.
 The weights correspond to the relative event frequencies of each cause,
-following Equation (7) in Heyard et al. (2020).
-User-supplied weights are also supported.
-Alternatively, users can obtain the <strong>cause-specific AUC(t)</strong> for any
+following Equation 7 in Heyard et al. (2020).
+User-supplied weights are also supported.</p>
+<p>Alternatively, users can obtain the <strong>cause-specific AUC(t)</strong> for any
 individual cause by specifying the <code>cause</code> parameter.</p>
 <p>Calls <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score()</a></code> with:</p><ul><li><p><code>metric = "auc"</code></p></li>
 <li><p><code>cens.method = "ipcw"</code></p></li>
@@ -108,7 +117,7 @@ summary AUC).</p></li>
 Integer number indicating which cause to use.
 Default value is <code>"mean"</code> which returns an event-frequency weighted mean of
 the cause-specific AUCs.</p></li>
-<li><p><code>cause_weights</code> (<code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric()</a></code> | <code>NULL</code>)<br>
+<li><p><code>cause_weights</code> (<code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric()</a></code>|<code>NULL</code>)<br>
 Optional custom weights for <code>cause = "mean"</code>.
 If <code>NULL</code>, observed cause frequencies in the test data are used.
 The weights must be non-negative, sum to 1 and match the number of causes 1-1,
@@ -136,38 +145,36 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">mlr3::Measure</a></code> -&gt; <code><a href="MeasureCompRisks.html">mlr3cmprsk::MeasureCompRisks</a></code> -&gt; <code>MeasureCompRisksAUC</code></p>
+    <p><code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">mlr3::Measure</a></code> -&gt; <code><a href="MeasureCompRisks.html">MeasureCompRisks</a></code> -&gt; <code>MeasureCompRisksAUC</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-MeasureCompRisksAUC-new"><code>MeasureCompRisksAUC$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-MeasureCompRisksAUC-initialize"><code>MeasureCompRisksAUC$new()</code></a></p></li>
 <li><p><a href="#method-MeasureCompRisksAUC-clone"><code>MeasureCompRisksAUC$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="aggregate"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-aggregate"><code>mlr3::Measure$aggregate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="format"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-format"><code>mlr3::Measure$format()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="help"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-help"><code>mlr3::Measure$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="obs_loss"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-obs_loss"><code>mlr3::Measure$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="print"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-print"><code>mlr3::Measure$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="score"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-score"><code>mlr3::Measure$score()</code></a></span></li>
-</ul></details></p><hr><a id="method-MeasureCompRisksAUC-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="format"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-format"><code>mlr3::Measure$format()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="help"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-help"><code>mlr3::Measure$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="obs_loss"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-obs_loss"><code>mlr3::Measure$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="print"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-print"><code>mlr3::Measure$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="score"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-score"><code>mlr3::Measure$score()</code></a></span></li>
+</ul></details></p><hr><a id="method-MeasureCompRisksAUC-initialize"></a><div class="section">
+<h3 id="measurecomprisksauc-new-"><code>MeasureCompRisksAUC$new()</code><a class="anchor" aria-label="anchor" href="#measurecomprisksauc-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_measures_cmprsk.auc.html">MeasureCompRisksAUC</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-MeasureCompRisksAUC-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p></p><hr><a id="method-MeasureCompRisksAUC-clone"></a><div class="section">
+<h3 id="measurecomprisksauc-clone-"><code>MeasureCompRisksAUC$clone()</code><a class="anchor" aria-label="anchor" href="#measurecomprisksauc-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">MeasureCompRisksAUC</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -177,6 +184,7 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 </div>
 
 </div>
+
 
     </div>
 
@@ -240,6 +248,10 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Make predictions for the test set</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span> <span class="op">=</span> <span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">part</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Predicted cause-specific CIFs are not jointly coherent: their sum exceeds 1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   for some observations/time points.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> → Class: Mlr3WarningCIFSumExceedsOne</span>
 <span class="r-in"><span><span class="va">predictions</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;PredictionCompRisks&gt;</span><span style="font-weight: bold;"> for </span><span style="color: #0000BB; font-weight: bold;">92</span><span style="font-weight: bold;"> observations:</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span>
@@ -300,7 +312,7 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

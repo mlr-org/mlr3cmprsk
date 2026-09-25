@@ -51,7 +51,7 @@ Other competing risk learners:
 ## Super classes
 
 [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html) -\>
-[`mlr3cmprsk::LearnerCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
+[`LearnerCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
 -\> `LearnerCompRisksAalenJohansen`
 
 ## Active bindings
@@ -65,7 +65,7 @@ Other competing risk learners:
 
 ### Public methods
 
-- [`LearnerCompRisksAalenJohansen$new()`](#method-LearnerCompRisksAalenJohansen-new)
+- [`LearnerCompRisksAalenJohansen$new()`](#method-LearnerCompRisksAalenJohansen-initialize)
 
 - [`LearnerCompRisksAalenJohansen$importance()`](#method-LearnerCompRisksAalenJohansen-importance)
 
@@ -88,7 +88,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerCompRisksAalenJohansen$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -99,7 +99,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `importance()`
+### `LearnerCompRisksAalenJohansen$importance()`
 
 All features have a score of `0` for this learner. This method exists
 solely for compatibility with the `mlr3` ecosystem, as this learner is
@@ -116,7 +116,7 @@ Named [`numeric()`](https://rdrr.io/r/base/numeric.html).
 
 ------------------------------------------------------------------------
 
-### Method `selected_features()`
+### `LearnerCompRisksAalenJohansen$selected_features()`
 
 Selected features are always the empty set for this learner. This method
 is implemented only for compatibility with the `mlr3` API, as this
@@ -132,7 +132,7 @@ learner does not perform feature selection.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerCompRisksAalenJohansen$clone()`
 
 The objects of this class are cloneable with this method.
 

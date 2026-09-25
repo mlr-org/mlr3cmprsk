@@ -5,10 +5,17 @@ This object stores the predictions returned by a learner of class
 
 The `task_type` is set to `"cmprsk"`.
 
-For accessing survival and hazard functions, as well as other complex
-methods from a
+Causes use consecutive codes 1, 2, ..., K, matching the task used for
+prediction. By design, predictions contain one CIF matrix for every
+cause in `task$cmp_events`, including causes that are not observed among
+the predicted observations. Filtering prediction rows retains all cause
+levels and CIFs, even for unobserved causes. Combining predictions
+requires the same cause set.
+
+Accessing all-cause survival or cause-specific hazard functions or
+similar quantities from a
 [LearnerCompRisks](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
-object is not possible atm.
+object is not possible at the moment.
 
 ## Super class
 
@@ -31,7 +38,7 @@ object is not possible atm.
 
 ### Public methods
 
-- [`PredictionCompRisks$new()`](#method-PredictionCompRisks-new)
+- [`PredictionCompRisks$new()`](#method-PredictionCompRisks-initialize)
 
 - [`PredictionCompRisks$clone()`](#method-PredictionCompRisks-clone)
 
@@ -46,7 +53,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PredictionCompRisks$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -57,7 +64,7 @@ Creates a new instance of this
       task = NULL,
       row_ids = task$row_ids,
       truth = task$truth(),
-      cif = NULL,
+      cif,
       check = TRUE
     )
 
@@ -77,29 +84,46 @@ Creates a new instance of this
 - `truth`:
 
   ([`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html))  
-  True (observed) response.
+  True (observed) response. State names must be `"1"`, `"2"`, ...,
+  `"K"`, in that order, matching the CIF list.
 
 - `cif`:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
-  A `list` of two or more `matrix` objects. Each matrix represents a
-  different competing event and it stores the **Cumulative Incidence
-  function** for each test observation. In each matrix, rows represent
-  observations and columns time points. The names of the `list` must
-  correspond to the competing event names (`task$cmp_events`).
+  A required `list` of two or more `matrix` objects. Each matrix
+  represents a different competing event (or cause) and stores the
+  **Cumulative Incidence function** for each test observation. In each
+  matrix, rows represent observations and columns time points. The names
+  of the `list` must correspond to the cause names in the `truth`
+  object, i.e. `"1"`, `"2"`, ..., `"K"`, exactly in that order.
 
 - `check`:
 
   (`logical(1)`)  
-  If `TRUE`, performs argument checks and predict type conversions.
+  If `TRUE`, performs argument checks. Use `TRUE` for user-supplied
+  data. With `FALSE`, inputs are assumed valid and correct behavior is
+  not guaranteed.
 
 #### Details
 
-The `cif` input currently is a list of CIF matrices.
+The `cif` input is a list of CIF matrices. With `check = TRUE`, nonempty
+predictions are validated using
+[`assert_cif_list()`](https://mlr3cmprsk.mlr-org.com/reference/assert_cif_list.md).
+This checks the list structure and cause names, the time points used for
+prediction, and validates each CIF matrix, including probabilities in
+\[0, 1\] and non-decreasing probabilities over time.
+
+Joint coherence is checked separately by aligning the CIF matrices on a
+common time grid and summing their probabilities across causes for each
+observation and time point. A sum greater than 1, allowing a numerical
+tolerance of `sqrt(.Machine$double.eps)`, triggers a warning of class
+`Mlr3WarningCIFSumExceedsOne`. The prediction is retained without
+modifying its probabilities. Such sums can occur with independently
+fitted cause-specific models, such as the Fine-Gray model.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PredictionCompRisks$clone()`
 
 The objects of this class are cloneable with this method.
 

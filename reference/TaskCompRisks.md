@@ -3,18 +3,30 @@
 This task extends
 [mlr3::Task](https://mlr3.mlr-org.com/reference/Task.html) and
 [mlr3::TaskSupervised](https://mlr3.mlr-org.com/reference/TaskSupervised.html)
-to handle survival problems with **competing risks**. The target
-variable consists of survival times and an event indicator, which must
-be a non-negative integer in the set \\(0,1,2,...,K)\\. \\0\\ represents
-censored observations, while other integers correspond to distinct
-competing events. Every row corresponds to one subject/observation.
+for competing risks survival analysis. The target consists of a survival
+time and an event indicator. Event codes must be non-negative integers
+in \\(0, 1, 2, ..., K)\\. \\0\\ denotes censoring, and positive integers
+denote distinct event causes. Each row represents one observation.
 
 Predefined tasks are stored in
 [mlr3::mlr_tasks](https://mlr3.mlr-org.com/reference/mlr_tasks.html).
 
 The `task_type` is set to `"cmprsk"`.
 
-**Note:** Currently only right-censoring is supported.
+## Details
+
+The following design choices apply to this task:
+
+- Only **right-censoring** is currently supported.
+
+- Tasks must contain at **least two event causes**, i.e., \\K \geq 2\\,
+  encoded as consecutive integers \\1, 2, ..., K\\.
+
+It is advised to use **stratified resampling** to reduce the risk of
+creating training splits with fewer than two causes, which may cause
+issues during model training (and later prediction). Task filtering
+specifically issues a warning when the number of competing events is
+reduced but remains \>= 2, and an error if fewer than two causes remain.
 
 ## See also
 
@@ -34,19 +46,20 @@ Other Task:
   (`character(1)`)  
   Returns the type of censoring.
 
-  Currently, only the `"right"` censoring type is fully supported. The
-  API might change in the future to support left and interval censoring.
+  Currently, only `"right"` censoring type is supported. The API might
+  change in the future to support left and interval censoring.
 
 - `cmp_events`:
 
-  (`character(1)`)  
-  Returns the names of the competing events.
+  ([`character()`](https://rdrr.io/r/base/character.html))  
+  Returns the competing event names: `"1"`, `"2"`, ..., `"K"`, in that
+  order.
 
 ## Methods
 
 ### Public methods
 
-- [`TaskCompRisks$new()`](#method-TaskCompRisks-new)
+- [`TaskCompRisks$new()`](#method-TaskCompRisks-initialize)
 
 - [`TaskCompRisks$truth()`](#method-TaskCompRisks-truth)
 
@@ -55,8 +68,6 @@ Other Task:
 - [`TaskCompRisks$times()`](#method-TaskCompRisks-times)
 
 - [`TaskCompRisks$event()`](#method-TaskCompRisks-event)
-
-- [`TaskCompRisks$unique_events()`](#method-TaskCompRisks-unique_events)
 
 - [`TaskCompRisks$unique_times()`](#method-TaskCompRisks-unique_times)
 
@@ -75,7 +86,6 @@ Inherited methods
 - [`mlr3::Task$add_strata()`](https://mlr3.mlr-org.com/reference/Task.html#method-add_strata)
 - [`mlr3::Task$cbind()`](https://mlr3.mlr-org.com/reference/Task.html#method-cbind)
 - [`mlr3::Task$data()`](https://mlr3.mlr-org.com/reference/Task.html#method-data)
-- [`mlr3::Task$divide()`](https://mlr3.mlr-org.com/reference/Task.html#method-divide)
 - [`mlr3::Task$droplevels()`](https://mlr3.mlr-org.com/reference/Task.html#method-droplevels)
 - [`mlr3::Task$format()`](https://mlr3.mlr-org.com/reference/Task.html#method-format)
 - [`mlr3::Task$head()`](https://mlr3.mlr-org.com/reference/Task.html#method-head)
@@ -93,7 +103,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `TaskCompRisks$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -136,9 +146,9 @@ Creates a new instance of this
 - `event`:
 
   (`character(1)`)  
-  Name of column giving that holds the event indicator. \\0\\
-  corresponds to censoring, values \\\> 0\\ correspond to different
-  competing events.
+  Name of column that holds the event indicator. \\0\\ corresponds to
+  censoring, values \\\> 0\\ correspond to different competing events
+  (or causes).
 
 - `label`:
 
@@ -151,13 +161,12 @@ Only right-censoring competing risk tasks are currently supported.
 
 ------------------------------------------------------------------------
 
-### Method `truth()`
+### `TaskCompRisks$truth()`
 
 True response for specified `row_ids`. This is the multi-state format
 using [Surv](https://rdrr.io/pkg/survival/man/Surv.html) with the
-`event` target column as a `factor`: `Surv(time, as.factor(event))`
-
-Defaults to all rows with role `"use"`.
+`event` target column as a `factor`. Defaults to all rows with role
+`"use"`.
 
 #### Usage
 
@@ -176,7 +185,7 @@ Defaults to all rows with role `"use"`.
 
 ------------------------------------------------------------------------
 
-### Method [`formula()`](https://rdrr.io/r/stats/formula.html)
+### `TaskCompRisks$formula()`
 
 Creates a formula for competing risk models with
 [`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html) on the
@@ -198,7 +207,7 @@ LHS (left hand side).
 
 ------------------------------------------------------------------------
 
-### Method `times()`
+### `TaskCompRisks$times()`
 
 Returns the (unsorted) outcome times.
 
@@ -219,9 +228,10 @@ Returns the (unsorted) outcome times.
 
 ------------------------------------------------------------------------
 
-### Method `event()`
+### `TaskCompRisks$event()`
 
-Returns the event indicator.
+Returns the event indicators. \\0\\ denotes censoring, and positive
+integers denote distinct event causes.
 
 #### Usage
 
@@ -240,28 +250,7 @@ Returns the event indicator.
 
 ------------------------------------------------------------------------
 
-### Method `unique_events()`
-
-Returns the unique events (excluding censoring).
-
-#### Usage
-
-    TaskCompRisks$unique_events(rows = NULL)
-
-#### Arguments
-
-- `rows`:
-
-  ([`integer()`](https://rdrr.io/r/base/integer.html))  
-  Row indices.
-
-#### Returns
-
-[`integer()`](https://rdrr.io/r/base/integer.html)
-
-------------------------------------------------------------------------
-
-### Method `unique_times()`
+### `TaskCompRisks$unique_times()`
 
 Returns the sorted unique outcome times.
 
@@ -282,7 +271,7 @@ Returns the sorted unique outcome times.
 
 ------------------------------------------------------------------------
 
-### Method `unique_event_times()`
+### `TaskCompRisks$unique_event_times()`
 
 Returns the sorted unique event outcome times (by any cause).
 
@@ -303,7 +292,7 @@ Returns the sorted unique event outcome times (by any cause).
 
 ------------------------------------------------------------------------
 
-### Method `aalen_johansen()`
+### `TaskCompRisks$aalen_johansen()`
 
 Calls
 [`survival::survfit()`](https://rdrr.io/pkg/survival/man/survfit.html)
@@ -337,11 +326,10 @@ to calculate the Aalen–Johansen estimator.
 
 ------------------------------------------------------------------------
 
-### Method `cens_prop()`
+### `TaskCompRisks$cens_prop()`
 
-Returns the **proportion of censoring** for this competing risks task.
-By default, this is returned for all observations, otherwise only the
-specified ones (`rows`).
+Returns the **proportion of censored observations** for this competing
+risks task.
 
 #### Usage
 
@@ -360,10 +348,13 @@ specified ones (`rows`).
 
 ------------------------------------------------------------------------
 
-### Method [`filter()`](https://rdrr.io/r/stats/filter.html)
+### `TaskCompRisks$filter()`
 
-Subsets the task, keeping only the rows specified via row ids `rows`.
-This operation mutates the task in-place.
+Subsets the task, keeping only the rows specified via the row ids
+`rows`. This operation mutates the task in-place. A warning is thrown if
+the filtering results in fewer competing events than the original task.
+An error is thrown if fewer than two competing events remain after
+filtering.
 
 #### Usage
 
@@ -382,7 +373,7 @@ Returns the object itself, but modified **by reference.**
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `TaskCompRisks$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -402,18 +393,22 @@ The objects of this class are cloneable with this method.
 library(mlr3)
 task = tsk("pbc")
 
-# meta data
-task$target_names # target is always (time, status) for right-censoring tasks
+# Time and event target columns
+task$target_names
 #> [1] "time"   "status"
+# Feature names
 task$feature_names
 #>  [1] "age"      "albumin"  "alk.phos" "ascites"  "ast"      "bili"    
 #>  [7] "chol"     "copper"   "edema"    "hepato"   "platelet" "protime" 
 #> [13] "sex"      "spiders"  "stage"    "trig"     "trt"     
-task$formula()
-#> Surv(time, as.factor(status)) ~ .
-#> <environment: namespace:survival>
+# Censoring type
+task$cens_type
+#> [1] "right"
 
 # survival data
+task$formula(c("age", "sex")) # formula with survival::Surv() on LHS
+#> Surv(time, factor(status, levels = c(0, 1, 2))) ~ age + sex
+#> <environment: namespace:survival>
 task$truth() # survival::Surv() object
 #>   [1]  13:2 147+   33:2  63:2  49:1  60+   81:2  78:2   1:2 123:2   9:2 117+ 
 #>  [13] 117:2 120+   25:2   4:2 139+   44:2 113+   22:2   8:2 134:2 135+   47:2
@@ -478,7 +473,11 @@ task$unique_event_times() # sorted unique event times (from any cause)
 #> [39]  47  48  49  50  51  54  55  57  58  60  63  66  67  68  69  73  74  75  77
 #> [58]  78  79  81  83  84  85  88  90  91  93 101 104 106 107 110 111 112 113 117
 #> [77] 123 126 134 137
-task$aalen_johansen(strata = "sex") # Aalen-Johansen estimator
+task$cens_prop() # proportion of censored observations
+#> [1] 0.5326087
+
+# Aalen-Johansen estimator
+task$aalen_johansen(strata = "sex")
 #> Call: survfit(formula = f, data = data)
 #> 
 #>               n nevent     rmean se(rmean)*
@@ -490,7 +489,7 @@ task$aalen_johansen(strata = "sex") # Aalen-Johansen estimator
 #> sex=f, 2    242     90 47.630017   3.733828
 #>    *restricted mean time in state (max time = 149 )
 
-# proportion of censored observations across all dataset
-task$cens_prop()
-#> [1] 0.5326087
+# Causes
+task$cmp_events
+#> [1] "1" "2"
 ```

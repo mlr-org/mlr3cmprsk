@@ -57,9 +57,9 @@ as_task_cmprsk(
 - event:
 
   (`character(1)`)  
-  Name of column giving that holds the event indicator. \\0\\
-  corresponds to censoring, values \\\> 0\\ correspond to different
-  competing events.
+  Name of column that holds the event indicator. \\0\\ corresponds to
+  censoring, values \\\> 0\\ correspond to different competing events
+  (or causes).
 
 - id:
 
