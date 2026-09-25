@@ -3,6 +3,7 @@ Andrzej
 autotest
 bibentries
 bili
+cengroup
 cens
 Cholangitis
 cifs
@@ -13,6 +14,7 @@ covariates
 CRAN
 datatable
 deparsed
+Dpenicillmain
 extralearners
 Galecki
 hepato
@@ -40,6 +42,7 @@ proba
 protime
 RCMD
 rdname
+redocument
 Regr
 renv
 resamplings
@@ -62,6 +65,3 @@ tgen
 tgens
 tsks
 Zobolas
-redocument
-schoop
-Dpenicillmain
