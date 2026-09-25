@@ -42,6 +42,18 @@ PredictionCompRisks = R6Class(
     #'
     #' @details
     #' The `cif` input is a list of CIF matrices.
+    #' With `check = TRUE`, nonempty predictions are validated using [assert_cif_list()].
+    #' This checks the list structure and cause names, the time points used for
+    #' prediction, and validates each CIF matrix, including probabilities in \[0, 1\]
+    #' and non-decreasing probabilities over time.
+    #'
+    #' Joint coherence is checked separately by aligning the CIF matrices on a common time grid
+    #' and summing their probabilities across causes for each observation and time point.
+    #' A sum greater than 1, allowing a numerical tolerance of `sqrt(.Machine$double.eps)`,
+    #' triggers a warning of class `Mlr3WarningCIFSumExceedsOne`.
+    #' The prediction is retained without modifying its probabilities.
+    #' Such sums can occur with independently fitted cause-specific models, such
+    #' as the Fine-Gray model.
     #'
     #' @param task ([TaskCompRisks])\cr
     #'   Task, used to extract defaults for `row_ids` and `truth`.
