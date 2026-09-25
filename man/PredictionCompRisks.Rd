@@ -9,6 +9,8 @@ This object stores the predictions returned by a learner of class \link{LearnerC
 The \code{task_type} is set to \code{"cmprsk"}.
 
 Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
+By design, predictions contain one CIF matrix for every cause in \code{task$cmp_events},
+including causes that are not observed among the predicted observations.
 Filtering prediction rows retains all cause levels and CIFs, even for unobserved causes.
 Combining predictions requires the same cause set.
 

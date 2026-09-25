@@ -9,6 +9,9 @@
 #'
 #' @details
 #'
+#' A separate Fine-Gray subdistribution hazards model is fitted for every cause in `task$cmp_events`.
+#' This follows the [LearnerCompRisks] design: predictions contain CIFs for all available causes.
+#'
 #' The fitted model is an S3 object of class `"fine_gray"` that stores a
 #' cause-specific list of `crr` class models.
 #'

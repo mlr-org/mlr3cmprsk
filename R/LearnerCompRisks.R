@@ -9,6 +9,12 @@
 #' represents the predicted **cumulative incidence function** for each observation
 #' in the test set.
 #'
+#' @details
+#' By design, competing risks learners fit all available causes in `task$cmp_events`
+#' and return a CIF for every cause and observation in [PredictionCompRisks].
+#' For example, [LearnerCompRisksFineGray] fits a separate subdistribution hazards model
+#' for each available cause and returns the CIFs from all of these models.
+#'
 #' @template param_id
 #' @template param_set
 #' @template param_predict_types

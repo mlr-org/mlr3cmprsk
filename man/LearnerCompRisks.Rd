@@ -13,6 +13,12 @@ represents the predicted \strong{cumulative incidence function} for each observa
 in the test set.
 }
 }
+\details{
+By design, competing risks learners fit all available causes in \code{task$cmp_events}
+and return a CIF for every cause and observation in \link{PredictionCompRisks}.
+For example, \link{LearnerCompRisksFineGray} fits a separate subdistribution hazards model
+for each available cause and returns the CIFs from all of these models.
+}
 \examples{
 library(mlr3)
 # get all survival learners from mlr_learners:
