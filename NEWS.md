@@ -1,5 +1,6 @@
 # mlr3cmprsk (development version)
 
+* feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now identify the affected causes when warning about non-finite scores.
 * feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now warn when scoring requires constant CIF extrapolation beyond the final prediction anchor time point from a specific cause.
 * feat: `cmprsk.auc` now explicitly rejects scoring times beyond the maximum test-set follow-up, following the behavior of the Brier score.
 
