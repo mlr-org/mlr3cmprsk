@@ -52,7 +52,6 @@ as_prediction_cmprsk = function(x, ...) {
 #' @rdname as_prediction_cmprsk
 #' @export
 as_prediction_cmprsk.PredictionCompRisks = function(x, ...) {
-  assert_list(x$cif, types = "matrix", min.len = 2L)
   x
 }
 

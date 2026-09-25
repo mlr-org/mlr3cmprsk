@@ -77,6 +77,8 @@ PredictionCompRisks = R6Class(
     #'
     #' @param check (`logical(1)`)\cr
     #'   If `TRUE`, performs argument checks.
+    #'   Use `TRUE` for user-supplied data.
+    #'   With `FALSE`, inputs are assumed valid and correct behavior is not guaranteed.
     initialize = function(
       task = NULL,
       row_ids = task$row_ids,

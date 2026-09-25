@@ -24,7 +24,9 @@ as_prediction_cmprsk(x, ...)
 Object to convert.}
 
 \item{check}{(\code{logical(1)})\cr
-Whether to validate internal \code{PredictionDataCompRisks} data during conversion with \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}}.}
+Whether to validate internal \code{PredictionDataCompRisks} data during conversion with \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}}.
+Use \code{TRUE} for user-supplied data; \code{FALSE} is intended for already validated internal data.
+With \code{FALSE}, correct behavior is not guaranteed if the input is invalid.}
 
 \item{...}{(any)\cr
 Additional arguments.}

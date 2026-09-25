@@ -103,7 +103,9 @@ In each matrix, rows represent observations and columns time points.
 The names of the \code{list} must correspond to the cause names in the \code{truth}
 object, i.e. \code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
       \item{\code{check}}{(\code{logical(1)})\cr
-If \code{TRUE}, performs argument checks.}
+If \code{TRUE}, performs argument checks.
+Use \code{TRUE} for user-supplied data.
+With \code{FALSE}, inputs are assumed valid and correct behavior is not guaranteed.}
     }
     \if{html}{\out{</div>}}
   }
