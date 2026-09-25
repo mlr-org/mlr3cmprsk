@@ -92,27 +92,7 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
       if (is.null(times)) {
         times = sort(unique(data$time))
       }
-
-      # RiskRegression can't evaluate for times > max time point from the test set
-      t_max = max(data$time)
-      is_larger_than_t_max = times > t_max
-      if (any(is_larger_than_t_max)) {
-        warning_mlr3(
-          sprintf(
-            "RiskRegression cannot evaluate time points larger than the maximum
-            test-set time (%f). We remove %d time point(s) from `times`",
-            t_max,
-            sum(is_larger_than_t_max)
-          )
-        )
-        times = times[!is_larger_than_t_max]
-      }
-
-      if (length(times) < 2L) {
-        error_mlr3(
-          "`times` must contain at least two distinct time points."
-        )
-      }
+      times = validate_times(times, data$time, integrated = TRUE)
 
       # list of predicted CIF matrices
       cif_list = prediction$cif
@@ -136,6 +116,9 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
           error_input("Cause weights must sum to 1.")
         }
       }
+
+      scored_causes = if (cause == "mean") causes else cause
+      warn_cif_extrapolation(cif_list, times, scored_causes)
 
       ibs = function(cause) {
         # get CIF on the times grid

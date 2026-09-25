@@ -98,6 +98,7 @@ MeasureCompRisksAUC = R6Class(
       } else {
         assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
+      time = validate_times(time, data$time)
 
       # list of predicted CIF matrices
       cif_list = prediction$cif
@@ -121,6 +122,9 @@ MeasureCompRisksAUC = R6Class(
           stop("Cause weights must sum to 1.")
         }
       }
+
+      scored_causes = if (cause == "mean") causes else cause
+      warn_cif_extrapolation(cif_list, time, scored_causes)
 
       auc_score = function(cause) {
         # get CIF on the given time point

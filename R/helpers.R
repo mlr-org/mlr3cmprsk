@@ -23,6 +23,63 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
   )
 }
 
+#' Validates the `times` parameter for measures such as IBS and AUC(t)
+#' @keywords internal
+#' @noRd
+validate_times = function(times, test_times, integrated = FALSE) {
+  t_max = max(test_times)
+  beyond_follow_up = times > t_max
+  if (any(beyond_follow_up)) {
+    if (!integrated) {
+      error_input(
+        "RiskRegression does not evaluate time points larger than the maximum test-set time (%f).",
+        t_max
+      )
+    }
+    warning_mlr3(
+      paste0(
+        "RiskRegression does not evaluate time points larger than the maximum test-set time (%f). ",
+        "We remove %d time point(s) from `times`"
+      ),
+      t_max,
+      sum(beyond_follow_up)
+    )
+    times = times[!beyond_follow_up]
+  }
+
+  if (integrated && length(times) < 2L) {
+    error_mlr3("`times` must contain at least two distinct time points.")
+  }
+
+  times
+}
+
+#' Warns if scoring times exceed the final CIF prediction anchor (time point)
+#' @keywords internal
+#' @noRd
+warn_cif_extrapolation = function(cif_list, times, causes) {
+  affected = causes[vapply(
+    cif_list[causes],
+    function(mat) {
+      any(times > max(as.numeric(colnames(mat))))
+    },
+    logical(1L)
+  )]
+
+  if (length(affected)) {
+    warning_mlr3(
+      paste0(
+        "Scoring times exceed the final CIF prediction anchor for cause(s): %s. ",
+        "We apply constant CIF extrapolation after the final prediction time point."
+      ),
+      str_collapse(affected),
+      class = "Mlr3WarningCIFExtrapolation"
+    )
+  }
+
+  invisible(NULL)
+}
+
 #' Validates the `cause` parameter (against the `causes` from the prediction object)
 #' @keywords internal
 #' @noRd

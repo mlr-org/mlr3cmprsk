@@ -94,16 +94,7 @@ MeasureCompRisksBrierScore = R6Class(
         assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
 
-      # RiskRegression can't evaluate for time > max time point from the test set
-      t_max = max(data$time)
-      if (time > t_max) {
-        error_input(
-          sprintf(
-            "RiskRegression cannot evaluate time points larger than the maximum test-set time (%f).",
-            t_max
-          )
-        )
-      }
+      time = validate_times(time, data$time)
 
       # list of predicted CIF matrices
       cif_list = prediction$cif
@@ -127,6 +118,9 @@ MeasureCompRisksBrierScore = R6Class(
           error_input("Cause weights must sum to 1.")
         }
       }
+
+      scored_causes = if (cause == "mean") causes else cause
+      warn_cif_extrapolation(cif_list, time, scored_causes)
 
       brier_score = function(cause) {
         # get CIF on the given time point
