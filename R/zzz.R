@@ -62,7 +62,7 @@ register_mlr3cmprsk = function() {
 
   ## measures
   x$measure_properties$cmprsk = x$measure_properties$regr
-  x$default_measures$cmprsk = "cmprsk.auc"
+  x$default_measures$cmprsk = "cmprsk.ibs"
 
   ## learners
   x$learner_properties$cmprsk = x$learner_properties$regr
