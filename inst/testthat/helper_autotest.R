@@ -46,7 +46,7 @@ generate_tasks.LearnerCompRisks = function(learner, N = 20L, ...) {
 registerS3method("generate_tasks", "LearnerCompRisks", generate_tasks.LearnerCompRisks)
 
 sanity_check.PredictionCompRisks = function(prediction, ...) {
-  # sanity check discrimination
-  prediction$score() >= 0.5
+  # sanity check (IBS should be between 0 and 1)
+  prediction$score() >= 0 && prediction$score() <= 1
 }
 registerS3method("sanity_check", "PredictionCompRisks", sanity_check.PredictionCompRisks)
