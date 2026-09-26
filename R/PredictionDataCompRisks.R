@@ -23,16 +23,18 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
     # Joint coherence between CIFs is desirable but not required
     # Independently fitted cause-specific models (e.g. Fine-Gray)
     # can produce CIFs whose sum exceeds 1.
-    aligned_cifs = align_cifs(pdata$cif, bind_rows = FALSE)
-    cif_sum = Reduce(`+`, aligned_cifs)
-    tol = sqrt(.Machine$double.eps)
+    if (getOption("mlr3cmprsk.warn_cif_sum", FALSE)) {
+      aligned_cifs = align_cifs(pdata$cif, bind_rows = FALSE)
+      cif_sum = Reduce(`+`, aligned_cifs)
+      tol = sqrt(.Machine$double.eps)
 
-    if (any(cif_sum > 1 + tol)) {
-      warning_mlr3(
-        "Predicted cause-specific CIFs are not jointly coherent: their sum
-        exceeds 1 for some observations/time points.",
-        class = "Mlr3WarningCIFSumExceedsOne"
-      )
+      if (any(cif_sum > 1 + tol)) {
+        warning_mlr3(
+          "Predicted cause-specific CIFs are not jointly coherent: their sum
+          exceeds 1 for some observations/time points.",
+          class = "Mlr3WarningCIFSumExceedsOne"
+        )
+      }
     }
   }
 

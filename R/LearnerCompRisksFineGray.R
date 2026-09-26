@@ -20,6 +20,11 @@
 #' time grid across causes using constant CIF interpolation.
 #' The time grid is the **unique event times (across all causes)** observed in the training set.
 #'
+#' Independently fitted cause-specific models can produce CIFs whose sum exceeds 1.
+#' The corresponding warning is disabled package-wide by default, as it can recur on every prediction call.
+#' Set `options(mlr3cmprsk.warn_cif_sum = TRUE)` to enable it.
+#' See also Package Options section in [mlr3cmprsk-package].
+#'
 #' Time-interaction terms (via `cov2`) are not implemented.
 #'
 #' @references

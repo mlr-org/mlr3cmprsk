@@ -58,6 +58,10 @@ validate_times = function(times, test_times, integrated = FALSE) {
 #' @keywords internal
 #' @noRd
 warn_cif_extrapolation = function(cif_list, times, causes) {
+  if (!getOption("mlr3cmprsk.warn_cif_extrapolation", FALSE)) {
+    return(invisible(NULL))
+  }
+
   affected = causes[vapply(
     cif_list[causes],
     function(mat) {
