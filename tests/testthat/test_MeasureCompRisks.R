@@ -5,9 +5,13 @@ task$select(feats)
 l1 = lrn("cmprsk.aalen")
 l2 = lrn("cmprsk.fg")
 p1 = l1$train(task)$predict(task)
-p2 = suppressWarnings(l2$train(task)$predict(task))
+p2 = l2$train(task)$predict(task)
 
 test_that("cmprsk.auc works", {
+  withr::local_options(list(
+    mlr3cmprsk.warn_cif_sum = NULL,
+    mlr3cmprsk.warn_cif_extrapolation = NULL
+  ))
   m = msr("cmprsk.auc")
   expect_r6(m, "MeasureCompRisksAUC")
   expect_equal(m$properties, "na_score")
@@ -24,8 +28,8 @@ test_that("cmprsk.auc works", {
   # AUC(t) can't be calculated via RiskRegression beyond the
   # maximum observed time from the test set
   m = msr("cmprsk.auc", time = 160)
-  expect_error(p1$score(m), "maximum test-set", class = "Mlr3ErrorInput")
-  expect_error(p2$score(m), "maximum test-set", class = "Mlr3ErrorInput")
+  expect_error(p1$score(m), "test", class = "Mlr3ErrorInput")
+  expect_error(p2$score(m), "test", class = "Mlr3ErrorInput")
 
   # request for early time point where no event have yet happened gives NaN AUC
   m = msr("cmprsk.auc", time = 5)
@@ -91,6 +95,8 @@ test_that("cmprsk.auc works", {
 
   # last anchor for cause 2 is at time 4, but we request AUC at time 5
   m$param_set$values$time = 5
+  expect_no_warning(p$score(m))
+  withr::local_options(mlr3cmprsk.warn_cif_extrapolation = TRUE)
   expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
   # scoring only cause 2 still issues warning
   m$param_set$values$cause = 2L
@@ -106,10 +112,24 @@ test_that("cmprsk.auc works", {
   expect_no_warning(p$score(m))
   # now time > last anchor for both causes
   m$param_set$values$time = 7
-  expect_warning(p$score(m), regexp = "1, 2", class = "Mlr3WarningCIFExtrapolation")
+  expect_warning(
+    p$score(m),
+    regexp = "1, 2",
+    class = "Mlr3WarningCIFExtrapolation"
+  )
+
+  # follow-up validation fails before checking for extrapolation
+  m$param_set$values$time = 9
+  expect_no_warning(
+    expect_error(p$score(m), regexp = "test", class = "Mlr3ErrorInput")
+  )
 })
 
 test_that("cmprsk.brier works", {
+  withr::local_options(list(
+    mlr3cmprsk.warn_cif_sum = NULL,
+    mlr3cmprsk.warn_cif_extrapolation = NULL
+  ))
   m = msr("cmprsk.brier")
   expect_r6(m, "MeasureCompRisksBrierScore")
   expect_equal(m$properties, "na_score")
@@ -185,6 +205,8 @@ test_that("cmprsk.brier works", {
 
   # last anchor for cause 2 is at time 4, but we request BS(t) at time 5
   m$param_set$values$time = 5
+  expect_no_warning(p$score(m))
+  withr::local_options(mlr3cmprsk.warn_cif_extrapolation = TRUE)
   expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
   # scoring only cause 2 still issues warning
   m$param_set$values$cause = 2L
@@ -200,10 +222,22 @@ test_that("cmprsk.brier works", {
   expect_no_warning(p$score(m))
   # now time > last anchor for both causes
   m$param_set$values$time = 7
-  expect_warning(p$score(m), regexp = "1, 2", class = "Mlr3WarningCIFExtrapolation")
+  expect_warning(
+    p$score(m),
+    regexp = "1, 2",
+    class = "Mlr3WarningCIFExtrapolation"
+  )
+
+  # follow-up validation fails before checking for extrapolation
+  m$param_set$values$time = 9
+  expect_no_warning(expect_error(p$score(m), regexp = "test", class = "Mlr3ErrorInput"))
 })
 
 test_that("cmprsk.ibs works", {
+  withr::local_options(list(
+    mlr3cmprsk.warn_cif_sum = NULL,
+    mlr3cmprsk.warn_cif_extrapolation = NULL
+  ))
   m = msr("cmprsk.ibs")
   expect_r6(m, "MeasureCompRisksIntegratedBrierScore")
   expect_equal(m$properties, "na_score")
@@ -211,18 +245,8 @@ test_that("cmprsk.ibs works", {
   expect_equal(m$param_set$values$cause, "mean")
 
   # Fine-Gray is better than AJ estimator for IBS across causes
-  expect_warning(
-    {
-      ibs_aj = p1$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
-  expect_warning(
-    {
-      ibs_fg = p2$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
+  ibs_aj = p1$score(m)
+  ibs_fg = p2$score(m)
   expect_lt(ibs_fg, ibs_aj)
 
   # IBS can't be calculated via RiskRegression beyond the
@@ -259,48 +283,23 @@ test_that("cmprsk.ibs works", {
   # check usage of cause_weights for IBS calculation
   m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(1, 0))
   expect_equal(m$param_set$values$cause_weights, c(1, 0))
-  expect_warning(
-    {
-      ibs1 = p2$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
+  ibs1 = p2$score(m)
 
   m = msr("cmprsk.ibs", cause = 1)
-  expect_warning(
-    {
-      ibs11 = p2$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
+  ibs11 = p2$score(m)
   expect_equal(ibs1, ibs11)
 
   m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0, 1))
   expect_equal(m$param_set$values$cause_weights, c(0, 1))
-  expect_warning(
-    {
-      ibs2 = p2$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
+  ibs2 = p2$score(m)
 
   m = msr("cmprsk.ibs", cause = 2)
-  expect_warning(
-    {
-      ibs22 = p2$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
+  ibs22 = p2$score(m)
   expect_equal(ibs2, ibs22)
 
   m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.5))
   expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
-  expect_warning(
-    {
-      ibs_mean = p2$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
+  ibs_mean = p2$score(m)
   expect_equal(ibs_mean, 0.5 * ibs1 + 0.5 * ibs2)
   # weighted mean IBS across causes should be different from mean IBS across causes
   expect_true(ibs_fg != ibs_mean)
@@ -309,12 +308,7 @@ test_that("cmprsk.ibs works", {
   event = task$event()
   weights = unname(prop.table(table(event[event != 0])))
   m = msr("cmprsk.ibs", cause = "mean", cause_weights = weights)
-  expect_warning(
-    {
-      ibs_weighted = p2$score(m)
-    },
-    class = "Mlr3WarningCIFExtrapolation"
-  )
+  ibs_weighted = p2$score(m)
   expect_equal(ibs_weighted, ibs_fg)
 
   # check that constant CIF extrapolation warning is issued when necessary
@@ -332,6 +326,8 @@ test_that("cmprsk.ibs works", {
 
   # last anchor for cause 2 is at time 4, but we request IBS at times 3 and 5
   m$param_set$values$times = c(3, 5)
+  expect_no_warning(p$score(m))
+  withr::local_options(mlr3cmprsk.warn_cif_extrapolation = TRUE)
   expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
   # scoring only cause 2 still issues warning
   m$param_set$values$cause = 2L
@@ -347,5 +343,23 @@ test_that("cmprsk.ibs works", {
   expect_no_warning(p$score(m))
   # now the last time > last anchor for both causes
   m$param_set$values$times = c(3, 7)
-  expect_warning(p$score(m), regexp = "1, 2", class = "Mlr3WarningCIFExtrapolation")
+  expect_warning(
+    p$score(m),
+    regexp = "1, 2",
+    class = "Mlr3WarningCIFExtrapolation"
+  )
+
+  # follow-up validation removes times before checking for extrapolation
+  m$param_set$values$times = c(2, 4, 9)
+  expect_warning(
+    p$score(m),
+    regexp = "We remove 1 time point",
+    class = "Mlr3Warning"
+  )
+  m$param_set$values$times = c(5, 9)
+  expect_error(
+    expect_warning(p$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning"),
+    regexp = "at least two distinct time points",
+    class = "Mlr3Error"
+  )
 })

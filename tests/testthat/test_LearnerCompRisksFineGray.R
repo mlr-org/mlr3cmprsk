@@ -21,7 +21,7 @@ test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
     expect_list(model, len = length(task$cmp_events), types = "crr")
     expect_equal(names(model), task$cmp_events)
 
-    p = suppressWarnings(learner$predict(task, part$test))
+    p = learner$predict(task, part$test)
     cif_list = p$cif
     expect_equal(names(cif_list), task$cmp_events)
 
@@ -73,7 +73,31 @@ test_that("check that training works with no censored observations", {
     data.frame(time = 1:6, event = rep(c(1L, 2L), 3L), x = 1:6)
   )
   learner = lrn("cmprsk.fg")
-  p = suppressWarnings(learner$train(task)$predict(task))
+  p = learner$train(task)$predict(task)
 
   expect_prediction_cmprsk(p)
+})
+
+test_that("cmprsk.fg CIF sum warnings are opt-in", {
+  withr::local_options(list(
+    mlr3cmprsk.warn_cif_sum = NULL,
+    mlr3cmprsk.warn_cif_extrapolation = NULL
+  ))
+  task = tsk("pbc")$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
+  learner = lrn("cmprsk.fg")$train(task)
+  expect_no_warning({
+    p = learner$predict(task)
+  })
+  expect_true(any(Reduce(`+`, p$cif) > 1 + sqrt(.Machine$double.eps)))
+
+  withr::local_options(mlr3cmprsk.warn_cif_sum = FALSE)
+  expect_no_warning(learner$predict(task))
+  withr::local_options(mlr3cmprsk.warn_cif_sum = TRUE)
+  expect_warning(
+    {
+      p_warn = learner$predict(task)
+    },
+    class = "Mlr3WarningCIFSumExceedsOne"
+  )
+  expect_equal(p_warn$cif, p$cif)
 })
