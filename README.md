@@ -4,10 +4,10 @@
 Package website: [mlr3cmprsk](https://mlr3cmprsk.mlr-org.com/)
 
 `mlr3cmprsk` extends the [mlr3](https://mlr3.mlr-org.com/) ecosystem for
-machine learning with **competing risks survival outcomes**. It provides
-task, learner, prediction, and measure abstractions that support model
-training, resampling, benchmarking, and evaluation within the `mlr3`
-framework.
+machine learning with **competing risks right-censored survival
+outcomes**. It provides task, learner, prediction, and measure
+abstractions that support model training, resampling, benchmarking, and
+evaluation within the `mlr3` framework.
 
 <!-- badges: start -->
 
