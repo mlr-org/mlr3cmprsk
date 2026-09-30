@@ -3,7 +3,7 @@
 \name{mlr_measures_cmprsk.ibs}
 \alias{mlr_measures_cmprsk.ibs}
 \alias{MeasureCompRisksIntegratedBrierScore}
-\title{Competing Risks Integrated Brier Score}
+\title{Integrated Brier Score Competing Risks Measure}
 \description{
 Calculates the integrated competing-risks prediction error or Brier Score
 (IBS) at given times, using IPCW as described in Schoop et al. (2011).
@@ -54,7 +54,7 @@ msr("cmprsk.ibs")
 \item \code{cause} (\code{numeric(1)|"mean"})\cr
 Integer number indicating which cause to use.
 Default value is \code{"mean"} which returns an event-frequency weighted mean of
-the cause-specific Brier scores.
+the cause-specific IBS (Integrated Brier Score) scores.
 \item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
 If \code{NULL}, observed cause frequencies \strong{from the test data} are used.
@@ -68,63 +68,60 @@ times from the test set are used.
 }
 
 \examples{
-\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Define the Learner
-learner = lrn("cmprsk.fg")
-learner
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines::po("encode")` if needed
-feats = c("age", "chol", "albumin", "ast", "bili", "protime")
-task$select(feats)
-
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.fg")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time = 100))
+# IBS over all unique observed test-set times, weighted by event frequencies
+predictions$score(msr("cmprsk.ibs"))
 
-# AUC(t = 100), with user-specified weights
-predictions$score(msr("cmprsk.auc", cause = "mean", cause_weights = c(0.2, 0.8),
-  time = 100))
+# Define the integration grid in months
+times = seq(0, 100, by = 5)
 
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time = 100))
+# IBS from 0 to 100 months on a 5-month grid, weighted by event frequencies
+predictions$score(msr("cmprsk.ibs", times = times))
 
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time = 100))
+# IBS from 0 to 100 months on a 5-month grid, with equal weights for both causes
+predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.5, 0.5)))
 
-# Prediction error (Brier score) at specific time point
-# BS(t = 100) => weighted mean score across causes (default)
-predictions$score(msr("cmprsk.brier", time = 100))
+# IBS from 0 to 100 months on a 5-month grid, with custom weights for transplant and death
+predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.2, 0.8)))
 
-# BS(t = 100), 1st cause
-predictions$score(msr("cmprsk.brier", cause = 1, time = 100))
+# IBS from 0 to 100 months on a 5-month grid, for transplant only
+predictions$score(msr("cmprsk.ibs", times = times, cause = 1))
 
-# BS(t = 100), 2nd cause
-predictions$score(msr("cmprsk.brier", cause = 2, time = 100))
-\dontshow{\}) # examplesIf}
+# IBS from 0 to 100 months on a 5-month grid, for death only
+predictions$score(msr("cmprsk.ibs", times = times, cause = 2))
 }
 \references{
 Schoop, Roland, Beyersmann, Jan, Schumacher, Martin, Binder, Harald (2011).
 \dQuote{Quantifying the predictive accuracy of time-to-event models in the presence of competing risks.}
 \emph{Biometrical Journal}, \bold{53}(1), 88--112.
 \url{https://doi.org/10.1002/BIMJ.201000073}.
+
+Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018).
+\dQuote{Prediction errors for state occupation and transition probabilities in multi-state models.}
+\emph{Biometrical Journal}, \bold{60}(1), 34--48.
+ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.201600191}.
 }
 \section{Super classes}{
 \code{\link[mlr3:Measure]{mlr3::Measure}} -> \code{\link[mlr3cmprsk:MeasureCompRisks]{MeasureCompRisks}} -> \code{MeasureCompRisksIntegratedBrierScore}

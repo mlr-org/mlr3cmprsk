@@ -1,6 +1,6 @@
 Package: mlr3cmprsk
 Title: Competing Risks Machine Learning for 'mlr3'
-Version: 0.0.6
+Version: 0.0.6.9000
 Authors@R: c(
     person("John", "Zobolas", , "bblodfon@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-3609-8674")),
@@ -28,7 +28,8 @@ Imports:
 Suggests:
     lgr,
     mirai,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 ByteCompile: true
 Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3

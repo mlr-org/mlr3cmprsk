@@ -1,6 +1,6 @@
-#' @title Blanche's AUC Competing Risks Measure
+#' @title AUC(t) Competing Risks Measure
 #' @name mlr_measures_cmprsk.auc
-#' @templateVar id cmprsk.auc
+#' @templateVar measure_id cmprsk.auc
 #' @template cmprsk_measure
 #'
 #' @description
@@ -52,7 +52,9 @@
 #' @references
 #' `r format_bib("blanche_2013", "spitoni_2018", "heyard_2020")`
 #'
-#' @template example_fine_gray
+#' @templateVar learner_id cmprsk.fg
+#' @template example
+#' @template example_measure
 #' @export
 MeasureCompRisksAUC = R6Class(
   "MeasureCompRisksAUC",
@@ -74,7 +76,7 @@ MeasureCompRisksAUC = R6Class(
         minimize = FALSE,
         properties = "na_score",
         packages = "riskRegression",
-        label = "Blanche's Time-dependent IPCW ROC-AUC score",
+        label = "Time-dependent AUC",
         man = "mlr3cmprsk::mlr_measures_cmprsk.auc"
       )
     }
@@ -98,6 +100,7 @@ MeasureCompRisksAUC = R6Class(
       } else {
         assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
+      time = validate_times(time, data$time)
 
       # list of predicted CIF matrices
       cif_list = prediction$cif
@@ -121,6 +124,9 @@ MeasureCompRisksAUC = R6Class(
           stop("Cause weights must sum to 1.")
         }
       }
+
+      scored_causes = if (cause == "mean") causes else cause
+      warn_cif_extrapolation(cif_list, time, scored_causes)
 
       auc_score = function(cause) {
         # get CIF on the given time point

@@ -1,6 +1,6 @@
-#' @title Competing Risks Integrated Brier Score
+#' @title Integrated Brier Score Competing Risks Measure
 #' @name mlr_measures_cmprsk.ibs
-#' @templateVar id cmprsk.ibs
+#' @templateVar measure_id cmprsk.ibs
 #' @template cmprsk_measure
 #'
 #' @description
@@ -21,7 +21,7 @@
 #' - `cause` (`numeric(1)|"mean"`)\cr
 #'  Integer number indicating which cause to use.
 #'  Default value is `"mean"` which returns an event-frequency weighted mean of
-#'  the cause-specific Brier scores.
+#'  the cause-specific IBS (Integrated Brier Score) scores.
 #' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
 #'  If `NULL`, observed cause frequencies **from the test data** are used.
@@ -33,10 +33,11 @@
 #'  times from the test set are used.
 #'
 #' @references
-#' `r format_bib("schoop_2011")`
+#' `r format_bib("schoop_2011", "spitoni_2018")`
 #'
-#' @templateVar msr_id ibs
-#' @template example_fine_gray
+#' @templateVar learner_id cmprsk.fg
+#' @template example
+#' @template example_measure
 #' @export
 MeasureCompRisksIntegratedBrierScore = R6Class(
   "MeasureCompRisksIntegratedBrierScore",
@@ -92,27 +93,7 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
       if (is.null(times)) {
         times = sort(unique(data$time))
       }
-
-      # RiskRegression can't evaluate for times > max time point from the test set
-      t_max = max(data$time)
-      is_larger_than_t_max = times > t_max
-      if (any(is_larger_than_t_max)) {
-        warning_mlr3(
-          sprintf(
-            "RiskRegression cannot evaluate time points larger than the maximum
-            test-set time (%f). We remove %d time point(s) from `times`",
-            t_max,
-            sum(is_larger_than_t_max)
-          )
-        )
-        times = times[!is_larger_than_t_max]
-      }
-
-      if (length(times) < 2L) {
-        error_mlr3(
-          "`times` must contain at least two distinct time points."
-        )
-      }
+      times = validate_times(times, data$time, integrated = TRUE)
 
       # list of predicted CIF matrices
       cif_list = prediction$cif
@@ -136,6 +117,9 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
           error_input("Cause weights must sum to 1.")
         }
       }
+
+      scored_causes = if (cause == "mean") causes else cause
+      warn_cif_extrapolation(cif_list, times, scored_causes)
 
       ibs = function(cause) {
         # get CIF on the times grid

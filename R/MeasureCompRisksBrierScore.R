@@ -1,6 +1,6 @@
 #' @title Brier Score Competing Risks Measure
 #' @name mlr_measures_cmprsk.brier
-#' @templateVar id cmprsk.brier
+#' @templateVar measure_id cmprsk.brier
 #' @template cmprsk_measure
 #'
 #' @description
@@ -46,8 +46,9 @@
 #' @references
 #' `r format_bib("schoop_2011", "spitoni_2018")`
 #'
-#' @templateVar msr_id brier
-#' @template example_fine_gray
+#' @templateVar learner_id cmprsk.fg
+#' @template example
+#' @template example_measure
 #' @export
 MeasureCompRisksBrierScore = R6Class(
   "MeasureCompRisksBrierScore",
@@ -69,7 +70,7 @@ MeasureCompRisksBrierScore = R6Class(
         minimize = TRUE,
         properties = "na_score",
         packages = "riskRegression",
-        label = "Competing Risks Brier Score (fixed time)",
+        label = "Competing Risks Brier Score at a specified time",
         man = "mlr3cmprsk::mlr_measures_cmprsk.brier"
       )
     }
@@ -94,16 +95,7 @@ MeasureCompRisksBrierScore = R6Class(
         assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
 
-      # RiskRegression can't evaluate for time > max time point from the test set
-      t_max = max(data$time)
-      if (time > t_max) {
-        error_input(
-          sprintf(
-            "RiskRegression cannot evaluate time points larger than the maximum test-set time (%f).",
-            t_max
-          )
-        )
-      }
+      time = validate_times(time, data$time)
 
       # list of predicted CIF matrices
       cif_list = prediction$cif
@@ -127,6 +119,9 @@ MeasureCompRisksBrierScore = R6Class(
           error_input("Cause weights must sum to 1.")
         }
       }
+
+      scored_causes = if (cause == "mean") causes else cause
+      warn_cif_extrapolation(cif_list, time, scored_causes)
 
       brier_score = function(cause) {
         # get CIF on the given time point

@@ -1,14 +1,4 @@
-# Here we define some mlr3-mandatory S3 methods of the `PredictionDataSurv` object
-
-#' @rdname as_prediction_cmprsk
-#' @param check (`logical(1)`)\cr
-#'   Whether to validate internal `PredictionDataCompRisks` data during conversion with [mlr3::as_prediction()].
-#'   Use `TRUE` for user-supplied data; `FALSE` is intended for already validated internal data.
-#'   With `FALSE`, correct behavior is not guaranteed if the input is invalid.
-#' @export
-as_prediction.PredictionDataCompRisks = function(x, check = FALSE, ...) {
-  invoke(PredictionCompRisks$new, check = check, .args = x)
-}
+# Here we define some mlr3-mandatory S3 methods of the `PredictionDataCompRisks` object
 
 #' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
@@ -23,16 +13,18 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
     # Joint coherence between CIFs is desirable but not required
     # Independently fitted cause-specific models (e.g. Fine-Gray)
     # can produce CIFs whose sum exceeds 1.
-    aligned_cifs = align_cifs(pdata$cif, bind_rows = FALSE)
-    cif_sum = Reduce(`+`, aligned_cifs)
-    tol = sqrt(.Machine$double.eps)
+    if (getOption("mlr3cmprsk.warn_cif_sum", FALSE)) {
+      aligned_cifs = align_cifs(pdata$cif, bind_rows = FALSE)
+      cif_sum = Reduce(`+`, aligned_cifs)
+      tol = sqrt(.Machine$double.eps)
 
-    if (any(cif_sum > 1 + tol)) {
-      warning_mlr3(
-        "Predicted cause-specific CIFs are not jointly coherent: their sum
-        exceeds 1 for some observations/time points.",
-        class = "Mlr3WarningCIFSumExceedsOne"
-      )
+      if (any(cif_sum > 1 + tol)) {
+        warning_mlr3(
+          "Predicted cause-specific CIFs are not jointly coherent: their sum
+          exceeds 1 for some observations/time points.",
+          class = "Mlr3WarningCIFSumExceedsOne"
+        )
+      }
     }
   }
 

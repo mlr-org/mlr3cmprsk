@@ -1,9 +1,3 @@
-test_that("competing risks measures are available", {
-  expect_r6(msr("cmprsk.auc"), "MeasureCompRisksAUC")
-  expect_r6(msr("cmprsk.brier"), "MeasureCompRisksBrierScore")
-  expect_r6(msr("cmprsk.ibs"), "MeasureCompRisksIntegratedBrierScore")
-})
-
 task = tsk("pbc")
 feats = c("age", "chol", "albumin", "ast", "bili", "protime")
 task$select(feats)
@@ -11,10 +5,15 @@ task$select(feats)
 l1 = lrn("cmprsk.aalen")
 l2 = lrn("cmprsk.fg")
 p1 = l1$train(task)$predict(task)
-p2 = suppressWarnings(l2$train(task)$predict(task))
+p2 = l2$train(task)$predict(task)
 
 test_that("cmprsk.auc works", {
+  withr::local_options(list(
+    mlr3cmprsk.warn_cif_sum = NULL,
+    mlr3cmprsk.warn_cif_extrapolation = NULL
+  ))
   m = msr("cmprsk.auc")
+  expect_r6(m, "MeasureCompRisksAUC")
   expect_equal(m$properties, "na_score")
   expect_equal(m$minimize, FALSE)
   expect_equal(m$param_set$values$cause, "mean")
@@ -29,12 +28,19 @@ test_that("cmprsk.auc works", {
   # AUC(t) can't be calculated via RiskRegression beyond the
   # maximum observed time from the test set
   m = msr("cmprsk.auc", time = 160)
-  suppressMessages(expect_error(p1$score(m)))
-  suppressMessages(expect_error(p2$score(m)))
+  expect_error(p1$score(m), "test", class = "Mlr3ErrorInput")
+  expect_error(p2$score(m), "test", class = "Mlr3ErrorInput")
 
   # request for early time point where no event have yet happened gives NaN AUC
   m = msr("cmprsk.auc", time = 5)
-  expect_warning(p2$score(m), class = "RiskRegressionScoreNaN")
+  expect_warning(
+    {
+      score = p2$score(m)
+    },
+    regexp = "",
+    class = "RiskRegressionScoreNaN"
+  )
+  expect_true(is.nan(score))
 
   # request for cause that doesn't exist should give an error
   m = msr("cmprsk.auc", cause = 3)
@@ -64,7 +70,7 @@ test_that("cmprsk.auc works", {
   m = msr("cmprsk.auc", cause = "mean", cause_weights = c(0.5, 0.5))
   expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
   auc_mean = p2$score(m)
-  expect_equal(auc_mean, (auc1 + auc2) / 2)
+  expect_equal(auc_mean, 0.5 * auc1 + 0.5 * auc2)
   # weighted mean AUC across causes should be different from mean AUC across causes
   expect_true(auc_fg != auc_mean)
 
@@ -73,10 +79,59 @@ test_that("cmprsk.auc works", {
   weights = unname(prop.table(table(event[event != 0])))
   m = msr("cmprsk.auc", cause = "mean", cause_weights = weights)
   expect_equal(p2$score(m), auc_fg)
+
+  # check that constant CIF extrapolation warning is issued when necessary
+  truth = Surv(1:8, factor(c(1, 2, 0, 1, 2, 0, 1, 2), levels = 0:2))
+  cif = list(
+    "1" = matrix(
+      rep(c(0.1, 0.2, 0.3), each = 8L),
+      nrow = 8L,
+      dimnames = list(NULL, c("2", "4", "6"))
+    ),
+    "2" = matrix(rep(c(0.1, 0.2), each = 8L), nrow = 8L, dimnames = list(NULL, c("2", "4")))
+  )
+  p = PredictionCompRisks$new(row_ids = 1:8, truth = truth, cif = cif)
+  m = msr("cmprsk.auc")
+
+  # last anchor for cause 2 is at time 4, but we request AUC at time 5
+  m$param_set$values$time = 5
+  expect_no_warning(p$score(m))
+  withr::local_options(mlr3cmprsk.warn_cif_extrapolation = TRUE)
+  expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
+  # scoring only cause 2 still issues warning
+  m$param_set$values$cause = 2L
+  expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
+  # scoring only cause 1 does not issue warning
+  m$param_set$values$cause = 1L
+  expect_no_warning(p$score(m))
+
+  # no warning for mean-weighted AUC across causes, when time is smaller than the last
+  # anchor for both causes
+  m$param_set$values$cause = "mean"
+  m$param_set$values$time = 4
+  expect_no_warning(p$score(m))
+  # now time > last anchor for both causes
+  m$param_set$values$time = 7
+  expect_warning(
+    p$score(m),
+    regexp = "1, 2",
+    class = "Mlr3WarningCIFExtrapolation"
+  )
+
+  # follow-up validation fails before checking for extrapolation
+  m$param_set$values$time = 9
+  expect_no_warning(
+    expect_error(p$score(m), regexp = "test", class = "Mlr3ErrorInput")
+  )
 })
 
 test_that("cmprsk.brier works", {
+  withr::local_options(list(
+    mlr3cmprsk.warn_cif_sum = NULL,
+    mlr3cmprsk.warn_cif_extrapolation = NULL
+  ))
   m = msr("cmprsk.brier")
+  expect_r6(m, "MeasureCompRisksBrierScore")
   expect_equal(m$properties, "na_score")
   expect_equal(m$minimize, TRUE)
   expect_equal(m$param_set$values$cause, "mean")
@@ -125,8 +180,8 @@ test_that("cmprsk.brier works", {
   m = msr("cmprsk.brier", cause = "mean", cause_weights = c(0.5, 0.5))
   expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
   bs_mean = p2$score(m)
-  expect_equal(bs_mean, (bs1 + bs2) / 2)
-  # event-weighted mean BS(t) across causes should be different from mean BS(t) across causes
+  expect_equal(bs_mean, 0.5 * bs1 + 0.5 * bs2)
+  # weighted mean BS(t) across causes should be different from mean BS(t) across causes
   expect_true(bs_fg != bs_mean)
 
   # manually calculate weighted mean BS(t) across causes with user-specified weights
@@ -134,15 +189,62 @@ test_that("cmprsk.brier works", {
   weights = unname(prop.table(table(event[event != 0])))
   m = msr("cmprsk.brier", cause = "mean", cause_weights = weights)
   expect_equal(p2$score(m), bs_fg)
+
+  # check that constant CIF extrapolation warning is issued when necessary
+  truth = Surv(1:8, factor(c(1, 2, 0, 1, 2, 0, 1, 2), levels = 0:2))
+  cif = list(
+    "1" = matrix(
+      rep(c(0.1, 0.2, 0.3), each = 8L),
+      nrow = 8L,
+      dimnames = list(NULL, c("2", "4", "6"))
+    ),
+    "2" = matrix(rep(c(0.1, 0.2), each = 8L), nrow = 8L, dimnames = list(NULL, c("2", "4")))
+  )
+  p = PredictionCompRisks$new(row_ids = 1:8, truth = truth, cif = cif)
+  m = msr("cmprsk.brier")
+
+  # last anchor for cause 2 is at time 4, but we request BS(t) at time 5
+  m$param_set$values$time = 5
+  expect_no_warning(p$score(m))
+  withr::local_options(mlr3cmprsk.warn_cif_extrapolation = TRUE)
+  expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
+  # scoring only cause 2 still issues warning
+  m$param_set$values$cause = 2L
+  expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
+  # scoring only cause 1 does not issue warning
+  m$param_set$values$cause = 1L
+  expect_no_warning(p$score(m))
+
+  # no warning for mean-weighted BS(t) across causes, when time is smaller than the last
+  # anchor for both causes
+  m$param_set$values$cause = "mean"
+  m$param_set$values$time = 4
+  expect_no_warning(p$score(m))
+  # now time > last anchor for both causes
+  m$param_set$values$time = 7
+  expect_warning(
+    p$score(m),
+    regexp = "1, 2",
+    class = "Mlr3WarningCIFExtrapolation"
+  )
+
+  # follow-up validation fails before checking for extrapolation
+  m$param_set$values$time = 9
+  expect_no_warning(expect_error(p$score(m), regexp = "test", class = "Mlr3ErrorInput"))
 })
 
 test_that("cmprsk.ibs works", {
+  withr::local_options(list(
+    mlr3cmprsk.warn_cif_sum = NULL,
+    mlr3cmprsk.warn_cif_extrapolation = NULL
+  ))
   m = msr("cmprsk.ibs")
+  expect_r6(m, "MeasureCompRisksIntegratedBrierScore")
   expect_equal(m$properties, "na_score")
   expect_equal(m$minimize, TRUE)
   expect_equal(m$param_set$values$cause, "mean")
 
-  # Fine-Gray is better than AJ estimator for IBS (across causes)
+  # Fine-Gray is better than AJ estimator for IBS across causes
   ibs_aj = p1$score(m)
   ibs_fg = p2$score(m)
   expect_lt(ibs_fg, ibs_aj)
@@ -165,7 +267,7 @@ test_that("cmprsk.ibs works", {
     class = "Mlr3Error"
   )
 
-  # request for early time point works just fine for IBS
+  # request for early time points works just fine for IBS
   m = msr("cmprsk.ibs", times = c(0, 1, 2))
   expect_gte(p1$score(m), 0)
   expect_gte(p2$score(m), 0)
@@ -198,13 +300,66 @@ test_that("cmprsk.ibs works", {
   m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.5))
   expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
   ibs_mean = p2$score(m)
-  expect_equal(ibs_mean, (ibs1 + ibs2) / 2)
-  # event-weighted mean IBS across causes should be different from mean IBS across causes
+  expect_equal(ibs_mean, 0.5 * ibs1 + 0.5 * ibs2)
+  # weighted mean IBS across causes should be different from mean IBS across causes
   expect_true(ibs_fg != ibs_mean)
 
-  # manually calculate event-weighted mean IBS across causes with user-specified weights
+  # manually calculate weighted mean IBS across causes with user-specified weights
   event = task$event()
   weights = unname(prop.table(table(event[event != 0])))
   m = msr("cmprsk.ibs", cause = "mean", cause_weights = weights)
-  expect_equal(p2$score(m), ibs_fg)
+  ibs_weighted = p2$score(m)
+  expect_equal(ibs_weighted, ibs_fg)
+
+  # check that constant CIF extrapolation warning is issued when necessary
+  truth = Surv(1:8, factor(c(1, 2, 0, 1, 2, 0, 1, 2), levels = 0:2))
+  cif = list(
+    "1" = matrix(
+      rep(c(0.1, 0.2, 0.3), each = 8L),
+      nrow = 8L,
+      dimnames = list(NULL, c("2", "4", "6"))
+    ),
+    "2" = matrix(rep(c(0.1, 0.2), each = 8L), nrow = 8L, dimnames = list(NULL, c("2", "4")))
+  )
+  p = PredictionCompRisks$new(row_ids = 1:8, truth = truth, cif = cif)
+  m = msr("cmprsk.ibs")
+
+  # last anchor for cause 2 is at time 4, but we request IBS at times 3 and 5
+  m$param_set$values$times = c(3, 5)
+  expect_no_warning(p$score(m))
+  withr::local_options(mlr3cmprsk.warn_cif_extrapolation = TRUE)
+  expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
+  # scoring only cause 2 still issues warning
+  m$param_set$values$cause = 2L
+  expect_warning(p$score(m), regexp = "2", class = "Mlr3WarningCIFExtrapolation")
+  # scoring only cause 1 does not issue warning
+  m$param_set$values$cause = 1L
+  expect_no_warning(p$score(m))
+
+  # no warning for mean-weighted IBS across causes, when all times are at or before the last
+  # anchor for both causes
+  m$param_set$values$cause = "mean"
+  m$param_set$values$times = c(3, 4)
+  expect_no_warning(p$score(m))
+  # now the last time > last anchor for both causes
+  m$param_set$values$times = c(3, 7)
+  expect_warning(
+    p$score(m),
+    regexp = "1, 2",
+    class = "Mlr3WarningCIFExtrapolation"
+  )
+
+  # follow-up validation removes times before checking for extrapolation
+  m$param_set$values$times = c(2, 4, 9)
+  expect_warning(
+    p$score(m),
+    regexp = "We remove 1 time point",
+    class = "Mlr3Warning"
+  )
+  m$param_set$values$times = c(5, 9)
+  expect_error(
+    expect_warning(p$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning"),
+    regexp = "at least two distinct time points",
+    class = "Mlr3Error"
+  )
 })

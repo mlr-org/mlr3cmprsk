@@ -23,7 +23,7 @@ test_that("combining predictions", {
   feats = c("age", "chol", "albumin", "ast", "bili", "protime")
   task$select(feats)
 
-  rr = suppressWarnings(resample(task, lrn("cmprsk.fg"), rsmp("cv", folds = 3L)))
+  rr = resample(task, lrn("cmprsk.fg"), rsmp("cv", folds = 3L))
   p = rr$predictions()
 
   # check: different time points in each resampling `p[[i]]` (for cause 1)
