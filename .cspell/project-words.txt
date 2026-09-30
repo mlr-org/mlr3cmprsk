@@ -11,6 +11,7 @@ classif
 cmprsk
 Covariate
 covariates
+coxboost
 CRAN
 datatable
 deparsed
@@ -46,6 +47,7 @@ redocument
 Regr
 renv
 resamplings
+rfsrc
 Roxygen
 Roxygenize
 Rpart
