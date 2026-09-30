@@ -1,14 +1,4 @@
-# Here we define some mlr3-mandatory S3 methods of the `PredictionDataSurv` object
-
-#' @rdname as_prediction_cmprsk
-#' @param check (`logical(1)`)\cr
-#'   Whether to validate internal `PredictionDataCompRisks` data during conversion with [mlr3::as_prediction()].
-#'   Use `TRUE` for user-supplied data; `FALSE` is intended for already validated internal data.
-#'   With `FALSE`, correct behavior is not guaranteed if the input is invalid.
-#' @export
-as_prediction.PredictionDataCompRisks = function(x, check = FALSE, ...) {
-  invoke(PredictionCompRisks$new, check = check, .args = x)
-}
+# Here we define some mlr3-mandatory S3 methods of the `PredictionDataCompRisks` object
 
 #' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
