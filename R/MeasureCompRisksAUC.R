@@ -74,7 +74,7 @@ MeasureCompRisksAUC = R6Class(
         minimize = FALSE,
         properties = "na_score",
         packages = "riskRegression",
-        label = "Blanche's Time-dependent IPCW ROC-AUC score",
+        label = "Blanche's Time-dependent AUC",
         man = "mlr3cmprsk::mlr_measures_cmprsk.auc"
       )
     }
