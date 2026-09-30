@@ -94,20 +94,23 @@ predictions
 # IBS over all unique observed test-set times, weighted by event frequencies
 predictions$score(msr("cmprsk.ibs"))
 
+# Define the integration grid in months
+times = seq(0, 100, by = 5)
+
 # IBS from 0 to 100 months on a 5-month grid, weighted by event frequencies
-predictions$score(msr("cmprsk.ibs", times = seq(0, 100, by = 5)))
+predictions$score(msr("cmprsk.ibs", times = times))
 
 # IBS from 0 to 100 months on a 5-month grid, with equal weights for both causes
-predictions$score(msr("cmprsk.ibs", times = seq(0, 100, by = 5), cause_weights = c(0.5, 0.5)))
+predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.5, 0.5)))
 
 # IBS from 0 to 100 months on a 5-month grid, with custom weights for transplant and death
-predictions$score(msr("cmprsk.ibs", times = seq(0, 100, by = 5), cause_weights = c(0.2, 0.8)))
+predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.2, 0.8)))
 
 # IBS from 0 to 100 months on a 5-month grid, for transplant only
-predictions$score(msr("cmprsk.ibs", times = seq(0, 100, by = 5), cause = 1))
+predictions$score(msr("cmprsk.ibs", times = times, cause = 1))
 
 # IBS from 0 to 100 months on a 5-month grid, for death only
-predictions$score(msr("cmprsk.ibs", times = seq(0, 100, by = 5), cause = 2))
+predictions$score(msr("cmprsk.ibs", times = times, cause = 2))
 }
 \references{
 Schoop, Roland, Beyersmann, Jan, Schumacher, Martin, Binder, Harald (2011).
