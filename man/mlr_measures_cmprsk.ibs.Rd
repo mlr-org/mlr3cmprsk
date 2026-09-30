@@ -3,7 +3,7 @@
 \name{mlr_measures_cmprsk.ibs}
 \alias{mlr_measures_cmprsk.ibs}
 \alias{MeasureCompRisksIntegratedBrierScore}
-\title{Competing Risks Integrated Brier Score}
+\title{Integrated Brier Score Competing Risks Measure}
 \description{
 Calculates the integrated competing-risks prediction error or Brier Score
 (IBS) at given times, using IPCW as described in Schoop et al. (2011).

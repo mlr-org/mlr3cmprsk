@@ -1,4 +1,4 @@
-#' @title Blanche's AUC Competing Risks Measure
+#' @title AUC(t) Competing Risks Measure
 #' @name mlr_measures_cmprsk.auc
 #' @templateVar id cmprsk.auc
 #' @template cmprsk_measure
@@ -74,7 +74,7 @@ MeasureCompRisksAUC = R6Class(
         minimize = FALSE,
         properties = "na_score",
         packages = "riskRegression",
-        label = "Blanche's Time-dependent AUC",
+        label = "Time-dependent AUC",
         man = "mlr3cmprsk::mlr_measures_cmprsk.auc"
       )
     }

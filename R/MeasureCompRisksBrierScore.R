@@ -69,7 +69,7 @@ MeasureCompRisksBrierScore = R6Class(
         minimize = TRUE,
         properties = "na_score",
         packages = "riskRegression",
-        label = "Competing Risks Brier Score (fixed time)",
+        label = "Competing Risks Brier Score at a specified time",
         man = "mlr3cmprsk::mlr_measures_cmprsk.brier"
       )
     }

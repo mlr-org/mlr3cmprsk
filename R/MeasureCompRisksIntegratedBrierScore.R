@@ -1,4 +1,4 @@
-#' @title Competing Risks Integrated Brier Score
+#' @title Integrated Brier Score Competing Risks Measure
 #' @name mlr_measures_cmprsk.ibs
 #' @templateVar id cmprsk.ibs
 #' @template cmprsk_measure
