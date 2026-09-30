@@ -1,6 +1,6 @@
 #' @title AUC(t) Competing Risks Measure
 #' @name mlr_measures_cmprsk.auc
-#' @templateVar id cmprsk.auc
+#' @templateVar measure_id cmprsk.auc
 #' @template cmprsk_measure
 #'
 #' @description
@@ -52,7 +52,9 @@
 #' @references
 #' `r format_bib("blanche_2013", "spitoni_2018", "heyard_2020")`
 #'
-#' @template example_fine_gray
+#' @templateVar learner_id cmprsk.fg
+#' @template example
+#' @template example_measure
 #' @export
 MeasureCompRisksAUC = R6Class(
   "MeasureCompRisksAUC",

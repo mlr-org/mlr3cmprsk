@@ -1,6 +1,6 @@
 #' @title Fine-Gray Competing Risks Learner
 #' @name mlr_learners_cmprsk.fg
-#' @templateVar id cmprsk.fg
+#' @templateVar learner_id cmprsk.fg
 #' @template cmprsk_learner
 #'
 #' @description
@@ -30,7 +30,10 @@
 #' @references
 #' `r format_bib("fine_1999")`
 #'
-#' @template example_fine_gray
+#' @template example
+#' @examples
+#' # Score predictions
+#' predictions$score()
 #' @export
 LearnerCompRisksFineGray = R6Class(
   "LearnerCompRisksFineGray",

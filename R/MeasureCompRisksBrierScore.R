@@ -1,6 +1,6 @@
 #' @title Brier Score Competing Risks Measure
 #' @name mlr_measures_cmprsk.brier
-#' @templateVar id cmprsk.brier
+#' @templateVar measure_id cmprsk.brier
 #' @template cmprsk_measure
 #'
 #' @description
@@ -46,8 +46,9 @@
 #' @references
 #' `r format_bib("schoop_2011", "spitoni_2018")`
 #'
-#' @templateVar msr_id brier
-#' @template example_fine_gray
+#' @templateVar learner_id cmprsk.fg
+#' @template example
+#' @template example_measure
 #' @export
 MeasureCompRisksBrierScore = R6Class(
   "MeasureCompRisksBrierScore",

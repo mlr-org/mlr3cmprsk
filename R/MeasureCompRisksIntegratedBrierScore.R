@@ -1,6 +1,6 @@
 #' @title Integrated Brier Score Competing Risks Measure
 #' @name mlr_measures_cmprsk.ibs
-#' @templateVar id cmprsk.ibs
+#' @templateVar measure_id cmprsk.ibs
 #' @template cmprsk_measure
 #'
 #' @description
@@ -21,7 +21,7 @@
 #' - `cause` (`numeric(1)|"mean"`)\cr
 #'  Integer number indicating which cause to use.
 #'  Default value is `"mean"` which returns an event-frequency weighted mean of
-#'  the cause-specific Brier scores.
+#'  the cause-specific IBS (Integrated Brier Score) scores.
 #' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
 #'  If `NULL`, observed cause frequencies **from the test data** are used.
@@ -33,10 +33,11 @@
 #'  times from the test set are used.
 #'
 #' @references
-#' `r format_bib("schoop_2011")`
+#' `r format_bib("schoop_2011", "spitoni_2018")`
 #'
-#' @templateVar msr_id ibs
-#' @template example_fine_gray
+#' @templateVar learner_id cmprsk.fg
+#' @template example
+#' @template example_measure
 #' @export
 MeasureCompRisksIntegratedBrierScore = R6Class(
   "MeasureCompRisksIntegratedBrierScore",

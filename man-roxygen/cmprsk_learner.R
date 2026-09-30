@@ -2,16 +2,16 @@
 #' This [Learner][mlr3::Learner] can be instantiated via the [dictionary][mlr3misc::Dictionary]
 #' [mlr_learners][mlr3::mlr_learners] or with the associated sugar function [lrn()][mlr3::lrn]:
 #' ```
-#' mlr_learners$get("<%=id%>")
-#' lrn("<%=id%>")
+#' mlr_learners$get("<%= learner_id %>")
+#' lrn("<%= learner_id %>")
 #' ```
 #'
 #' @section Meta Information:
-#' `r paste(mlr3misc::rd_info(mlr3::lrn("<%= id %>")), collapse = "\n")`
+#' `r paste(mlr3misc::rd_info(mlr3::lrn("<%= learner_id %>")), collapse = "\n")`
 #' @md
 #'
 #' @section Parameters:
-#' `r paste(mlr3misc::rd_info(mlr3::lrn("<%= id %>")$param_set), collapse = "\n")`
+#' `r paste(mlr3misc::rd_info(mlr3::lrn("<%= learner_id %>")$param_set), collapse = "\n")`
 #' @md
 #'
 #' @family competing risk learners
