@@ -70,3 +70,25 @@ gen_cif = function(n = 20, n_events = 2, n_times = 20, max_time = 5) {
   names(cif_list) = as.character(seq_len(n_events))
   cif_list
 }
+
+# default: 3 causes, but no event 2
+gen_PredictionCompRisks = function(event = c(1, 0, 3, 0, 3, 1, 3, 0)) {
+  n = length(event)
+
+  cif = set_names(
+    lapply(1:3, function(cause) {
+      matrix(
+        rep(c(0.03, 0.07, 0.12) * cause, each = n),
+        nrow = n,
+        dimnames = list(NULL, c("1", "4", "8"))
+      )
+    }),
+    as.character(1:3)
+  )
+
+  PredictionCompRisks$new(
+    row_ids = seq_len(n),
+    truth = Surv(seq_len(n), factor(event, levels = 0:3)),
+    cif = cif
+  )
+}
