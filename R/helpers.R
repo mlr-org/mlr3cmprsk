@@ -141,7 +141,7 @@ resolve_cause_weights = function(event, causes, cause_weights = NULL) {
   weights
 }
 
-#' Computes the weighted sum of cause-specific scores using weights already
+#' Computes the weighted sum of cause-specific scores using weights ALREADY
 #' aligned with the scores.
 #' Warns if any score is non-finite.
 #' @keywords internal
