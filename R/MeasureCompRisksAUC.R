@@ -6,16 +6,16 @@
 #' @description
 #' Calculates the time-dependent ROC-AUC at a **specific time point**,
 #' as described in Blanche et al. (2013), Equation 4.
-#' This (second) definition defines as controls the subjects who survive beyond
-#' the time horizon plus those who experience a competing event before
-#' the horizon.
+#' Controls include subjects who survive beyond the time horizon
+#' and those who experience a competing event before the horizon.
 #'
 #' @details
 #' By default, this measure returns a **cause-independent AUC(t)** score,
 #' calculated as a weighted average of the cause-specific AUCs.
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation 7 in Heyard et al. (2020).
-#' User-supplied weights are also supported.
+#' User-supplied weights are also supported through `cause_weights`.
+#' See the **Cause weights** section for weighting rules.
 #'
 #' Alternatively, users can obtain the **cause-specific AUC(t)** for any
 #' individual cause by specifying the `cause` parameter.
@@ -28,12 +28,13 @@
 #' Notes on the `riskRegression` implementation:
 #' 1. IPCW weights are estimated using the **test data only**, so smaller test
 #' sets may lead to less stable estimates.
-#' 2. No extrapolation is supported: if `time` exceeds the maximum observed
-#' time on the test data, an error is thrown.
-#' 3. The choice of `time` is critical: if, at that time, no events of a
-#' given cause have occurred and all predicted CIFs are zero, `riskRegression`
-#' will return `NaN` for that cause-specific AUC (and subsequently for the
-#' summary AUC).
+#' 2. Scoring at a `time` beyond the maximum observed test-set time produces an
+#' input error.
+#' 3. AUC(t) is undefined if no events of the requested cause are observed at or
+#' before `time`, or if no controls are available at that time.
+#' In these cases, `riskRegression` returns `NaN` for the cause-specific AUC.
+#'
+#' @template cmprsk_cause_weights
 #'
 #' @section Parameter details:
 #' - `cause` (`numeric(1)|"mean"`)\cr
@@ -42,9 +43,7 @@
 #'  the cause-specific AUCs.
 #' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
-#'  If `NULL`, observed cause frequencies in the test data are used.
-#'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-#'  i.e. first weight for first cause, second weight for second cause, etc.
+#'  See the **Cause weights** section for weighting rules.
 #' - `time` (`numeric(1)`)\cr
 #'  Single time point at which to return the score.
 #'  If `NULL`, the **median observed time point** from the test set is used.
@@ -86,6 +85,11 @@ MeasureCompRisksAUC = R6Class(
     .score = function(prediction, task, ...) {
       pv = self$param_set$values
 
+      # get list of predicted CIF matrices and causes requested
+      cif_list = prediction$cif
+      causes = names(cif_list)
+      cause = assert_cause(pv$cause, causes)
+
       # Prepare test set data for IPCW
       # Must match the number of rows in the predicted CIF matrix
       data = data.table(
@@ -102,31 +106,19 @@ MeasureCompRisksAUC = R6Class(
       }
       time = validate_times(time, data$time)
 
-      # list of predicted CIF matrices
-      cif_list = prediction$cif
-      causes = names(cif_list)
-      # cause should be 1,2,... or "mean"
-      cause = assert_cause(pv$cause, causes)
-
-      # check weights
-      cause_weights = pv$cause_weights
-      if (!is.null(cause_weights)) {
-        assert_numeric(
-          cause_weights,
-          lower = 0,
-          upper = 1,
-          len = length(causes),
-          any.missing = FALSE,
-          null.ok = FALSE
-        )
-
-        if (abs(sum(cause_weights) - 1) > 1e-8) {
-          stop("Cause weights must sum to 1.")
+      # For cause = "mean", get cause weights
+      active_causes = cause
+      if (cause == "mean") {
+        weights = resolve_cause_weights(data$event, causes, pv$cause_weights)
+        if (anyNA(weights)) {
+          return(NA_real_)
         }
+        active_causes = causes[weights > 0]
       }
 
-      scored_causes = if (cause == "mean") causes else cause
-      warn_cif_extrapolation(cif_list, time, scored_causes)
+      # Preserve absent causes for RiskRegression
+      data$event = factor(data$event, levels = c("0", causes))
+      warn_cif_extrapolation(cif_list, time, active_causes)
 
       auc_score = function(cause) {
         # get CIF on the given time point
@@ -154,9 +146,9 @@ MeasureCompRisksAUC = R6Class(
         return(auc_score(cause))
       }
 
-      aucs = vapply(causes, auc_score, numeric(1L))
+      aucs = vapply(active_causes, auc_score, numeric(1L))
 
-      aggregate_scores(aucs, data$event, cause_weights)
+      aggregate_cause_causes(aucs, weights[active_causes])
     }
   )
 )

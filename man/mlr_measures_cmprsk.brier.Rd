@@ -13,7 +13,8 @@ By default, this measure returns a \strong{cause-independent BS(t)} (or all-caus
 score, calculated as a weighted average of the cause-specific Brier scores.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (8) in Spitoni et al. (2018).
-User-supplied weights are also supported.
+User-supplied weights are also supported through \code{cause_weights}.
+See the \strong{Cause weights} section for weighting rules.
 
 Alternatively, users can obtain the \strong{cause-specific Brier score} for any
 individual cause by specifying the \code{cause} parameter.
@@ -29,8 +30,7 @@ Notes on the \code{riskRegression} implementation:
 \enumerate{
 \item IPCW weights are estimated using the \strong{test data only}, so smaller test
 sets may lead to less stable estimates.
-\item No extrapolation is supported: if \code{time} exceeds the maximum observed
-time on the test data, an error is thrown.
+\item Scoring at a \code{time} beyond the maximum observed test-set time produces an input error.
 }
 }
 \section{Dictionary}{
@@ -63,6 +63,26 @@ msr("cmprsk.brier")
 }
 }
 
+\section{Cause weights}{
+
+Cause weights are used only for \code{cause = "mean"}.
+The \code{cause_weights} parameter is ignored when scoring an explicit cause.
+
+With \code{cause_weights = NULL}, weights are the relative frequencies of observed non-censored events.
+All observed events contribute to these frequencies, regardless of the evaluation time points.
+Causes without observed events receive weight zero and are listed in a warning.
+If no events are observed, weights are undefined, and the measure warns and returns \code{NA_real_}.
+
+Alternatively, supply custom weights through \code{cause_weights}.
+They must be finite, non-negative, sum to 1, and contain one entry per predicted cause.
+Entries must match the order of the predicted CIFs cause names.
+
+Causes with weight zero are skipped before scoring.
+Custom zero weights are skipped silently (as per user request!).
+Non-finite scores from positive-weight causes propagate to the mean,
+and a warning identifies the affected causes.
+}
+
 \section{Parameter details}{
 
 \itemize{
@@ -72,10 +92,7 @@ Default value is \code{"mean"} which returns an event-frequency weighted mean of
 the cause-specific Brier scores.
 \item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
-If \code{NULL}, observed cause frequencies \strong{from the test data} are used.
-The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-i.e. first weight for first cause, second weight for second cause, etc.
-See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
+See the \strong{Cause weights} section for weighting rules.
 \item \code{time} (\code{numeric(1)})\cr
 Single time point at which to return the score.
 If \code{NULL}, the \strong{median observed time point} from the test set is used.

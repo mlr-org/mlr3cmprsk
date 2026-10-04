@@ -5,18 +5,35 @@
 \alias{MeasureCompRisksIntegratedBrierScore}
 \title{Integrated Brier Score Competing Risks Measure}
 \description{
-Calculates the integrated competing-risks prediction error or Brier Score
-(IBS) at given times, using IPCW as described in Schoop et al. (2011).
+Calculates the integrated competing risks prediction error (integrated Brier score, IBS)
+over given time points, using IPCW as described in Schoop et al. (2011).
 }
 \details{
 By default, this measure returns a \strong{cause-independent IBS} (or all-cause)
-score, calculated as a weighted average of the cause-specific IBS (Integrated Brier Score) scores.
+score, calculated as a weighted average of the cause-specific integrated Brier scores.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (8) in Spitoni et al. (2018).
-User-supplied weights are also supported.
+User-supplied weights are also supported through \code{cause_weights}.
+See the \strong{Cause weights} section for weighting rules.
 
 Alternatively, users can obtain the \strong{cause-specific IBS} for any
 individual cause by specifying the \code{cause} parameter.
+
+Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
+\itemize{
+\item \code{metric = "brier"}
+\item \code{summary = "ibs"}
+\item \code{cens.method = "ipcw"}
+\item \code{cens.model = "km"}
+}
+
+Notes on the \code{riskRegression} implementation:
+\enumerate{
+\item IPCW weights are estimated using the \strong{test data only}, so smaller test
+sets may lead to less stable estimates.
+\item Integration times beyond the maximum observed test-set time are removed with a warning.
+At least two distinct time points must remain after this removal.
+}
 }
 \section{Dictionary}{
 
@@ -48,22 +65,40 @@ msr("cmprsk.ibs")
 }
 }
 
+\section{Cause weights}{
+
+Cause weights are used only for \code{cause = "mean"}.
+The \code{cause_weights} parameter is ignored when scoring an explicit cause.
+
+With \code{cause_weights = NULL}, weights are the relative frequencies of observed non-censored events.
+All observed events contribute to these frequencies, regardless of the evaluation time points.
+Causes without observed events receive weight zero and are listed in a warning.
+If no events are observed, weights are undefined, and the measure warns and returns \code{NA_real_}.
+
+Alternatively, supply custom weights through \code{cause_weights}.
+They must be finite, non-negative, sum to 1, and contain one entry per predicted cause.
+Entries must match the order of the predicted CIFs cause names.
+
+Causes with weight zero are skipped before scoring.
+Custom zero weights are skipped silently (as per user request!).
+Non-finite scores from positive-weight causes propagate to the mean,
+and a warning identifies the affected causes.
+}
+
 \section{Parameter details}{
 
 \itemize{
 \item \code{cause} (\code{numeric(1)|"mean"})\cr
 Integer number indicating which cause to use.
 Default value is \code{"mean"} which returns an event-frequency weighted mean of
-the cause-specific IBS (Integrated Brier Score) scores.
+the cause-specific integrated Brier scores.
 \item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
-If \code{NULL}, observed cause frequencies \strong{from the test data} are used.
-The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-i.e. first weight for first cause, second weight for second cause, etc.
-See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
-\item \code{times} (\code{numeric(1)})\cr
-Time points used for numerical integration. If \code{NULL}, all unique
-times from the test set are used.
+See the \strong{Cause weights} section for weighting rules.
+\item \code{times} (\code{numeric()}|\code{NULL})\cr
+Integration time points, supplied as a sorted vector of at least two distinct,
+finite, non-negative values.
+If \code{NULL}, all unique observed times from the test set are used.
 }
 }
 

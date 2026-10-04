@@ -7,16 +7,16 @@
 \description{
 Calculates the time-dependent ROC-AUC at a \strong{specific time point},
 as described in Blanche et al. (2013), Equation 4.
-This (second) definition defines as controls the subjects who survive beyond
-the time horizon plus those who experience a competing event before
-the horizon.
+Controls include subjects who survive beyond the time horizon
+and those who experience a competing event before the horizon.
 }
 \details{
 By default, this measure returns a \strong{cause-independent AUC(t)} score,
 calculated as a weighted average of the cause-specific AUCs.
 The weights correspond to the relative event frequencies of each cause,
 following Equation 7 in Heyard et al. (2020).
-User-supplied weights are also supported.
+User-supplied weights are also supported through \code{cause_weights}.
+See the \strong{Cause weights} section for weighting rules.
 
 Alternatively, users can obtain the \strong{cause-specific AUC(t)} for any
 individual cause by specifying the \code{cause} parameter.
@@ -32,12 +32,11 @@ Notes on the \code{riskRegression} implementation:
 \enumerate{
 \item IPCW weights are estimated using the \strong{test data only}, so smaller test
 sets may lead to less stable estimates.
-\item No extrapolation is supported: if \code{time} exceeds the maximum observed
-time on the test data, an error is thrown.
-\item The choice of \code{time} is critical: if, at that time, no events of a
-given cause have occurred and all predicted CIFs are zero, \code{riskRegression}
-will return \code{NaN} for that cause-specific AUC (and subsequently for the
-summary AUC).
+\item Scoring at a \code{time} beyond the maximum observed test-set time produces an
+input error.
+\item AUC(t) is undefined if no events of the requested cause are observed at or
+before \code{time}, or if no controls are available at that time.
+In these cases, \code{riskRegression} returns \code{NaN} for the cause-specific AUC.
 }
 }
 \section{Dictionary}{
@@ -70,6 +69,26 @@ msr("cmprsk.auc")
 }
 }
 
+\section{Cause weights}{
+
+Cause weights are used only for \code{cause = "mean"}.
+The \code{cause_weights} parameter is ignored when scoring an explicit cause.
+
+With \code{cause_weights = NULL}, weights are the relative frequencies of observed non-censored events.
+All observed events contribute to these frequencies, regardless of the evaluation time points.
+Causes without observed events receive weight zero and are listed in a warning.
+If no events are observed, weights are undefined, and the measure warns and returns \code{NA_real_}.
+
+Alternatively, supply custom weights through \code{cause_weights}.
+They must be finite, non-negative, sum to 1, and contain one entry per predicted cause.
+Entries must match the order of the predicted CIFs cause names.
+
+Causes with weight zero are skipped before scoring.
+Custom zero weights are skipped silently (as per user request!).
+Non-finite scores from positive-weight causes propagate to the mean,
+and a warning identifies the affected causes.
+}
+
 \section{Parameter details}{
 
 \itemize{
@@ -79,9 +98,7 @@ Default value is \code{"mean"} which returns an event-frequency weighted mean of
 the cause-specific AUCs.
 \item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
-If \code{NULL}, observed cause frequencies in the test data are used.
-The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-i.e. first weight for first cause, second weight for second cause, etc.
+See the \strong{Cause weights} section for weighting rules.
 \item \code{time} (\code{numeric(1)})\cr
 Single time point at which to return the score.
 If \code{NULL}, the \strong{median observed time point} from the test set is used.

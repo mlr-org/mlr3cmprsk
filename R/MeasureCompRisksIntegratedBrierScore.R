@@ -4,33 +4,46 @@
 #' @template cmprsk_measure
 #'
 #' @description
-#' Calculates the integrated competing-risks prediction error or Brier Score
-#' (IBS) at given times, using IPCW as described in Schoop et al. (2011).
+#' Calculates the integrated competing risks prediction error (integrated Brier score, IBS)
+#' over given time points, using IPCW as described in Schoop et al. (2011).
 #'
 #' @details
 #' By default, this measure returns a **cause-independent IBS** (or all-cause)
-#' score, calculated as a weighted average of the cause-specific IBS (Integrated Brier Score) scores.
+#' score, calculated as a weighted average of the cause-specific integrated Brier scores.
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (8) in Spitoni et al. (2018).
-#' User-supplied weights are also supported.
+#' User-supplied weights are also supported through `cause_weights`.
+#' See the **Cause weights** section for weighting rules.
 #'
 #' Alternatively, users can obtain the **cause-specific IBS** for any
 #' individual cause by specifying the `cause` parameter.
+#'
+#' Calls [riskRegression::Score()] with:
+#' - `metric = "brier"`
+#' - `summary = "ibs"`
+#' - `cens.method = "ipcw"`
+#' - `cens.model = "km"`
+#'
+#' Notes on the `riskRegression` implementation:
+#' 1. IPCW weights are estimated using the **test data only**, so smaller test
+#' sets may lead to less stable estimates.
+#' 2. Integration times beyond the maximum observed test-set time are removed with a warning.
+#' At least two distinct time points must remain after this removal.
+#'
+#' @template cmprsk_cause_weights
 #'
 #' @section Parameter details:
 #' - `cause` (`numeric(1)|"mean"`)\cr
 #'  Integer number indicating which cause to use.
 #'  Default value is `"mean"` which returns an event-frequency weighted mean of
-#'  the cause-specific IBS (Integrated Brier Score) scores.
+#'  the cause-specific integrated Brier scores.
 #' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
-#'  If `NULL`, observed cause frequencies **from the test data** are used.
-#'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-#'  i.e. first weight for first cause, second weight for second cause, etc.
-#'  See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
-#' - `times` (`numeric(1)`)\cr
-#'  Time points used for numerical integration. If `NULL`, all unique
-#'  times from the test set are used.
+#'  See the **Cause weights** section for weighting rules.
+#' - `times` (`numeric()`|`NULL`)\cr
+#'  Integration time points, supplied as a sorted vector of at least two distinct,
+#' finite, non-negative values.
+#'  If `NULL`, all unique observed times from the test set are used.
 #'
 #' @references
 #' `r format_bib("schoop_2011", "spitoni_2018")`
@@ -80,6 +93,11 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
     .score = function(prediction, task, ...) {
       pv = self$param_set$values
 
+      # get list of predicted CIF matrices and causes requested
+      cif_list = prediction$cif
+      causes = names(cif_list)
+      cause = assert_cause(pv$cause, causes)
+
       # Prepare test set data for IPCW
       # Must match the number of rows in the predicted CIF matrix
       data = data.table(
@@ -95,31 +113,19 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
       }
       times = validate_times(times, data$time, integrated = TRUE)
 
-      # list of predicted CIF matrices
-      cif_list = prediction$cif
-      causes = names(cif_list)
-      # cause should be 1,2,... or "mean"
-      cause = assert_cause(pv$cause, causes)
-
-      # check weights
-      cause_weights = pv$cause_weights
-      if (!is.null(cause_weights)) {
-        assert_numeric(
-          cause_weights,
-          lower = 0,
-          upper = 1,
-          len = length(causes),
-          any.missing = FALSE,
-          null.ok = FALSE
-        )
-
-        if (abs(sum(cause_weights) - 1) > 1e-8) {
-          error_input("Cause weights must sum to 1.")
+      # For cause = "mean", get cause weights
+      active_causes = cause
+      if (cause == "mean") {
+        weights = resolve_cause_weights(data$event, causes, pv$cause_weights)
+        if (anyNA(weights)) {
+          return(NA_real_)
         }
+        active_causes = causes[weights > 0]
       }
 
-      scored_causes = if (cause == "mean") causes else cause
-      warn_cif_extrapolation(cif_list, times, scored_causes)
+      # Preserve absent causes for RiskRegression
+      data$event = factor(data$event, levels = c("0", causes))
+      warn_cif_extrapolation(cif_list, times, active_causes)
 
       ibs = function(cause) {
         # get CIF on the times grid
@@ -149,9 +155,9 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
         return(ibs(cause))
       }
 
-      ibs_scores = vapply(causes, ibs, numeric(1L))
+      ibs_scores = vapply(active_causes, ibs, numeric(1L))
 
-      aggregate_scores(ibs_scores, data$event, cause_weights)
+      aggregate_cause_causes(ibs_scores, weights[active_causes])
     }
   )
 )
