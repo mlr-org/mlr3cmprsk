@@ -50,9 +50,9 @@
 #' tab = as.data.frame(as.data.table(p))
 #' as_prediction_cmprsk(tab)
 #'
-#' # Convert a `PredictionDataCompRisks` class object to a PredictionCompRisks object
+#' # Convert internal prediction data using as_prediction()
 #' p$data
-#' as_prediction_cmprsk(p$data)
+#' as_prediction(p$data)
 as_prediction_cmprsk = function(x, ...) {
   UseMethod("as_prediction_cmprsk")
 }
