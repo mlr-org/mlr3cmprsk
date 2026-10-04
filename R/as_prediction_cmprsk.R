@@ -10,7 +10,7 @@
 #' These elements are passed to the [PredictionCompRisks] constructor and
 #' validated there (using `check = TRUE` by default).
 #' The `cif` element must be a nonempty list of matrices, with one matrix for every task cause.
-#' This requirement also applies to internal prediction data.
+#' This requirement also applies to internal prediction data of `PredictionDataCompRisks` class.
 #'
 #' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
 #' - Cols `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
@@ -33,18 +33,26 @@
 #' learner$train(task)
 #' p = learner$predict(task)
 #'
-#' # from an existing prediction
+#' # from an existing PredictionCompRisks object (no change)
 #' as_prediction_cmprsk(p)
 #'
-#' # convert a named list
-#' as_prediction_cmprsk(list(row_ids = p$row_ids, truth = p$truth, cif = p$cif))
+#' # Convert a named list to a PredictionCompRisks object
+#' # The list must contain `row_ids`, `truth`, and `cif` elements
+#' p_list = list(
+#'   row_ids = p$row_ids,
+#'   truth = p$truth,
+#'   cif = p$cif
+#' )
+#' as_prediction_cmprsk(p_list)
 #'
-#' # from a data.frame
+#' # Convert a data.frame to a PredictionCompRisks object
+#' # The data.frame must contain the required columns: row_ids, time, event, and CIF
 #' tab = as.data.frame(as.data.table(p))
 #' as_prediction_cmprsk(tab)
 #'
-#' # from internal prediction data
-#' as_prediction(p$data, check = TRUE)
+#' # Convert a `PredictionDataCompRisks` class object to a PredictionCompRisks object
+#' p$data
+#' as_prediction_cmprsk(p$data)
 as_prediction_cmprsk = function(x, ...) {
   UseMethod("as_prediction_cmprsk")
 }
