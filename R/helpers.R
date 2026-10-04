@@ -98,12 +98,55 @@ assert_cause = function(cause, causes) {
   cause
 }
 
-#' Aggregates cause-specific scores into a single summary score. Weights can be:
-#' 1. The observed proportions of competing events in the test data or
-#' 2. User-specified weights (must sum to 1).
+#' Resolves custom or event-frequency weights into named `weights` aligned with `causes`.
+#' Warns for (automatically-derived) zero weights.
+#' Returns `NA` weights + a warning when no events are observed.
 #' @keywords internal
 #' @noRd
-aggregate_scores = function(scores, event, cause_weights = NULL) {
+resolve_cause_weights = function(event, causes, cause_weights = NULL) {
+  # user-supplied (custom) weights
+  if (!is.null(cause_weights)) {
+    assert_numeric(
+      cause_weights,
+      lower = 0,
+      upper = 1,
+      len = length(causes),
+      finite = TRUE,
+      any.missing = FALSE
+    )
+    if (abs(sum(cause_weights) - 1) > 1e-8) {
+      error_input("Cause weights must sum to 1.")
+    }
+    # align weights with causes
+    return(set_names(cause_weights, causes))
+  }
+
+  # derive weights as the observed frequencies of non-censored events
+  event_counts = as.numeric(table(factor(event[event != 0], levels = causes)))
+  if (sum(event_counts) == 0) {
+    warning_mlr3(
+      "Event-frequency weights are undefined: no observed events. Returning NA."
+    )
+    return(set_names(rep(NA_real_, length(causes)), causes))
+  }
+
+  weights = set_names(event_counts / sum(event_counts), causes)
+  if (any(weights == 0)) {
+    warning_mlr3(
+      "Event-frequency weights are zero for cause(s): %s, with no observed events. These causes are skipped.",
+      str_collapse(causes[weights == 0])
+    )
+  }
+
+  weights
+}
+
+#' Computes the weighted sum of cause-specific scores using weights already
+#' aligned with the scores.
+#' Warns if any score is non-finite.
+#' @keywords internal
+#' @noRd
+aggregate_cause_causes = function(scores, weights) {
   if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
     warning_mlr3(
       msg = "Non-finite score (NaN, NA, or Inf) for cause(s): %s.",
@@ -112,17 +155,7 @@ aggregate_scores = function(scores, event, cause_weights = NULL) {
     )
   }
 
-  if (!is.null(cause_weights)) {
-    w = cause_weights
-  } else {
-    # remove censored observations if present (event == 0)
-    event = event[event != 0]
-    # observed proportions per cause
-    # `table()` results are in increasing order, i.e. cause 1, cause 2, ...
-    w = as.numeric(prop.table(table(event)))
-  }
-
-  sum(w * scores)
+  sum(scores * weights)
 }
 
 #' @title Align CIF matrices on a common time grid
