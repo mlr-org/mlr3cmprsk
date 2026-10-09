@@ -124,10 +124,10 @@ test_that("cmprsk.auc works", {
   expect_true(is.finite(score))
 
   # Cases without controls also produce a non-finite AUC
-  p = gen_PredictionCompRisks(rep(1, 8L)) # only 1st event for all observations
+  p2 = gen_PredictionCompRisks(rep(1, 8L)) # only 1st event for all observations
   expect_warning(
     {
-      score = p$score(msr("cmprsk.auc", time = 8, cause_weights = c(1, 0, 0)))
+      score = p2$score(msr("cmprsk.auc", time = 8, cause_weights = c(1, 0, 0)))
     },
     "1",
     class = "RiskRegressionScoreNotFinite"
@@ -243,6 +243,45 @@ test_that("cmprsk.brier works", {
   weights = unname(prop.table(table(event[event != 0])))
   m = msr("cmprsk.brier", cause = "mean", cause_weights = weights)
   expect_equal(p2$score(m), bs_fg)
+
+  # Explicit causes remain calculable without observed events
+  p = gen_PredictionCompRisks() # no event 2
+  expect_no_warning({
+    score = p$score(msr("cmprsk.brier", cause = 2))
+  })
+  expect_true(is.finite(score))
+  expect_gte(score, 0)
+  expect_equal(
+    score,
+    p$score(msr("cmprsk.brier", cause_weights = c(0, 1, 0)))
+  )
+
+  # all-cause score with event-frequency weights skips cause 2 (no observed events)
+  expect_warning(
+    {
+      score = p$score(msr("cmprsk.brier"))
+    },
+    "zero for cause\\(s\\): 2"
+  )
+  expect_equal(
+    score,
+    # cause 1 => 2 events (2/5 = 0.4 weight)
+    # cause 3 => 3 events (3/5 = 0.6 weight)
+    0.4 * p$score(msr("cmprsk.brier", cause = 1)) + 0.6 * p$score(msr("cmprsk.brier", cause = 3))
+  )
+
+  # Explicit causes and custom weighting also work when all observations are censored
+  p = gen_PredictionCompRisks(rep(0, 8L))
+  expect_no_warning({
+    score = p$score(msr("cmprsk.brier", cause = 2))
+  })
+  expect_true(is.finite(score))
+  expect_no_warning(
+    expect_equal(
+      score,
+      p$score(msr("cmprsk.brier", cause_weights = c(0, 1, 0)))
+    )
+  )
 
   # check that constant CIF extrapolation warning is issued when necessary
   truth = Surv(1:8, factor(c(1, 2, 0, 1, 2, 0, 1, 2), levels = 0:2))
@@ -364,6 +403,45 @@ test_that("cmprsk.ibs works", {
   m = msr("cmprsk.ibs", cause = "mean", cause_weights = weights)
   ibs_weighted = p2$score(m)
   expect_equal(ibs_weighted, ibs_fg)
+
+  # Explicit causes remain calculable without observed events
+  p = gen_PredictionCompRisks() # no event 2
+  expect_no_warning({
+    score = p$score(msr("cmprsk.ibs", cause = 2))
+  })
+  expect_true(is.finite(score))
+  expect_gte(score, 0)
+  expect_equal(
+    score,
+    p$score(msr("cmprsk.ibs", cause_weights = c(0, 1, 0)))
+  )
+
+  # all-cause score with event-frequency weights skips cause 2 (no observed events)
+  expect_warning(
+    {
+      score = p$score(msr("cmprsk.ibs"))
+    },
+    "zero for cause\\(s\\): 2"
+  )
+  expect_equal(
+    score,
+    # cause 1 => 2 events (2/5 = 0.4 weight)
+    # cause 3 => 3 events (3/5 = 0.6 weight)
+    0.4 * p$score(msr("cmprsk.ibs", cause = 1)) + 0.6 * p$score(msr("cmprsk.ibs", cause = 3))
+  )
+
+  # Explicit causes and custom weighting also work when all observations are censored
+  p = gen_PredictionCompRisks(rep(0, 8L))
+  expect_no_warning({
+    score = p$score(msr("cmprsk.ibs", cause = 2))
+  })
+  expect_true(is.finite(score))
+  expect_no_warning(
+    expect_equal(
+      score,
+      p$score(msr("cmprsk.ibs", cause_weights = c(0, 1, 0)))
+    )
+  )
 
   # check that constant CIF extrapolation warning is issued when necessary
   truth = Surv(1:8, factor(c(1, 2, 0, 1, 2, 0, 1, 2), levels = 0:2))
