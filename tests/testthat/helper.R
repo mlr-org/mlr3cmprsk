@@ -71,14 +71,17 @@ gen_cif = function(n = 20, n_events = 2, n_times = 20, max_time = 5) {
   cif_list
 }
 
-# default: 3 causes, but no event 2
+# default: 3 causes, but no data for event 2
+# 3rd cause starts from t = 3, 1st cause starts from t = 1
 gen_PredictionCompRisks = function(event = c(1, 0, 3, 0, 3, 1, 3, 0)) {
   n = length(event)
 
   cif = set_names(
-    lapply(1:3, function(cause) {
+    lapply(seq_len(3L), function(cause) {
+      # Vary risks across observations and rankings across causes
+      risk = ((seq_len(n) + cause - 2L) %% n + 1L) / n
       matrix(
-        rep(c(0.03, 0.07, 0.12) * cause, each = n),
+        rep(c(0.03, 0.07, 0.12) * cause, each = n) * risk,
         nrow = n,
         dimnames = list(NULL, c("1", "4", "8"))
       )
