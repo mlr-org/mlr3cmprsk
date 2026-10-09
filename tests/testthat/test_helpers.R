@@ -6,7 +6,7 @@ test_that("aggregate_cause_causes works", {
       result = aggregate_cause_causes(scores, weights = rep(1 / 3, 3L))
     },
     "2",
-    class = "RiskRegressionScoreNaN"
+    class = "RiskRegressionScoreNotFinite"
   )
   expect_true(is.nan(result))
 
@@ -14,7 +14,7 @@ test_that("aggregate_cause_causes works", {
   expect_warning(
     aggregate_cause_causes(scores, weights = rep(1 / 3, 3L)),
     "1, 3",
-    class = "RiskRegressionScoreNaN"
+    class = "RiskRegressionScoreNotFinite"
   )
 
   # every score finite => no warning

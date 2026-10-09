@@ -31,14 +31,14 @@ test_that("cmprsk.auc works", {
   expect_error(p1$score(m), "test", class = "Mlr3ErrorInput")
   expect_error(p2$score(m), "test", class = "Mlr3ErrorInput")
 
-  # request for early time point where no event have yet happened gives NaN AUC
+  # AUC is undefined when a positive-weight cause has no cases by the evaluation time
   m = msr("cmprsk.auc", time = 5)
   expect_warning(
     {
       score = p2$score(m)
     },
-    regexp = "",
-    class = "RiskRegressionScoreNaN"
+    regexp = "Non-finite score",
+    class = "RiskRegressionScoreNotFinite"
   )
   expect_true(is.nan(score))
 

@@ -151,7 +151,7 @@ aggregate_cause_causes = function(scores, weights) {
     warning_mlr3(
       msg = "Non-finite score (NaN, NA, or Inf) for cause(s): %s.",
       str_collapse(names(scores)[!is.finite(scores)]),
-      class = "RiskRegressionScoreNaN"
+      class = "RiskRegressionScoreNotFinite"
     )
   }
 
