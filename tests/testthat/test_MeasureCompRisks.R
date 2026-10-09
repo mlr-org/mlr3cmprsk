@@ -80,6 +80,60 @@ test_that("cmprsk.auc works", {
   m = msr("cmprsk.auc", cause = "mean", cause_weights = weights)
   expect_equal(p2$score(m), auc_fg)
 
+  # AUC is undefined when a requested cause has no cases by the requested time
+  p1 = gen_PredictionCompRisks(c(1, 0, 3, 0, 3, 1, 3, 0, 1, 1, 3, 3)) # no event 2
+  for (cause in c(2L, 3L)) {
+    # we dont issue a NaN warning as the user knows which cause it is!
+    expect_true(
+      is.nan(p1$score(msr("cmprsk.auc", cause = cause, time = 2)))
+    )
+  }
+
+  # here, the all-cause score became NaN due to cause 3
+  expect_warning(
+    {
+      score = p1$score(msr("cmprsk.auc", time = 2, cause_weights = c(0.4, 0.1, 0.5)))
+    },
+    "2, 3",
+    class = "RiskRegressionScoreNotFinite"
+  )
+  expect_true(is.nan(score))
+
+  # Absent causes are skipped when their event-frequency weight is zero
+  expect_warning(
+    {
+      score = p1$score(msr("cmprsk.auc"))
+    },
+    "zero for cause\\(s\\): 2"
+  )
+
+  auc1 = p1$score(msr("cmprsk.auc", cause = 1))
+  auc3 = p1$score(msr("cmprsk.auc", cause = 3))
+  # Cause 1 accounts for 4/9 events, and cause 3 accounts for 5/9 events
+  expect_equal(score, 4 / 9 * auc1 + 5 / 9 * auc3)
+  expect_no_warning(
+    expect_equal(
+      p1$score(msr("cmprsk.auc", cause_weights = c(0.6, 0, 0.4))),
+      0.6 * auc1 + 0.4 * auc3
+    )
+  )
+
+  expect_no_warning({
+    score = p1$score(msr("cmprsk.auc", time = 1, cause_weights = c(1, 0, 0)))
+  })
+  expect_true(is.finite(score))
+
+  # Cases without controls also produce a non-finite AUC
+  p = gen_PredictionCompRisks(rep(1, 8L)) # only 1st event for all observations
+  expect_warning(
+    {
+      score = p$score(msr("cmprsk.auc", time = 8, cause_weights = c(1, 0, 0)))
+    },
+    "1",
+    class = "RiskRegressionScoreNotFinite"
+  )
+  expect_true(is.nan(score))
+
   # check that constant CIF extrapolation warning is issued when necessary
   truth = Surv(1:8, factor(c(1, 2, 0, 1, 2, 0, 1, 2), levels = 0:2))
   cif = list(
