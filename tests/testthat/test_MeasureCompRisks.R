@@ -340,6 +340,7 @@ test_that("cmprsk.ibs works", {
   expect_null(m$param_set$values$t_max)
   expect_null(m$param_set$values$t_quantile)
   expect_identical(m$param_set$default$ntimes, 100L)
+  m$param_set$values$ntimes = 5L
 
   # Fine-Gray is better than AJ estimator for IBS across causes
   ibs_aj = p1$score(m)
@@ -370,31 +371,31 @@ test_that("cmprsk.ibs works", {
   expect_gte(p2$score(m), 0)
 
   # request for cause that doesn't exist should give an error
-  m = msr("cmprsk.ibs", cause = 3)
+  m = msr("cmprsk.ibs", cause = 3, ntimes = 5L)
   expect_error(p2$score(m), "Invalid cause")
 
   # cause weights must sum to 1
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.6))
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.6), ntimes = 5L)
   expect_error(p2$score(m), "must sum to 1")
 
   # check usage of cause_weights for IBS calculation
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(1, 0))
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(1, 0), ntimes = 5L)
   expect_equal(m$param_set$values$cause_weights, c(1, 0))
   ibs1 = p2$score(m)
 
-  m = msr("cmprsk.ibs", cause = 1)
+  m = msr("cmprsk.ibs", cause = 1, ntimes = 5L)
   ibs11 = p2$score(m)
   expect_equal(ibs1, ibs11)
 
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0, 1))
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0, 1), ntimes = 5L)
   expect_equal(m$param_set$values$cause_weights, c(0, 1))
   ibs2 = p2$score(m)
 
-  m = msr("cmprsk.ibs", cause = 2)
+  m = msr("cmprsk.ibs", cause = 2, ntimes = 5L)
   ibs22 = p2$score(m)
   expect_equal(ibs2, ibs22)
 
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.5))
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.5), ntimes = 5L)
   expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
   ibs_mean = p2$score(m)
   expect_equal(ibs_mean, 0.5 * ibs1 + 0.5 * ibs2)
@@ -404,26 +405,26 @@ test_that("cmprsk.ibs works", {
   # manually calculate weighted mean IBS across causes with user-specified weights
   event = task$event()
   weights = unname(prop.table(table(event[event != 0])))
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = weights)
+  m = msr("cmprsk.ibs", cause = "mean", cause_weights = weights, ntimes = 5L)
   ibs_weighted = p2$score(m)
   expect_equal(ibs_weighted, ibs_fg)
 
   # Explicit causes remain calculable without observed events
   p = gen_PredictionCompRisks() # no event 2
   expect_no_warning({
-    score = p$score(msr("cmprsk.ibs", cause = 2))
+    score = p$score(msr("cmprsk.ibs", cause = 2, ntimes = 5L))
   })
   expect_true(is.finite(score))
   expect_gte(score, 0)
   expect_equal(
     score,
-    p$score(msr("cmprsk.ibs", cause_weights = c(0, 1, 0)))
+    p$score(msr("cmprsk.ibs", cause_weights = c(0, 1, 0), ntimes = 5L))
   )
 
   # all-cause score with event-frequency weights skips cause 2 (no observed events)
   expect_warning(
     {
-      score = p$score(msr("cmprsk.ibs"))
+      score = p$score(msr("cmprsk.ibs", ntimes = 5L))
     },
     "zero for cause\\(s\\): 2"
   )
@@ -431,19 +432,20 @@ test_that("cmprsk.ibs works", {
     score,
     # cause 1 => 2 events (2/5 = 0.4 weight)
     # cause 3 => 3 events (3/5 = 0.6 weight)
-    0.4 * p$score(msr("cmprsk.ibs", cause = 1)) + 0.6 * p$score(msr("cmprsk.ibs", cause = 3))
+    0.4 * p$score(msr("cmprsk.ibs", cause = 1, ntimes = 5L)) +
+      0.6 * p$score(msr("cmprsk.ibs", cause = 3, ntimes = 5L))
   )
 
   # Explicit causes and custom weighting also work when all observations are censored
   p = gen_PredictionCompRisks(rep(0, 8L))
   expect_no_warning({
-    score = p$score(msr("cmprsk.ibs", cause = 2))
+    score = p$score(msr("cmprsk.ibs", cause = 2, ntimes = 5L))
   })
   expect_true(is.finite(score))
   expect_no_warning(
     expect_equal(
       score,
-      p$score(msr("cmprsk.ibs", cause_weights = c(0, 1, 0)))
+      p$score(msr("cmprsk.ibs", cause_weights = c(0, 1, 0), ntimes = 5L))
     )
   )
 
@@ -521,12 +523,12 @@ test_that("cmprsk.ibs works", {
   )
 
   expect_error(
-    get_grid(p, times = times, t_max = 70),
+    p$score(msr("cmprsk.ibs", times = c(3, 4), t_max = 70)),
     "must both be NULL",
     class = "Mlr3ErrorInput"
   )
   expect_error(
-    get_grid(p, times = times, t_quantile = 0.8),
+    p$score(msr("cmprsk.ibs", times = c(3, 4), t_quantile = 0.8)),
     "must both be NULL",
     class = "Mlr3ErrorInput"
   )
@@ -588,8 +590,8 @@ test_that("cmprsk.ibs works", {
   expect_equal(get_grid(p, ntimes = 7L), seq(0, q90, length.out = 7L))
   expect_equal(get_grid(p, ntimes = 2L), c(0, q90))
   # `t_max` controls the upper limit of the grid
-  expect_identical(get_grid(p, t_max = 70), seq(0, 70, length.out = 100L))
-  expect_identical(get_grid(p, t_max = 120), seq(0, 120, length.out = 100L))
+  expect_identical(get_grid(p, t_max = 70, ntimes = 5L), seq(0, 70, length.out = 5L))
+  expect_identical(get_grid(p, t_max = 120, ntimes = 5L), seq(0, 120, length.out = 5L))
   # `t_max` can issue a warning if it is larger than the maximum observed time,
   # and the grid is truncated to the maximum observed time
   for (ntimes in c(2L, 7L, 100L)) {
@@ -603,12 +605,12 @@ test_that("cmprsk.ibs works", {
     expect_identical(grid, seq(0, 120, length.out = ntimes))
   }
   # too low `t_max` can cause an error
-  expect_error(get_grid(p, t_max = 0), "at least two distinct time points", class = "Mlr3Error")
+  expect_error(get_grid(p, t_max = 0, ntimes = 5L), "at least two distinct time points", class = "Mlr3Error")
   # `t_quantile` also controls the upper limit of the grid
-  expect_identical(get_grid(p, t_quantile = 0), seq(0, 40, length.out = 100L))
-  expect_identical(get_grid(p, t_quantile = 1), seq(0, 120, length.out = 100L))
+  expect_identical(get_grid(p, t_quantile = 0, ntimes = 5L), seq(0, 40, length.out = 5L))
+  expect_identical(get_grid(p, t_quantile = 1, ntimes = 5L), seq(0, 120, length.out = 5L))
   q80 = quantile(c(40, 120), 0.8, names = FALSE)
-  expect_identical(get_grid(p, t_quantile = 0.8), seq(0, q80, length.out = 100L))
+  expect_identical(get_grid(p, t_quantile = 0.8, ntimes = 5L), seq(0, q80, length.out = 5L))
   # using specific `times` is not affected by `ntimes`
   times = c(10, 30.5, 70, 120)
   expect_identical(get_grid(p, times = times, ntimes = 2L), times)
