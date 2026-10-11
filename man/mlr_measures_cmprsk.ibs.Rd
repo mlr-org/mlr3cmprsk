@@ -176,8 +176,17 @@ learner$native_model
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 
-# IBS over all unique observed test-set times, weighted by event frequencies
+# IBS over 100 equally spaced points from 0 to the 90th test-set follow-up percentile, weighted by event frequencies
 predictions$score(msr("cmprsk.ibs"))
+
+# IBS with an upper integration horizon of 100 months
+predictions$score(msr("cmprsk.ibs", t_max = 100))
+
+# IBS up to the 80th percentile of test-set follow-up times
+predictions$score(msr("cmprsk.ibs", t_quantile = 0.8))
+
+# IBS over 20 equally spaced points up to the default 90th percentile
+predictions$score(msr("cmprsk.ibs", ntimes = 20L))
 
 # Define the integration grid in months
 times = seq(0, 100, by = 5)
