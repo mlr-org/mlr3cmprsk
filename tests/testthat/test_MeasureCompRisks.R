@@ -336,6 +336,10 @@ test_that("cmprsk.ibs works", {
   expect_equal(m$properties, "na_score")
   expect_equal(m$minimize, TRUE)
   expect_equal(m$param_set$values$cause, "mean")
+  expect_null(m$param_set$values$times)
+  expect_null(m$param_set$values$t_max)
+  expect_null(m$param_set$values$t_quantile)
+  expect_identical(m$param_set$default$ntimes, 100L)
 
   # Fine-Gray is better than AJ estimator for IBS across causes
   ibs_aj = p1$score(m)
@@ -494,4 +498,119 @@ test_that("cmprsk.ibs works", {
     regexp = "at least two distinct time points",
     class = "Mlr3Error"
   )
+
+  # Time integration
+  withr::local_options(mlr3cmprsk.warn_cif_extrapolation = NULL)
+  m = msr("cmprsk.ibs")
+
+  # input checks
+  for (value in list(NULL, 1, 2.5, Inf, NA_real_, NaN, TRUE, "10", c(2, 3))) {
+    expect_error(msr("cmprsk.ibs", ntimes = value), "ntimes")
+  }
+  for (value in list(-1, Inf, NA_real_, NaN, TRUE, "70", c(40, 70))) {
+    expect_error(msr("cmprsk.ibs", t_max = value), "t_max")
+  }
+  for (value in list(-0.1, 1.1, Inf, NA_real_, NaN, TRUE, "0.8", c(0.5, 0.8))) {
+    expect_error(msr("cmprsk.ibs", t_quantile = value), "t_quantile")
+  }
+
+  expect_error(
+    p$score(msr("cmprsk.ibs", t_max = 70, t_quantile = 0.8)),
+    "mutually exclusive",
+    class = "Mlr3ErrorInput"
+  )
+
+  expect_error(
+    get_grid(p, times = times, t_max = 70),
+    "must both be NULL",
+    class = "Mlr3ErrorInput"
+  )
+  expect_error(
+    get_grid(p, times = times, t_quantile = 0.8),
+    "must both be NULL",
+    class = "Mlr3ErrorInput"
+  )
+
+  # 2 observations, 2 causes, 3 time points for cause 1 and cause 2
+  p = PredictionCompRisks$new(
+    row_ids = 1L:2L,
+    truth = Surv(c(40, 120), factor(c(1, 0), levels = 0:2)),
+    cif = list(
+      "1" = matrix(
+        rep(c(0, 0.1, 0.2), each = 2L),
+        nrow = 2L,
+        dimnames = list(NULL, c("0", "50", "150"))
+      ),
+      "2" = matrix(
+        rep(c(0, 0.15, 0.25), each = 2L),
+        nrow = 2L,
+        dimnames = list(NULL, c("0", "30", "100"))
+      )
+    )
+  )
+
+  # mock RiskRegression::Score to capture the time grid used for integration
+  backend = new.env()
+  backend$calls = list()
+  local_mocked_bindings(riskRegr_score = function(
+    mat_list,
+    metric,
+    data,
+    formula,
+    times,
+    cause,
+    summary
+  ) {
+    backend$calls[[cause]] = list(
+      times = times,
+      mat = mat_list[[1L]], # CIF matrix interpolated to the `times`
+      metric = metric,
+      summary = summary
+    )
+    list(Brier = list(score = list(IBS = 0.1)))
+  })
+
+  get_grid = function(prediction, ...) {
+    backend$calls = list()
+    prediction$score(msr("cmprsk.ibs", cause = 1L, ...))
+    backend$calls[["1"]]$times
+  }
+
+  grid = get_grid(p)
+  # check default grid is from 0 to 90th percentile of observed times
+  q90 = quantile(c(40, 120), 0.9, names = FALSE)
+  expect_equal(grid, seq(0, q90, length.out = 100L))
+  # single observations still gets the 100-point grid
+  p_single = p$clone(deep = TRUE)$filter(1L)
+  expect_identical(get_grid(p_single), seq(0, 40, length.out = 100L))
+  expect_identical(dim(backend$calls[["1"]]$mat), c(1L, 100L))
+  # `ntimes` controls the number of points in the grid
+  expect_equal(get_grid(p, ntimes = 7L), seq(0, q90, length.out = 7L))
+  expect_equal(get_grid(p, ntimes = 2L), c(0, q90))
+  # `t_max` controls the upper limit of the grid
+  expect_identical(get_grid(p, t_max = 70), seq(0, 70, length.out = 100L))
+  expect_identical(get_grid(p, t_max = 120), seq(0, 120, length.out = 100L))
+  # `t_max` can issue a warning if it is larger than the maximum observed time,
+  # and the grid is truncated to the maximum observed time
+  for (ntimes in c(2L, 7L, 100L)) {
+    expect_warning(
+      {
+        grid = get_grid(p, t_max = 200, ntimes = ntimes)
+      },
+      "Using effective tau = 120",
+      class = "Mlr3Warning"
+    )
+    expect_identical(grid, seq(0, 120, length.out = ntimes))
+  }
+  # too low `t_max` can cause an error
+  expect_error(get_grid(p, t_max = 0), "at least two distinct time points", class = "Mlr3Error")
+  # `t_quantile` also controls the upper limit of the grid
+  expect_identical(get_grid(p, t_quantile = 0), seq(0, 40, length.out = 100L))
+  expect_identical(get_grid(p, t_quantile = 1), seq(0, 120, length.out = 100L))
+  q80 = quantile(c(40, 120), 0.8, names = FALSE)
+  expect_identical(get_grid(p, t_quantile = 0.8), seq(0, q80, length.out = 100L))
+  # using specific `times` is not affected by `ntimes`
+  times = c(10, 30.5, 70, 120)
+  expect_identical(get_grid(p, times = times, ntimes = 2L), times)
+  expect_identical(get_grid(p, times = times, ntimes = 7L), times)
 })

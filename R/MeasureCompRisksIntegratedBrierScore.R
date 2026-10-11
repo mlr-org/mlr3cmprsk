@@ -149,7 +149,7 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
         } else {
           stats::quantile(data$time, probs = pv$t_quantile %??% 0.9, names = FALSE)
         }
-        # generate integration time grid
+        # equally-spaced time grid
         times = seq(from = 0, to = tau, length.out = pv$ntimes %??% 100L)
       }
       times = validate_times(times, t_max_test, integrated = TRUE)
