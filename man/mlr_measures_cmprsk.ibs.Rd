@@ -144,7 +144,7 @@ If \code{t_max} exceeds the maximum test-set follow-up, it is reduced to that ma
 to satisfy the restrictions of \code{riskRegression}, and a warning reports the effective horizon.
 In any case, the resulting integration grid will always have exactly \code{ntimes}
 points and its construction is completely independent of the time grids of the
-predicted CIFs.
+predicted CIFs (and therefore of the learners used to make these predictions).
 
 The choice for the default 90th percentile is for minimizing the influence of
 extreme evaluation times, which may cause \strong{CIF extrapolation} (when the

@@ -20,7 +20,7 @@
 #' to satisfy the restrictions of `riskRegression`, and a warning reports the effective horizon.
 #' In any case, the resulting integration grid will always have exactly `ntimes`
 #' points and its construction is completely independent of the time grids of the
-#' predicted CIFs.
+#' predicted CIFs (and therefore of the learners used to make these predictions).
 #'
 #' The choice for the default 90th percentile is for minimizing the influence of
 #' extreme evaluation times, which may cause **CIF extrapolation** (when the
