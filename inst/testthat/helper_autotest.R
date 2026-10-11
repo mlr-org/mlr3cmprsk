@@ -49,6 +49,7 @@ registerS3method("generate_tasks", "LearnerCompRisks", generate_tasks.LearnerCom
 
 sanity_check.PredictionCompRisks = function(prediction, ...) {
   # sanity check (IBS should be between 0 and 1)
-  prediction$score() >= 0 && prediction$score() <= 1
+  m = msr("cmprsk.ibs", ntimes = 20)
+  prediction$score(m) >= 0 && prediction$score(m) <= 1
 }
 registerS3method("sanity_check", "PredictionCompRisks", sanity_check.PredictionCompRisks)
