@@ -1,4 +1,4 @@
-# mlr3cmprsk (development version)
+# mlr3cmprsk 0.0.7
 
 * fix: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return `NA` if no events are observed.
 * feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now identify the affected causes when warning about non-finite scores.
