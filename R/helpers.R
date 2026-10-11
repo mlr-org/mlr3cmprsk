@@ -23,31 +23,55 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
   )
 }
 
-#' Validates the `times` parameter for measures such as IBS and AUC(t)
+#' Validates the upper integration horizon `tau` for IBS.
+#' This is required due to limitations in `riskRegression::Score()`, which
+#' cannot evaluate beyond the maximum test-set follow-up.
 #' @keywords internal
 #' @noRd
-validate_times = function(times, test_times, integrated = FALSE) {
-  t_max = max(test_times)
-  beyond_follow_up = times > t_max
+validate_tau = function(tau, t_max_test) {
+  if (tau > t_max_test) {
+    warning_mlr3(
+      paste0(
+        "RiskRegression cannot evaluate beyond the maximum test-set follow-up (%g). ",
+        "The requested upper integration horizon is %g. Using effective tau = %g."
+      ),
+      t_max_test,
+      tau,
+      t_max_test
+    )
+    tau = t_max_test
+  }
+
+  tau
+}
+
+#' Validates the `times` parameter for measures such as IBS and AUC(t)
+#' This is required due to limitations in `riskRegression::Score()`, which
+#' cannot evaluate beyond the maximum test-set follow-up.
+#' @keywords internal
+#' @noRd
+validate_times = function(times, t_max_test, integrated = FALSE) {
+  beyond_follow_up = times > t_max_test
   if (any(beyond_follow_up)) {
     if (!integrated) {
       error_input(
         "RiskRegression does not evaluate time points larger than the maximum test-set time (%f).",
-        t_max
+        t_max_test
       )
     }
+
     warning_mlr3(
       paste0(
         "RiskRegression does not evaluate time points larger than the maximum test-set time (%f). ",
         "We remove %d time point(s) from `times`"
       ),
-      t_max,
+      t_max_test,
       sum(beyond_follow_up)
     )
     times = times[!beyond_follow_up]
   }
 
-  if (integrated && length(times) < 2L) {
+  if (integrated && length(unique(times)) < 2L) {
     error_mlr3("`times` must contain at least two distinct time points.")
   }
 

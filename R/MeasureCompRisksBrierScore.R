@@ -98,7 +98,7 @@ MeasureCompRisksBrierScore = R6Class(
       } else {
         assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
-      time = validate_times(time, data$time)
+      time = validate_times(time, max(data$time))
 
       # For cause = "mean", get cause weights
       active_causes = cause
