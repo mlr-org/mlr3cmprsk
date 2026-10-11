@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.6</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,9 +44,19 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/v0.0.6/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.7" id="mlr3cmprsk-007">mlr3cmprsk 0.0.7<a class="anchor" aria-label="anchor" href="#mlr3cmprsk-007"></a></h2>
+<ul><li>fix: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return <code>NA</code> if no events are observed.</li>
+<li>feat: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> now identify the affected causes when warning about non-finite scores.</li>
+<li>feat: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> can now warn when scoring requires constant CIF extrapolation after a cause’s final prediction anchor.</li>
+<li>feat: <code>cmprsk.auc</code> now explicitly rejects scoring times beyond the maximum test-set follow-up, following the behavior of the Brier score.</li>
+<li>feat: <code>cmprsk.ibs</code> now defaults to 100 equally spaced integration points from 0 to the 90th percentile of test-set follow-up. New parameters <code>ntimes</code>, <code>t_max</code>, and <code>t_quantile</code> control the automatic grid size and horizon, using test-set outcomes only. Horizons exceeding the maximum test-set follow-up are reduced with a warning before constructing exactly <code>ntimes</code> points.</li>
+<li>feat: CIF sum and extrapolation diagnostics are now disabled by default. Enable them package-wide with <code>options(mlr3cmprsk.warn_cif_sum = TRUE, mlr3cmprsk.warn_cif_extrapolation = TRUE)</code>; warnings and errors affecting score validity remain enabled.</li>
+<li>refine doc: better learner and measure examples</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.6" id="mlr3cmprsk-006">mlr3cmprsk 0.0.6<a class="anchor" aria-label="anchor" href="#mlr3cmprsk-006"></a></h2>
 <ul><li>Added <code>MeasureCompRisksIntegratedBrierScore</code> (<code>msr("cmprsk.ibs")</code>) via <code>RiskRegression</code>. This is now the main measure for prediction error in the package.</li>

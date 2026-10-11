@@ -149,64 +149,57 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Define the Learner (Aalen-Johansen/AJ estimator)
-learner = lrn("cmprsk.aalen")
-learner
-#> 
-#> ── <LearnerCompRisksAalenJohansen> (cmprsk.aalen): Aalen-Johansen Estimator ────
-#> • Model: -
-#> • Parameters: list()
-#> • Packages: mlr3, mlr3cmprsk, and survival
-#> • Predict Types: [cif]
-#> • Feature Types: logical, integer, numeric, and factor
-#> • Encapsulation: none (fallback: -)
-#> • Properties: importance, missings, selected_features, and weights
-#> • Other settings: use_weights = 'use', predict_raw = 'FALSE'
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
+#> 
+#> ── <TaskCompRisks> (276x8): Primary Biliary Cholangitis ────────────────────────
+#> • Target: time and status
+#> • Properties: strata
+#> • Features (6):
+#>   • dbl (4): albumin, ast, bili, protime
+#>   • int (2): age, chol
+#> • Strata: status
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.aalen")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 #> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names), 
 #>     weights = NULL)
 #> 
 #>        n nevent     rmean se(rmean)*
-#> (s0) 184      0 90.486196   4.278051
-#> 1    184     12  7.761797   2.158935
-#> 2    184     74 49.752008   4.282081
-#>    *restricted mean time in state (max time = 148 )
+#> (s0) 184      0 90.653492   4.062322
+#> 1    184     12  7.979854   2.225116
+#> 2    184     74 50.366654   4.044563
+#>    *restricted mean time in state (max time = 149 )
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        4   63     2 <list[2]>
-#>        7   81     2 <list[2]>
-#>        8   78     2 <list[2]>
+#>        1   13     2 <list[2]>
+#>       10  123     2 <list[2]>
+#>       16    4     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      139   81     1 <list[2]>
-#>      256   29     1 <list[2]>
-#>      262   17     1 <list[2]>
+#>      157   73     1 <list[2]>
+#>      208   27     1 <list[2]>
+#>      213   47     1 <list[2]>
 
-# Score the predictions
-# AJ has random discriminative performance
-predictions$score(msr("cmprsk.auc", time = 100))
-#> cmprsk.auc 
-#>        0.5 
-
-# Prediction error (Brier score) at specific time point
-# BS(t) => weighted mean score across causes (default)
-predictions$score(msr("cmprsk.brier", time = 100))
-#> cmprsk.brier 
-#>    0.2248736 
+# Score predictions
+predictions$score()
+#> cmprsk.ibs 
+#>  0.1780101 
 ```

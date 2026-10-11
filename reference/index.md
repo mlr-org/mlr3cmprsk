@@ -35,18 +35,18 @@
 
 - [`mlr_measures_cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
   [`MeasureCompRisksAUC`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
-  : Blanche's AUC Competing Risks Measure
+  : AUC(t) Competing Risks Measure
 - [`mlr_measures_cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   [`MeasureCompRisksBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   : Brier Score Competing Risks Measure
 - [`mlr_measures_cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
   [`MeasureCompRisksIntegratedBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
-  : Competing Risks Integrated Brier Score
+  : Integrated Brier Score Competing Risks Measure
 
 ## Converters
 
-- [`as_prediction(`*`<PredictionDataCompRisks>`*`)`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
-  [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+- [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+  [`as_prediction(`*`<PredictionDataCompRisks>`*`)`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
   : Convert to a Competing Risk Prediction
 - [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
   : Convert to a Competing Risks Task

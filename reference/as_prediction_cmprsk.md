@@ -11,9 +11,6 @@ to convert its internal `PredictionDataCompRisks` data.
 ## Usage
 
 ``` r
-# S3 method for class 'PredictionDataCompRisks'
-as_prediction(x, check = FALSE, ...)
-
 as_prediction_cmprsk(x, ...)
 
 # S3 method for class 'PredictionCompRisks'
@@ -24,6 +21,9 @@ as_prediction_cmprsk(x, ...)
 
 # S3 method for class 'data.frame'
 as_prediction_cmprsk(x, ...)
+
+# S3 method for class 'PredictionDataCompRisks'
+as_prediction(x, check = FALSE, ...)
 ```
 
 ## Arguments
@@ -32,6 +32,11 @@ as_prediction_cmprsk(x, ...)
 
   (any)  
   Object to convert.
+
+- ...:
+
+  (any)  
+  Additional arguments.
 
 - check:
 
@@ -42,11 +47,6 @@ as_prediction_cmprsk(x, ...)
   Use `TRUE` for user-supplied data; `FALSE` is intended for already
   validated internal data. With `FALSE`, correct behavior is not
   guaranteed if the input is invalid.
-
-- ...:
-
-  (any)  
-  Additional arguments.
 
 ## Value
 
@@ -60,7 +60,7 @@ elements are passed to the
 constructor and validated there (using `check = TRUE` by default). The
 `cif` element must be a nonempty list of matrices, with one matrix for
 every task cause. This requirement also applies to internal prediction
-data.
+data of `PredictionDataCompRisks` class.
 
 If `x` is a `data.frame`/`data.table` input, the following requirements
 must be met:
@@ -88,7 +88,7 @@ learner = lrn("cmprsk.aalen")
 learner$train(task)
 p = learner$predict(task)
 
-# from an existing prediction
+# from an existing PredictionCompRisks object (no change)
 as_prediction_cmprsk(p)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
@@ -101,8 +101,14 @@ as_prediction_cmprsk(p)
 #>      275   27     0 <list[2]>
 #>      276   25     0 <list[2]>
 
-# convert a named list
-as_prediction_cmprsk(list(row_ids = p$row_ids, truth = p$truth, cif = p$cif))
+# Convert a named list to a PredictionCompRisks object
+# The list must contain `row_ids`, `truth`, and `cif` elements
+p_list = list(
+  row_ids = p$row_ids,
+  truth = p$truth,
+  cif = p$cif
+)
+as_prediction_cmprsk(p_list)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
 #>  row_ids time event       CIF
@@ -114,7 +120,8 @@ as_prediction_cmprsk(list(row_ids = p$row_ids, truth = p$truth, cif = p$cif))
 #>      275   27     0 <list[2]>
 #>      276   25     0 <list[2]>
 
-# from a data.frame
+# Convert a data.frame to a PredictionCompRisks object
+# The data.frame must contain the required columns: row_ids, time, event, and CIF
 tab = as.data.frame(as.data.table(p))
 as_prediction_cmprsk(tab)
 #> 
@@ -128,8 +135,10 @@ as_prediction_cmprsk(tab)
 #>      275   27     0 <list[2]>
 #>      276   25     0 <list[2]>
 
-# from internal prediction data
-as_prediction(p$data, check = TRUE)
+# Convert internal prediction data using as_prediction()
+p$data
+#> <PredictionDataCompRisks:276>
+as_prediction(p$data)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
 #>  row_ids time event       CIF

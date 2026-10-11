@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.6</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,9 +73,8 @@
 <img src="logo.png" class="logo" alt=""><h1 id="mlr3cmprsk-">mlr3cmprsk <a class="anchor" aria-label="anchor" href="#mlr3cmprsk-"></a>
 </h1>
 </div>
-<p><img src="reference/figures/warning.png" width="42"> This package is <strong>under development</strong></p>
-<p>Package website: <a href="https://mlr3cmprsk.mlr-org.com/">release</a></p>
-<p><code>mlr3cmprsk</code> extends the <a href="https://mlr3.mlr-org.com/" class="external-link">mlr3</a> ecosystem with a unified interface for machine learning in <strong>competing risks survival analysis</strong>. It provides consistent task, learner, and prediction abstractions, enabling seamless benchmarking, model comparison, and integration with the broader <code>mlr3</code> framework.</p>
+<p>Package website: <a href="https://mlr3cmprsk.mlr-org.com/">mlr3cmprsk</a></p>
+<p><code>mlr3cmprsk</code> extends the <a href="https://mlr3.mlr-org.com/" class="external-link">mlr3</a> ecosystem for machine learning with <strong>competing risks right-censored survival outcomes</strong>. It provides task, learner, prediction, and measure abstractions that support model training, resampling, benchmarking, and evaluation within the <code>mlr3</code> framework.</p>
 <!-- badges: start -->
 
 <div class="section level2">
@@ -89,9 +88,10 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
+<p>Compare a Fine-Gray model with the Aalen-Johansen baseline using 3-fold CV on the built-in <code>pbc</code> task.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mlr-org/mlr3cmprsk" class="external-link">mlr3cmprsk</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"pbc"</span><span class="op">)</span></span>
 <span><span class="va">task</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"chol"</span>, <span class="st">"albumin"</span>, <span class="st">"bili"</span><span class="op">)</span><span class="op">)</span></span>
@@ -100,35 +100,102 @@
 <span></span>
 <span><span class="va">learners</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrns</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cmprsk.fg"</span>, <span class="st">"cmprsk.aalen"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">bm_grid</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/benchmark_grid.html" class="external-link">benchmark_grid</a></span><span class="op">(</span><span class="va">task</span>, <span class="va">learners</span>, <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">bm_grid</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/benchmark_grid.html" class="external-link">benchmark_grid</a></span><span class="op">(</span><span class="va">task</span>, <span class="va">learners</span>, <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">bm</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">benchmark</a></span><span class="op">(</span><span class="va">bm_grid</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># AUC at t = 100 (mean over causes, weighted by event frequencies)</span></span>
-<span><span class="va">bm</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.auc"</span>, time <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">task_id</span>, <span class="va">learner_id</span>, <span class="va">iteration</span>, <span class="va">cmprsk.auc</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="do">##    task_id   learner_id iteration cmprsk.auc</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="do">## 1:     pbc    cmprsk.fg         1  0.7813865</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="do">## 2:     pbc    cmprsk.fg         2  0.7663073</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="do">## 3:     pbc    cmprsk.fg         3  0.8390308</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="do">## 4:     pbc cmprsk.aalen         1  0.5000000</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="do">## 5:     pbc cmprsk.aalen         2  0.5000000</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">## 6:     pbc cmprsk.aalen         3  0.5000000</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Brier score at t = 100 (mean over causes, weighted by event frequencies)</span></span>
-<span><span class="va">bm</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.brier"</span>, time <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">task_id</span>, <span class="va">learner_id</span>, <span class="va">iteration</span>, <span class="va">cmprsk.brier</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="do">##    task_id   learner_id iteration cmprsk.brier</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="do">## 1:     pbc    cmprsk.fg         1    0.1564736</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="do">## 2:     pbc    cmprsk.fg         2    0.1750273</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="do">## 3:     pbc    cmprsk.fg         3    0.1371346</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="do">## 4:     pbc cmprsk.aalen         1    0.2182071</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="do">## 5:     pbc cmprsk.aalen         2    0.2200391</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="do">## 6:     pbc cmprsk.aalen         3    0.2181846</span></span></code></pre></div>
-<p>For more competing risk learners, see the <a href="https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners" class="external-link">available list</a> at <code>mlr3extralearners</code>.</p>
-<p>For more details about available measures and their parameters, see <a href="https://mlr3cmprsk.mlr-org.com/reference/index.html#competing-risks-measures">reference list</a>.</p>
+<span><span class="va">measures</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="co"># AUC(t = 100)</span></span>
+<span>  <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.auc"</span>, time <span class="op">=</span> <span class="fl">100</span>, id <span class="op">=</span> <span class="st">"auc_t100"</span><span class="op">)</span>,</span>
+<span>  <span class="co"># BS(t = 100)</span></span>
+<span>  <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.brier"</span>, time <span class="op">=</span> <span class="fl">100</span>, id <span class="op">=</span> <span class="st">"bs_t100"</span><span class="op">)</span>,</span>
+<span>  <span class="co"># IBS: 100 equally spaced times from 0 to each test fold's 90th follow-up percentile</span></span>
+<span>  <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.ibs"</span>, id <span class="op">=</span> <span class="st">"ibs"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># By default, each measure averages the cause-specific scores, with weights</span></span>
+<span><span class="co"># equal to the observed event frequencies in each test fold</span></span>
+<span><span class="va">bm</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="va">measures</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">task_id</span>, <span class="va">learner_id</span>, <span class="va">iteration</span>, <span class="va">auc_t100</span>, <span class="va">bs_t100</span>, <span class="va">ibs</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="do">##    task_id   learner_id iteration  auc_t100   bs_t100       ibs</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="do">## 1:     pbc    cmprsk.fg         1 0.7813865 0.1564736 0.1088478</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="do">## 2:     pbc    cmprsk.fg         2 0.7663073 0.1750273 0.1155973</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="do">## 3:     pbc    cmprsk.fg         3 0.8390308 0.1371346 0.1028685</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="do">## 4:     pbc cmprsk.aalen         1 0.5000000 0.2182071 0.1487853</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="do">## 5:     pbc cmprsk.aalen         2 0.5000000 0.2200391 0.1585370</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">## 6:     pbc cmprsk.aalen         3 0.5000000 0.2181846 0.1609251</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="measures">Measures<a class="anchor" aria-label="anchor" href="#measures"></a>
+</h2>
+<p>All currently available measures use <strong>cumulative incidence function (CIF) predictions</strong> and are calculated with <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score()</a></code>; the Integrated Brier Score (IBS) is the default measure for competing risks tasks.</p>
+<table class="table">
+<colgroup>
+<col width="55%">
+<col width="24%">
+<col width="9%">
+<col width="10%">
+</colgroup>
+<thead><tr>
+<th align="left">ID</th>
+<th align="left">Measure</th>
+<th align="left">Category</th>
+<th align="left">Prediction Type</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left"><a href="https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.html"><code>cmprsk.ibs</code></a></td>
+<td align="left">Integrated Brier score</td>
+<td align="left">Scoring Rule</td>
+<td align="left"><code>cif</code></td>
+</tr>
+<tr>
+<td align="left"><a href="https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.html"><code>cmprsk.brier</code></a></td>
+<td align="left">Brier score at a specified time</td>
+<td align="left">Scoring Rule</td>
+<td align="left"><code>cif</code></td>
+</tr>
+<tr>
+<td align="left"><a href="https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.html"><code>cmprsk.auc</code></a></td>
+<td align="left">Time-dependent AUC at a specified time</td>
+<td align="left">Discrimination</td>
+<td align="left"><code>cif</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="learners">Learners<a class="anchor" aria-label="anchor" href="#learners"></a>
+</h2>
+<p>The package includes two learners, both of which return CIF predictions for every cause.</p>
+<table class="table">
+<colgroup>
+<col width="58%">
+<col width="26%">
+<col width="14%">
+</colgroup>
+<thead><tr>
+<th align="left">ID</th>
+<th align="left">Learner</th>
+<th align="left">Underlying Package</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left"><a href="https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.html"><code>cmprsk.aalen</code></a></td>
+<td align="left">Aalen-Johansen estimator</td>
+<td align="left"><code><a href="https://rdrr.io/pkg/survival/man/survfit.html" class="external-link">survival::survfit()</a></code></td>
+</tr>
+<tr>
+<td align="left"><a href="https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.html"><code>cmprsk.fg</code></a></td>
+<td align="left">Fine-Gray subdistribution hazards model</td>
+<td align="left"><code><a href="https://rdrr.io/pkg/cmprsk/man/crr.html" class="external-link">cmprsk::crr()</a></code></td>
+</tr>
+</tbody>
+</table>
+<p>For additional models, see the <a href="https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners" class="external-link">available list</a> in <code>mlr3extralearners</code>, including CoxBoost (<code>cmprsk.coxboost</code>) and random forests (<code>cmprsk.rfsrc</code>).</p>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
 </h2>
-<p>Please note that the mlr3cmprsk project is released with a <a href="https://mlr3cmprsk.mlr-org.com/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+<p>This project follows a <a href="https://mlr3cmprsk.mlr-org.com/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

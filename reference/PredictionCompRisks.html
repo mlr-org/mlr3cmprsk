@@ -29,7 +29,7 @@ from a LearnerCompRisks object is not possible at the moment.'><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.6</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@ from a LearnerCompRisks object is not possible at the moment.'><meta property="o
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Prediction Object for Competing Risks</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/v0.0.6/R/PredictionCompRisks.R" class="external-link"><code>R/PredictionCompRisks.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/main/R/PredictionCompRisks.R" class="external-link"><code>R/PredictionCompRisks.R</code></a></small>
       <div class="d-none name"><code>PredictionCompRisks.Rd</code></div>
     </div>
 
@@ -158,10 +158,12 @@ With <code>check = TRUE</code>, nonempty predictions are validated using <code><
 This checks the list structure and cause names, the time points used for
 prediction, and validates each CIF matrix, including probabilities in [0, 1]
 and non-decreasing probabilities over time.</p>
-<p>Joint coherence is checked separately by aligning the CIF matrices on a common time grid
+<p>With <code>options(mlr3cmprsk.warn_cif_sum = TRUE)</code>, joint coherence is checked separately
+by aligning the CIF matrices on a common time grid
 and summing their probabilities across causes for each observation and time point.
 A sum greater than 1, allowing a numerical tolerance of <code>sqrt(.Machine$double.eps)</code>,
 triggers a warning of class <code>Mlr3WarningCIFSumExceedsOne</code>.
+This diagnostic is disabled by default; see the Package Options section in <a href="mlr3cmprsk-package.html">mlr3cmprsk-package</a>.
 The prediction is retained without modifying its probabilities.
 Such sums can occur with independently fitted cause-specific models, such
 as the Fine-Gray model.</p>

@@ -1,5 +1,30 @@
 # Changelog
 
+## mlr3cmprsk 0.0.7
+
+- fix: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now resolve cause
+  weights before scoring and skip zero-weight causes. Event-frequency
+  weights warn for absent causes and return `NA` if no events are
+  observed.
+- feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now identify the
+  affected causes when warning about non-finite scores.
+- feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` can now warn when
+  scoring requires constant CIF extrapolation after a cause’s final
+  prediction anchor.
+- feat: `cmprsk.auc` now explicitly rejects scoring times beyond the
+  maximum test-set follow-up, following the behavior of the Brier score.
+- feat: `cmprsk.ibs` now defaults to 100 equally spaced integration
+  points from 0 to the 90th percentile of test-set follow-up. New
+  parameters `ntimes`, `t_max`, and `t_quantile` control the automatic
+  grid size and horizon, using test-set outcomes only. Horizons
+  exceeding the maximum test-set follow-up are reduced with a warning
+  before constructing exactly `ntimes` points.
+- feat: CIF sum and extrapolation diagnostics are now disabled by
+  default. Enable them package-wide with
+  `options(mlr3cmprsk.warn_cif_sum = TRUE, mlr3cmprsk.warn_cif_extrapolation = TRUE)`;
+  warnings and errors affecting score validity remain enabled.
+- refine doc: better learner and measure examples
+
 ## mlr3cmprsk 0.0.6
 
 - Added `MeasureCompRisksIntegratedBrierScore` (`msr("cmprsk.ibs")`) via

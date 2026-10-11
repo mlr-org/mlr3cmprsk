@@ -113,13 +113,17 @@ This checks the list structure and cause names, the time points used for
 prediction, and validates each CIF matrix, including probabilities in
 \[0, 1\] and non-decreasing probabilities over time.
 
-Joint coherence is checked separately by aligning the CIF matrices on a
-common time grid and summing their probabilities across causes for each
-observation and time point. A sum greater than 1, allowing a numerical
-tolerance of `sqrt(.Machine$double.eps)`, triggers a warning of class
-`Mlr3WarningCIFSumExceedsOne`. The prediction is retained without
-modifying its probabilities. Such sums can occur with independently
-fitted cause-specific models, such as the Fine-Gray model.
+With `options(mlr3cmprsk.warn_cif_sum = TRUE)`, joint coherence is
+checked separately by aligning the CIF matrices on a common time grid
+and summing their probabilities across causes for each observation and
+time point. A sum greater than 1, allowing a numerical tolerance of
+`sqrt(.Machine$double.eps)`, triggers a warning of class
+`Mlr3WarningCIFSumExceedsOne`. This diagnostic is disabled by default;
+see the Package Options section in
+[mlr3cmprsk-package](https://mlr3cmprsk.mlr-org.com/reference/mlr3cmprsk-package.md).
+The prediction is retained without modifying its probabilities. Such
+sums can occur with independently fitted cause-specific models, such as
+the Fine-Gray model.
 
 ------------------------------------------------------------------------
 

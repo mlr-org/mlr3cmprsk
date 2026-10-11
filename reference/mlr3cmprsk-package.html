@@ -15,7 +15,7 @@ Provides a unified interface for right-censored competing risks tasks in 'mlr3'.
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.6</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ Provides a unified interface for right-censored competing risks tasks in 'mlr3'.
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/v0.0.6/R/zzz.R" class="external-link"><code>R/zzz.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/main/R/zzz.R" class="external-link"><code>R/zzz.R</code></a></small>
       <div class="d-none name"><code>mlr3cmprsk-package.Rd</code></div>
     </div>
 
@@ -56,6 +56,21 @@ Provides a unified interface for right-censored competing risks tasks in 'mlr3'.
     </div>
 
 
+    <div class="section level2">
+    <h2 id="package-options">Package Options<a class="anchor" aria-label="anchor" href="#package-options"></a></h2>
+
+
+<p>The following options control optional predicted CIF diagnostics and default to <code>FALSE</code>.
+Set them with <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> to enable diagnostics package-wide.</p><ul><li><p><code>mlr3cmprsk.warn_cif_sum</code>: Warn with class <code>Mlr3WarningCIFSumExceedsOne</code>
+when predictions contain cause-specific CIFs whose sum exceeds 1 (allowing
+numerical tolerance). Predictions are retained without changing their
+probabilities. Enable by using <code>options(mlr3cmprsk.warn_cif_sum = TRUE)</code>.</p></li>
+<li><p><code>mlr3cmprsk.warn_cif_extrapolation</code>: Warn with class <code>Mlr3WarningCIFExtrapolation</code>
+when a measure evaluates times after a scored cause's final CIF anchor.
+CIFs are constantly extrapolated after the final anchor.
+One warning lists all affected causes per scoring call.
+Enable by using <code>options(mlr3cmprsk.warn_cif_extrapolation = TRUE)</code>.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://github.com/mlr-org/mlr3cmprsk" class="external-link">https://github.com/mlr-org/mlr3cmprsk</a></p></li>

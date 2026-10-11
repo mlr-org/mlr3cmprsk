@@ -1,14 +1,12 @@
 # mlr3cmprsk
 
-![](reference/figures/warning.png) This package is **under development**
+Package website: [mlr3cmprsk](https://mlr3cmprsk.mlr-org.com/)
 
-Package website: [release](https://mlr3cmprsk.mlr-org.com/)
-
-`mlr3cmprsk` extends the [mlr3](https://mlr3.mlr-org.com/) ecosystem
-with a unified interface for machine learning in **competing risks
-survival analysis**. It provides consistent task, learner, and
-prediction abstractions, enabling seamless benchmarking, model
-comparison, and integration with the broader `mlr3` framework.
+`mlr3cmprsk` extends the [mlr3](https://mlr3.mlr-org.com/) ecosystem for
+machine learning with **competing risks right-censored survival
+outcomes**. It provides task, learner, prediction, and measure
+abstractions that support model training, resampling, benchmarking, and
+evaluation within the `mlr3` framework.
 
 ## Installation
 
@@ -22,10 +20,13 @@ pak::pak("mlr-org/mlr3cmprsk")
 
 ## Example
 
+Compare a Fine-Gray model with the Aalen-Johansen baseline using 3-fold
+CV on the built-in `pbc` task.
+
 ``` r
 
 library(mlr3cmprsk)
-set.seed(42)
+set.seed(42L)
 
 task = tsk("pbc")
 task$select(c("age", "chol", "albumin", "bili"))
@@ -34,52 +35,67 @@ task$set_col_roles(cols = "status", add_to = "stratum")
 
 learners = lrns(c("cmprsk.fg", "cmprsk.aalen"))
 
-bm_grid = benchmark_grid(task, learners, rsmp("cv", folds = 3))
+bm_grid = benchmark_grid(task, learners, rsmp("cv", folds = 3L))
 bm = benchmark(bm_grid)
 
-# AUC at t = 100 (mean over causes, weighted by event frequencies)
-bm$score(msr("cmprsk.auc", time = 100))[, .(task_id, learner_id, iteration, cmprsk.auc)]
+measures = list(
+  # AUC(t = 100)
+  msr("cmprsk.auc", time = 100, id = "auc_t100"),
+  # BS(t = 100)
+  msr("cmprsk.brier", time = 100, id = "bs_t100"),
+  # IBS: 100 equally spaced times from 0 to each test fold's 90th follow-up percentile
+  msr("cmprsk.ibs", id = "ibs")
+)
+
+# By default, each measure averages the cause-specific scores, with weights
+# equal to the observed event frequencies in each test fold
+bm$score(measures)[, .(task_id, learner_id, iteration, auc_t100, bs_t100, ibs)]
 ```
 
 ``` R
-##    task_id   learner_id iteration cmprsk.auc
-## 1:     pbc    cmprsk.fg         1  0.7813865
-## 2:     pbc    cmprsk.fg         2  0.7663073
-## 3:     pbc    cmprsk.fg         3  0.8390308
-## 4:     pbc cmprsk.aalen         1  0.5000000
-## 5:     pbc cmprsk.aalen         2  0.5000000
-## 6:     pbc cmprsk.aalen         3  0.5000000
+##    task_id   learner_id iteration  auc_t100   bs_t100       ibs
+## 1:     pbc    cmprsk.fg         1 0.7813865 0.1564736 0.1088478
+## 2:     pbc    cmprsk.fg         2 0.7663073 0.1750273 0.1155973
+## 3:     pbc    cmprsk.fg         3 0.8390308 0.1371346 0.1028685
+## 4:     pbc cmprsk.aalen         1 0.5000000 0.2182071 0.1487853
+## 5:     pbc cmprsk.aalen         2 0.5000000 0.2200391 0.1585370
+## 6:     pbc cmprsk.aalen         3 0.5000000 0.2181846 0.1609251
 ```
 
-``` r
+## Measures
 
-# Brier score at t = 100 (mean over causes, weighted by event frequencies)
-bm$score(msr("cmprsk.brier", time = 100))[, .(task_id, learner_id, iteration, cmprsk.brier)]
-```
+All currently available measures use **cumulative incidence function
+(CIF) predictions** and are calculated with
+[`riskRegression::Score()`](https://rdrr.io/pkg/riskRegression/man/Score.html);
+the Integrated Brier Score (IBS) is the default measure for competing
+risks tasks.
 
-``` R
-##    task_id   learner_id iteration cmprsk.brier
-## 1:     pbc    cmprsk.fg         1    0.1564736
-## 2:     pbc    cmprsk.fg         2    0.1750273
-## 3:     pbc    cmprsk.fg         3    0.1371346
-## 4:     pbc cmprsk.aalen         1    0.2182071
-## 5:     pbc cmprsk.aalen         2    0.2200391
-## 6:     pbc cmprsk.aalen         3    0.2181846
-```
+| ID | Measure | Category | Prediction Type |
+|:---|:---|:---|:---|
+| [`cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.html) | Integrated Brier score | Scoring Rule | `cif` |
+| [`cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.html) | Brier score at a specified time | Scoring Rule | `cif` |
+| [`cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.html) | Time-dependent AUC at a specified time | Discrimination | `cif` |
 
-For more competing risk learners, see the [available
+## Learners
+
+The package includes two learners, both of which return CIF predictions
+for every cause.
+
+| ID | Learner | Underlying Package |
+|:---|:---|:---|
+| [`cmprsk.aalen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.html) | Aalen-Johansen estimator | [`survival::survfit()`](https://rdrr.io/pkg/survival/man/survfit.html) |
+| [`cmprsk.fg`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.html) | Fine-Gray subdistribution hazards model | [`cmprsk::crr()`](https://rdrr.io/pkg/cmprsk/man/crr.html) |
+
+For additional models, see the [available
 list](https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners)
-at `mlr3extralearners`.
-
-For more details about available measures and their parameters, see
-[reference
-list](https://mlr3cmprsk.mlr-org.com/reference/index.html#competing-risks-measures).
+in `mlr3extralearners`, including CoxBoost (`cmprsk.coxboost`) and
+random forests (`cmprsk.rfsrc`).
 
 ## Code of Conduct
 
-Please note that the mlr3cmprsk project is released with a [Contributor
-Code of Conduct](https://mlr3cmprsk.mlr-org.com/CODE_OF_CONDUCT.html).
-By contributing to this project, you agree to abide by its terms.
+This project follows a [Contributor Code of
+Conduct](https://mlr3cmprsk.mlr-org.com/CODE_OF_CONDUCT.html). By
+contributing to this project, you agree to abide by its terms.
 
 # Package index
 
@@ -118,18 +134,18 @@ By contributing to this project, you agree to abide by its terms.
 
 - [`mlr_measures_cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
   [`MeasureCompRisksAUC`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
-  : Blanche's AUC Competing Risks Measure
+  : AUC(t) Competing Risks Measure
 - [`mlr_measures_cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   [`MeasureCompRisksBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.md)
   : Brier Score Competing Risks Measure
 - [`mlr_measures_cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
   [`MeasureCompRisksIntegratedBrierScore`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
-  : Competing Risks Integrated Brier Score
+  : Integrated Brier Score Competing Risks Measure
 
 ## Converters
 
-- [`as_prediction(`*`<PredictionDataCompRisks>`*`)`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
-  [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+- [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+  [`as_prediction(`*`<PredictionDataCompRisks>`*`)`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
   : Convert to a Competing Risk Prediction
 - [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
   : Convert to a Competing Risks Task

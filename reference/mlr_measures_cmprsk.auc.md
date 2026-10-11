@@ -1,9 +1,9 @@
-# Blanche's AUC Competing Risks Measure
+# AUC(t) Competing Risks Measure
 
 Calculates the time-dependent ROC-AUC at a **specific time point**, as
-described in Blanche et al. (2013), Equation 4. This (second) definition
-defines as controls the subjects who survive beyond the time horizon
-plus those who experience a competing event before the horizon.
+described in Blanche et al. (2013), Equation 4. Controls include
+subjects who survive beyond the time horizon and those who experience a
+competing event before the horizon.
 
 ## Details
 
@@ -11,7 +11,8 @@ By default, this measure returns a **cause-independent AUC(t)** score,
 calculated as a weighted average of the cause-specific AUCs. The weights
 correspond to the relative event frequencies of each cause, following
 Equation 7 in Heyard et al. (2020). User-supplied weights are also
-supported.
+supported through `cause_weights`. See the **Cause weights** section for
+weighting rules.
 
 Alternatively, users can obtain the **cause-specific AUC(t)** for any
 individual cause by specifying the `cause` parameter.
@@ -31,13 +32,13 @@ Notes on the `riskRegression` implementation:
 1.  IPCW weights are estimated using the **test data only**, so smaller
     test sets may lead to less stable estimates.
 
-2.  No extrapolation is supported: if `time` exceeds the maximum
-    observed time on the test data, an error is thrown.
+2.  Scoring at a `time` beyond the maximum observed test-set time
+    produces an input error.
 
-3.  The choice of `time` is critical: if, at that time, no events of a
-    given cause have occurred and all predicted CIFs are zero,
-    `riskRegression` will return `NaN` for that cause-specific AUC (and
-    subsequently for the summary AUC).
+3.  AUC(t) is undefined if no events of the requested cause are observed
+    at or before `time`, or if no controls are available at that time.
+    In these cases, `riskRegression` returns `NaN` for the
+    cause-specific AUC.
 
 ## Dictionary
 
@@ -76,6 +77,27 @@ with the associated sugar function
 | cause_weights | untyped | NULL    | \-               |
 | time          | numeric | NULL    | \\\[0, \infty)\\ |
 
+## Cause weights
+
+Cause weights are used only for `cause = "mean"`. The `cause_weights`
+parameter is ignored when scoring a specific cause.
+
+With `cause_weights = NULL`, weights are the relative frequencies of
+observed non-censored events from the test set. Causes without observed
+events receive zero weight, are listed in a warning and are skipped when
+calculating the mean score. If no events from any cause are observed,
+weights are undefined, and the measure warns and returns `NA_real_`.
+
+Alternatively, the user can supply custom weights via `cause_weights`.
+Weights must be finite, non-negative, sum to 1, and contain one entry
+per predicted cause. Entries must match the order of the predicted CIFs
+cause names. If any user-supplied weight happens to be zero, it is
+skipped silently.
+
+In general, non-finite scores from positive-weight causes propagate to
+the mean, causing the measure to return `NaN` and a warning identifies
+the causes with non-finite scores.
+
 ## Parameter details
 
 - `cause` (`numeric(1)|"mean"`)  
@@ -85,10 +107,8 @@ with the associated sugar function
 
 - `cause_weights`
   ([`numeric()`](https://rdrr.io/r/base/numeric.html)\|`NULL`)  
-  Optional custom weights for `cause = "mean"`. If `NULL`, observed
-  cause frequencies in the test data are used. The weights must be
-  non-negative, sum to 1 and match the number of causes 1-1, i.e. first
-  weight for first cause, second weight for second cause, etc.
+  Optional custom weights for `cause = "mean"`. See the **Cause
+  weights** section for weighting rules.
 
 - `time` (`numeric(1)`)  
   Single time point at which to return the score. If `NULL`, the
@@ -167,115 +187,98 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Define the Learner
-learner = lrn("cmprsk.fg")
-learner
-#> 
-#> ── <LearnerCompRisksFineGray> (cmprsk.fg): Competing Risks Regression: Fine-Gray
-#> • Model: -
-#> • Parameters: list()
-#> • Packages: mlr3, mlr3cmprsk, and cmprsk
-#> • Predict Types: [cif]
-#> • Feature Types: logical, integer, and numeric
-#> • Encapsulation: none (fallback: -)
-#> • Properties:
-#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines::po("encode")` if needed
-feats = c("age", "chol", "albumin", "ast", "bili", "protime")
-task$select(feats)
-
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
+#> 
+#> ── <TaskCompRisks> (276x8): Primary Biliary Cholangitis ────────────────────────
+#> • Target: time and status
+#> • Properties: strata
+#> • Features (6):
+#>   • dbl (4): albumin, ast, bili, protime
+#>   • int (2): age, chol
+#> • Strata: status
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.fg")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 #> $`1`
 #> convergence:  TRUE 
 #> coefficients:
-#>       age   albumin       ast      bili      chol   protime 
-#> -0.081820 -0.233000  0.002990  0.028350  0.001049 -0.938500 
+#>        age    albumin        ast       bili       chol    protime 
+#> -0.0977200 -0.3992000 -0.0019480  0.0006162  0.0009104 -0.2221000 
 #> standard errors:
-#> [1] 0.024320 1.002000 0.005755 0.130700 0.001832 0.536000
+#> [1] 0.027980 0.924300 0.003838 0.076710 0.001232 0.393500
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 0.00077 0.82000 0.60000 0.83000 0.57000 0.08000 
+#> 0.00048 0.67000 0.61000 0.99000 0.46000 0.57000 
 #> 
 #> $`2`
 #> convergence:  TRUE 
 #> coefficients:
 #>        age    albumin        ast       bili       chol    protime 
-#>  5.774e-02 -1.034e+00  8.724e-03  8.646e-02  1.455e-05  2.868e-01 
+#>  4.543e-02 -1.020e+00  3.061e-03  1.200e-01  6.019e-05  2.155e-01 
 #> standard errors:
-#> [1] 0.0143300 0.2537000 0.0021420 0.0198900 0.0004309 0.1157000
+#> [1] 0.0132100 0.2377000 0.0019090 0.0173200 0.0003912 0.1083000
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 5.6e-05 4.6e-05 4.7e-05 1.4e-05 9.7e-01 1.3e-02 
+#> 5.8e-04 1.8e-05 1.1e-01 4.3e-12 8.8e-01 4.7e-02 
 #> 
 #> attr(,"class")
 #> [1] "fine_gray"
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
-#> Warning: 
-#> ✖ Predicted cause-specific CIFs are not jointly coherent: their sum exceeds 1
-#>   for some observations/time points.
-#> → Class: Mlr3WarningCIFSumExceedsOne
 predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
 #>        1   13     2 <list[2]>
-#>       20   22     2 <list[2]>
-#>       25    2     2 <list[2]>
+#>       10  123     2 <list[2]>
+#>       16    4     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      221   24     1 <list[2]>
-#>      229   42     1 <list[2]>
-#>      262   17     1 <list[2]>
+#>      157   73     1 <list[2]>
+#>      208   27     1 <list[2]>
+#>      213   47     1 <list[2]>
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time = 100))
+# AUC at the median observed test-set time, weighted by event frequencies
+predictions$score(msr("cmprsk.auc"))
 #> cmprsk.auc 
-#>  0.8275552 
+#>  0.8691053 
 
-# AUC(t = 100), with user-specified weights
-predictions$score(msr("cmprsk.auc", cause = "mean", cause_weights = c(0.2, 0.8),
-  time = 100))
+# AUC at 100 months, weighted by event frequencies
+predictions$score(msr("cmprsk.auc", time = 100))
 #> cmprsk.auc 
-#>  0.8233853 
+#>  0.8279221 
 
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time = 100))
+# AUC at 100 months, with equal weights for both causes
+predictions$score(msr("cmprsk.auc", time = 100, cause_weights = c(0.5, 0.5)))
 #> cmprsk.auc 
-#>  0.7682148 
+#>  0.8219801 
 
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time = 100))
+# AUC at 100 months, with custom weights for transplant and death
+predictions$score(msr("cmprsk.auc", time = 100, cause_weights = c(0.2, 0.8)))
 #> cmprsk.auc 
-#>  0.8371779 
+#>  0.8269254 
 
-# Prediction error (Brier score) at specific time point
-# BS(t = 100) => weighted mean score across causes (default)
-predictions$score(msr("cmprsk.brier", time = 100))
-#> cmprsk.brier 
-#>    0.1562471 
+# AUC at 100 months, for transplant only
+predictions$score(msr("cmprsk.auc", time = 100, cause = 1))
+#> cmprsk.auc 
+#>   0.813738 
 
-# BS(t = 100), 1st cause
-predictions$score(msr("cmprsk.brier", cause = 1, time = 100))
-#> cmprsk.brier 
-#>   0.07497659 
-
-# BS(t = 100), 2nd cause
-predictions$score(msr("cmprsk.brier", cause = 2, time = 100))
-#> cmprsk.brier 
-#>     0.169426 
+# AUC at 100 months, for death only
+predictions$score(msr("cmprsk.auc", time = 100, cause = 2))
+#> cmprsk.auc 
+#>  0.8302222 
 ```

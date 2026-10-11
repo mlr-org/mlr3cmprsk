@@ -10,7 +10,8 @@ By default, this measure returns a **cause-independent BS(t)** (or
 all-cause) score, calculated as a weighted average of the cause-specific
 Brier scores. The weights correspond to the relative event frequencies
 of each cause, following Equation (8) in Spitoni et al. (2018).
-User-supplied weights are also supported.
+User-supplied weights are also supported through `cause_weights`. See
+the **Cause weights** section for weighting rules.
 
 Alternatively, users can obtain the **cause-specific Brier score** for
 any individual cause by specifying the `cause` parameter.
@@ -30,8 +31,8 @@ Notes on the `riskRegression` implementation:
 1.  IPCW weights are estimated using the **test data only**, so smaller
     test sets may lead to less stable estimates.
 
-2.  No extrapolation is supported: if `time` exceeds the maximum
-    observed time on the test data, an error is thrown.
+2.  Scoring at a `time` beyond the maximum observed test-set time
+    produces an input error.
 
 ## Dictionary
 
@@ -70,6 +71,27 @@ with the associated sugar function
 | cause_weights | untyped | NULL    | \-               |
 | time          | numeric | NULL    | \\\[0, \infty)\\ |
 
+## Cause weights
+
+Cause weights are used only for `cause = "mean"`. The `cause_weights`
+parameter is ignored when scoring a specific cause.
+
+With `cause_weights = NULL`, weights are the relative frequencies of
+observed non-censored events from the test set. Causes without observed
+events receive zero weight, are listed in a warning and are skipped when
+calculating the mean score. If no events from any cause are observed,
+weights are undefined, and the measure warns and returns `NA_real_`.
+
+Alternatively, the user can supply custom weights via `cause_weights`.
+Weights must be finite, non-negative, sum to 1, and contain one entry
+per predicted cause. Entries must match the order of the predicted CIFs
+cause names. If any user-supplied weight happens to be zero, it is
+skipped silently.
+
+In general, non-finite scores from positive-weight causes propagate to
+the mean, causing the measure to return `NaN` and a warning identifies
+the causes with non-finite scores.
+
 ## Parameter details
 
 - `cause` (`numeric(1)|"mean"`)  
@@ -79,11 +101,8 @@ with the associated sugar function
 
 - `cause_weights`
   ([`numeric()`](https://rdrr.io/r/base/numeric.html)\|`NULL`)  
-  Optional custom weights for `cause = "mean"`. If `NULL`, observed
-  cause frequencies **from the test data** are used. The weights must be
-  non-negative, sum to 1 and match the number of causes 1-1, i.e. first
-  weight for first cause, second weight for second cause, etc. See
-  Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
+  Optional custom weights for `cause = "mean"`. See the **Cause
+  weights** section for weighting rules.
 
 - `time` (`numeric(1)`)  
   Single time point at which to return the score. If `NULL`, the
@@ -155,115 +174,98 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Define the Learner
-learner = lrn("cmprsk.fg")
-learner
-#> 
-#> ── <LearnerCompRisksFineGray> (cmprsk.fg): Competing Risks Regression: Fine-Gray
-#> • Model: -
-#> • Parameters: list()
-#> • Packages: mlr3, mlr3cmprsk, and cmprsk
-#> • Predict Types: [cif]
-#> • Feature Types: logical, integer, and numeric
-#> • Encapsulation: none (fallback: -)
-#> • Properties:
-#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines::po("encode")` if needed
-feats = c("age", "chol", "albumin", "ast", "bili", "protime")
-task$select(feats)
-
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
+#> 
+#> ── <TaskCompRisks> (276x8): Primary Biliary Cholangitis ────────────────────────
+#> • Target: time and status
+#> • Properties: strata
+#> • Features (6):
+#>   • dbl (4): albumin, ast, bili, protime
+#>   • int (2): age, chol
+#> • Strata: status
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.fg")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 #> $`1`
 #> convergence:  TRUE 
 #> coefficients:
-#>       age   albumin       ast      bili      chol   protime 
-#> -0.117600 -0.152500 -0.006422  0.011550  0.001069 -0.512700 
+#>        age    albumin        ast       bili       chol    protime 
+#> -0.0977200 -0.3992000 -0.0019480  0.0006162  0.0009104 -0.2221000 
 #> standard errors:
-#> [1] 0.025500 0.843100 0.004029 0.098670 0.001572 0.372900
+#> [1] 0.027980 0.924300 0.003838 0.076710 0.001232 0.393500
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 4.0e-06 8.6e-01 1.1e-01 9.1e-01 5.0e-01 1.7e-01 
+#> 0.00048 0.67000 0.61000 0.99000 0.46000 0.57000 
 #> 
 #> $`2`
 #> convergence:  TRUE 
 #> coefficients:
-#>       age   albumin       ast      bili      chol   protime 
-#>  0.036580 -1.230000  0.004897  0.089950 -0.000172  0.506000 
+#>        age    albumin        ast       bili       chol    protime 
+#>  4.543e-02 -1.020e+00  3.061e-03  1.200e-01  6.019e-05  2.155e-01 
 #> standard errors:
-#> [1] 0.0141600 0.2469000 0.0020640 0.0221700 0.0004223 0.1372000
+#> [1] 0.0132100 0.2377000 0.0019090 0.0173200 0.0003912 0.1083000
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 9.8e-03 6.3e-07 1.8e-02 5.0e-05 6.8e-01 2.3e-04 
+#> 5.8e-04 1.8e-05 1.1e-01 4.3e-12 8.8e-01 4.7e-02 
 #> 
 #> attr(,"class")
 #> [1] "fine_gray"
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
-#> Warning: 
-#> ✖ Predicted cause-specific CIFs are not jointly coherent: their sum exceeds 1
-#>   for some observations/time points.
-#> → Class: Mlr3WarningCIFSumExceedsOne
 predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        3   33     2 <list[2]>
-#>        9    1     2 <list[2]>
+#>        1   13     2 <list[2]>
+#>       10  123     2 <list[2]>
 #>       16    4     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      256   29     1 <list[2]>
-#>      260   28     1 <list[2]>
-#>      262   17     1 <list[2]>
+#>      157   73     1 <list[2]>
+#>      208   27     1 <list[2]>
+#>      213   47     1 <list[2]>
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time = 100))
-#> cmprsk.auc 
-#>  0.6810654 
+# Brier score at the median observed test-set time, weighted by event frequencies
+predictions$score(msr("cmprsk.brier"))
+#> cmprsk.brier 
+#>    0.1142599 
 
-# AUC(t = 100), with user-specified weights
-predictions$score(msr("cmprsk.auc", cause = "mean", cause_weights = c(0.2, 0.8),
-  time = 100))
-#> cmprsk.auc 
-#>  0.6874814 
-
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time = 100))
-#> cmprsk.auc 
-#>  0.7723702 
-
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time = 100))
-#> cmprsk.auc 
-#>  0.6662592 
-
-# Prediction error (Brier score) at specific time point
-# BS(t = 100) => weighted mean score across causes (default)
+# Brier score at 100 months, weighted by event frequencies
 predictions$score(msr("cmprsk.brier", time = 100))
 #> cmprsk.brier 
-#>    0.2280758 
+#>    0.1405361 
 
-# BS(t = 100), 1st cause
-predictions$score(msr("cmprsk.brier", cause = 1, time = 100))
+# Brier score at 100 months, with equal weights for both causes
+predictions$score(msr("cmprsk.brier", time = 100, cause_weights = c(0.5, 0.5)))
 #> cmprsk.brier 
-#>   0.06184316 
+#>    0.1091906 
 
-# BS(t = 100), 2nd cause
-predictions$score(msr("cmprsk.brier", cause = 2, time = 100))
+# Brier score at 100 months, with custom weights for transplant and death
+predictions$score(msr("cmprsk.brier", time = 100, cause_weights = c(0.2, 0.8)))
 #> cmprsk.brier 
-#>    0.2550324 
+#>    0.1352782 
+
+# Brier score at 100 months, for transplant only
+predictions$score(msr("cmprsk.brier", time = 100, cause = 1))
+#> cmprsk.brier 
+#>   0.06571132 
+
+# Brier score at 100 months, for death only
+predictions$score(msr("cmprsk.brier", time = 100, cause = 2))
+#> cmprsk.brier 
+#>    0.1526699 
 ```

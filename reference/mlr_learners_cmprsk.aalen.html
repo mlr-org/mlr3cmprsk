@@ -23,7 +23,7 @@ in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.6</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Aalen Johansen Competing Risks Learner</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/v0.0.6/R/LearnerCompRisksAalenJohansen.R" class="external-link"><code>R/LearnerCompRisksAalenJohansen.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/main/R/LearnerCompRisksAalenJohansen.R" class="external-link"><code>R/LearnerCompRisksAalenJohansen.R</code></a></small>
       <div class="d-none name"><code>mlr_learners_cmprsk.aalen.Rd</code></div>
     </div>
 
@@ -194,66 +194,59 @@ as this learner does not perform feature selection.</p><div class="section">
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Define the Learner (Aalen-Johansen/AJ estimator)</span></span></span>
-<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"cmprsk.aalen"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">learner</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerCompRisksAalenJohansen&gt;</span><span style="font-weight: bold;"> (cmprsk.aalen): Aalen-Johansen Estimator</span> <span style="color: #00BBBB;">────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Model: -</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Parameters: list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3cmprsk</span>, and <span style="color: #0000BB;">survival</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Predict Types: [cif]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Feature Types: logical, integer, numeric, and factor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Encapsulation: none (fallback: -)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: importance, missings, selected_features, and weights</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Other settings: use_weights = 'use', predict_raw = 'FALSE'</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Define a Task</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Define a task</span></span></span>
 <span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"pbc"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"chol"</span>, <span class="st">"albumin"</span>, <span class="st">"ast"</span>, <span class="st">"bili"</span>, <span class="st">"protime"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Stratification based on event</span></span></span>
+<span class="r-in"><span><span class="co"># Stratify by event status</span></span></span>
 <span class="r-in"><span><span class="va">task</span><span class="op">$</span><span class="fu">set_col_roles</span><span class="op">(</span>cols <span class="op">=</span> <span class="st">"status"</span>, add_to <span class="op">=</span> <span class="st">"stratum"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskCompRisks&gt;</span><span style="font-weight: bold;"> (276x8): Primary Biliary Cholangitis</span> <span style="color: #00BBBB;">────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Target: time and status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: strata</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Features (6):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   • dbl (4): albumin, ast, bili, protime</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   • int (2): age, chol</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Strata: status</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create train and test set</span></span></span>
+<span class="r-in"><span><span class="co"># Create training and test sets</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">part</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/partition.html" class="external-link">partition</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Train the learner on the training set</span></span></span>
+<span class="r-in"><span><span class="co"># Define the learner</span></span></span>
+<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"cmprsk.aalen"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Train on the training set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">part</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">native_model</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names), </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     weights = NULL)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        n nevent     rmean se(rmean)*</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (s0) 184      0 90.486196   4.278051</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    184     12  7.761797   2.158935</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    184     74 49.752008   4.282081</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    *restricted mean time in state (max time = 148 )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (s0) 184      0 90.653492   4.062322</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    184     12  7.979854   2.225116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    184     74 50.366654   4.044563</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    *restricted mean time in state (max time = 149 )</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Make predictions for the test set</span></span></span>
+<span class="r-in"><span><span class="co"># Predict CIFs for the test set</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span> <span class="op">=</span> <span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">part</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;PredictionCompRisks&gt;</span><span style="font-weight: bold;"> for </span><span style="color: #0000BB; font-weight: bold;">92</span><span style="font-weight: bold;"> observations:</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids time event       CIF</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        4   63     2 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        7   81     2 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        8   78     2 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        1   13     2 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       10  123     2 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       16    4     2 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ---  ---   ---       ---</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      139   81     1 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      256   29     1 &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      262   17     1 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      157   73     1 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      208   27     1 &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      213   47     1 &lt;list[2]&gt;</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Score the predictions</span></span></span>
-<span class="r-in"><span><span class="co"># AJ has random discriminative performance</span></span></span>
-<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.auc"</span>, time <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.auc </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        0.5 </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Prediction error (Brier score) at specific time point</span></span></span>
-<span class="r-in"><span><span class="co"># BS(t) =&gt; weighted mean score across causes (default)</span></span></span>
-<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.brier"</span>, time <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.brier </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.2248736 </span>
+<span class="r-in"><span><span class="co"># Score predictions</span></span></span>
+<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.ibs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1780101 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

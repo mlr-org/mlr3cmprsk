@@ -19,6 +19,13 @@ and the resulting CIF matrices are aligned to a common time grid across
 causes using constant CIF interpolation. The time grid is the **unique
 event times (across all causes)** observed in the training set.
 
+Independently fitted cause-specific models can produce CIFs whose sum
+exceeds 1. The corresponding warning is disabled package-wide by
+default, as it can recur on every prediction call. Set
+`options(mlr3cmprsk.warn_cif_sum = TRUE)` to enable it. See also Package
+Options section in
+[mlr3cmprsk-package](https://mlr3cmprsk.mlr-org.com/reference/mlr3cmprsk-package.md).
+
 Time-interaction terms (via `cov2`) are not implemented.
 
 ## Dictionary
@@ -127,115 +134,73 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Define the Learner
-learner = lrn("cmprsk.fg")
-learner
-#> 
-#> ── <LearnerCompRisksFineGray> (cmprsk.fg): Competing Risks Regression: Fine-Gray
-#> • Model: -
-#> • Parameters: list()
-#> • Packages: mlr3, mlr3cmprsk, and cmprsk
-#> • Predict Types: [cif]
-#> • Feature Types: logical, integer, and numeric
-#> • Encapsulation: none (fallback: -)
-#> • Properties:
-#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines::po("encode")` if needed
-feats = c("age", "chol", "albumin", "ast", "bili", "protime")
-task$select(feats)
-
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
+#> 
+#> ── <TaskCompRisks> (276x8): Primary Biliary Cholangitis ────────────────────────
+#> • Target: time and status
+#> • Properties: strata
+#> • Features (6):
+#>   • dbl (4): albumin, ast, bili, protime
+#>   • int (2): age, chol
+#> • Strata: status
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.fg")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 #> $`1`
 #> convergence:  TRUE 
 #> coefficients:
 #>        age    albumin        ast       bili       chol    protime 
-#> -0.0861400  0.0224300 -0.0018270  0.0065160  0.0009787 -0.4471000 
+#> -0.0977200 -0.3992000 -0.0019480  0.0006162  0.0009104 -0.2221000 
 #> standard errors:
-#> [1] 0.026500 0.910600 0.004680 0.135600 0.001879 0.541600
+#> [1] 0.027980 0.924300 0.003838 0.076710 0.001232 0.393500
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#>  0.0012  0.9800  0.7000  0.9600  0.6000  0.4100 
+#> 0.00048 0.67000 0.61000 0.99000 0.46000 0.57000 
 #> 
 #> $`2`
 #> convergence:  TRUE 
 #> coefficients:
 #>        age    albumin        ast       bili       chol    protime 
-#>  0.0430700 -1.3450000  0.0029910  0.1708000 -0.0008802  0.1901000 
+#>  4.543e-02 -1.020e+00  3.061e-03  1.200e-01  6.019e-05  2.155e-01 
 #> standard errors:
-#> [1] 0.0169100 0.2684000 0.0020410 0.0293800 0.0004506 0.1091000
+#> [1] 0.0132100 0.2377000 0.0019090 0.0173200 0.0003912 0.1083000
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 1.1e-02 5.4e-07 1.4e-01 6.2e-09 5.1e-02 8.1e-02 
+#> 5.8e-04 1.8e-05 1.1e-01 4.3e-12 8.8e-01 4.7e-02 
 #> 
 #> attr(,"class")
 #> [1] "fine_gray"
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
-#> Warning: 
-#> ✖ Predicted cause-specific CIFs are not jointly coherent: their sum exceeds 1
-#>   for some observations/time points.
-#> → Class: Mlr3WarningCIFSumExceedsOne
 predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        4   63     2 <list[2]>
-#>        8   78     2 <list[2]>
-#>        9    1     2 <list[2]>
+#>        1   13     2 <list[2]>
+#>       10  123     2 <list[2]>
+#>       16    4     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      139   81     1 <list[2]>
 #>      157   73     1 <list[2]>
-#>      231   35     1 <list[2]>
+#>      208   27     1 <list[2]>
+#>      213   47     1 <list[2]>
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time = 100))
-#> cmprsk.auc 
-#>  0.7353124 
-
-# AUC(t = 100), with user-specified weights
-predictions$score(msr("cmprsk.auc", cause = "mean", cause_weights = c(0.2, 0.8),
-  time = 100))
-#> cmprsk.auc 
-#>   0.741607 
-
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time = 100))
-#> cmprsk.auc 
-#>  0.8248884 
-
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time = 100))
-#> cmprsk.auc 
-#>  0.7207866 
-
-# Prediction error (Brier score) at specific time point
-# BS(t = 100) => weighted mean score across causes (default)
-predictions$score(msr("cmprsk.brier", time = 100))
-#> cmprsk.brier 
-#>    0.1758196 
-
-# BS(t = 100), 1st cause
-predictions$score(msr("cmprsk.brier", cause = 1, time = 100))
-#> cmprsk.brier 
-#>   0.06342861 
-
-# BS(t = 100), 2nd cause
-predictions$score(msr("cmprsk.brier", cause = 2, time = 100))
-#> cmprsk.brier 
-#>    0.1940452 
+# Score predictions
+predictions$score()
+#> cmprsk.ibs 
+#>  0.1116802 
 ```
