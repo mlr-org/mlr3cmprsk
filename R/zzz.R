@@ -1,3 +1,17 @@
+#' @section Package Options:
+#' The following options control optional predicted CIF diagnostics and default to `FALSE`.
+#' Set them with [options()] to enable diagnostics package-wide.
+#'
+#' * `mlr3cmprsk.warn_cif_sum`: Warn with class `Mlr3WarningCIFSumExceedsOne`
+#' when predictions contain cause-specific CIFs whose sum exceeds 1 (allowing
+#' numerical tolerance). Predictions are retained without changing their
+#' probabilities. Enable by using `options(mlr3cmprsk.warn_cif_sum = TRUE)`.
+#' * `mlr3cmprsk.warn_cif_extrapolation`: Warn with class `Mlr3WarningCIFExtrapolation`
+#' when a measure evaluates times after a scored cause's final CIF anchor.
+#' CIFs are constantly extrapolated after the final anchor.
+#' One warning lists all affected causes per scoring call.
+#' Enable by using `options(mlr3cmprsk.warn_cif_extrapolation = TRUE)`.
+#'
 #' @import checkmate
 #' @import data.table
 #' @import mlr3
@@ -8,11 +22,6 @@
 #' @importFrom utils getFromNamespace tail
 #' @importFrom stats median
 "_PACKAGE"
-
-# to silence R CMD check - IF NEEDED
-# utils::globalVariables(c(
-#   "ShortName", "ClassName", "missing", "task", "value", "variable", "y"
-# ))
 
 # add tasks, learners and measures to mlr3 dictionaries
 register_mlr3cmprsk = function() {

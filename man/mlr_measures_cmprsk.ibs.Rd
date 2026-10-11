@@ -3,20 +3,37 @@
 \name{mlr_measures_cmprsk.ibs}
 \alias{mlr_measures_cmprsk.ibs}
 \alias{MeasureCompRisksIntegratedBrierScore}
-\title{Competing Risks Integrated Brier Score}
+\title{Integrated Brier Score Competing Risks Measure}
 \description{
-Calculates the integrated competing-risks prediction error or Brier Score
-(IBS) at given times, using IPCW as described in Schoop et al. (2011).
+Calculates the integrated competing risks prediction error (integrated Brier score, IBS)
+using IPCW as described in Schoop et al. (2011).
 }
 \details{
 By default, this measure returns a \strong{cause-independent IBS} (or all-cause)
-score, calculated as a weighted average of the cause-specific IBS (Integrated Brier Score) scores.
+score, calculated as a weighted average of the cause-specific integrated Brier scores.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (8) in Spitoni et al. (2018).
-User-supplied weights are also supported.
+User-supplied weights are also supported through \code{cause_weights}.
+See the \strong{Cause weights} section for weighting rules.
 
 Alternatively, users can obtain the \strong{cause-specific IBS} for any
 individual cause by specifying the \code{cause} parameter.
+
+Calls \code{\link[riskRegression:Score]{riskRegression::Score()}} with:
+\itemize{
+\item \code{metric = "brier"}
+\item \code{summary = "ibs"}
+\item \code{cens.method = "ipcw"}
+\item \code{cens.model = "km"}
+}
+
+Notes on the \code{riskRegression} implementation:
+\enumerate{
+\item IPCW weights are estimated using the \strong{test data only}, so smaller test
+sets may lead to less stable estimates.
+\item Evaluation is limited to the maximum observed test-set follow-up time.
+See the \strong{Integration grid} section for how this restriction is applied.
+}
 }
 \section{Dictionary}{
 
@@ -45,6 +62,9 @@ msr("cmprsk.ibs")
    cause \tab integer \tab - \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    cause_weights \tab untyped \tab NULL \tab - \cr
    times \tab untyped \tab NULL \tab - \cr
+   ntimes \tab untyped \tab 100L \tab - \cr
+   t_max \tab untyped \tab NULL \tab - \cr
+   t_quantile \tab untyped \tab NULL \tab - \cr
 }
 }
 
@@ -54,77 +74,148 @@ msr("cmprsk.ibs")
 \item \code{cause} (\code{numeric(1)|"mean"})\cr
 Integer number indicating which cause to use.
 Default value is \code{"mean"} which returns an event-frequency weighted mean of
-the cause-specific Brier scores.
+the cause-specific integrated Brier scores.
 \item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
-If \code{NULL}, observed cause frequencies \strong{from the test data} are used.
-The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-i.e. first weight for first cause, second weight for second cause, etc.
-See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
-\item \code{times} (\code{numeric(1)})\cr
-Time points used for numerical integration. If \code{NULL}, all unique
-times from the test set are used.
+See the \strong{Cause weights} section for weighting rules.
+\item \code{times} (\code{numeric()}|\code{NULL})\cr
+Explicit integration grid, supplied as a sorted vector of at least two
+distinct, finite, non-negative time points.
+Default is \code{NULL}, which uses an automatically generated grid.
+\code{t_max} and \code{t_quantile} must both be \code{NULL} when supplying explicit \code{times}.
+\item \code{ntimes} (\code{integer(1)})\cr
+Number of points in an automatically constructed integration grid, including
+time 0 and the upper integration horizon.
+Must be at least 2; default is 100.
+Ignored when supplying explicit \code{times}.
+\item \code{t_max} (\code{numeric(1)}|\code{NULL})\cr
+Finite, non-negative upper integration horizon; default is \code{NULL}.
+Mutually exclusive with \code{t_quantile}.
+\item \code{t_quantile} (\code{numeric(1)}|\code{NULL})\cr
+Quantile probability of observed test-set follow-up times used to determine
+the upper integration horizon.
+Default is \code{NULL}, which uses the 90th percentile.
+Mutually exclusive with \code{t_max}.
 }
+}
+
+\section{Cause weights}{
+
+Cause weights are used only for \code{cause = "mean"}.
+The \code{cause_weights} parameter is ignored when scoring a specific cause.
+
+With \code{cause_weights = NULL}, weights are the relative frequencies of observed
+non-censored events from the test set.
+Causes without observed events receive zero weight, are listed in a warning and
+are skipped when calculating the mean score.
+If no events from any cause are observed, weights are undefined, and the
+measure warns and returns \code{NA_real_}.
+
+Alternatively, the user can supply custom weights via \code{cause_weights}.
+Weights must be finite, non-negative, sum to 1, and contain one entry per predicted cause.
+Entries must match the order of the predicted CIFs cause names.
+If any user-supplied weight happens to be zero, it is skipped silently.
+
+In general, non-finite scores from positive-weight causes propagate to the mean,
+causing the measure to return \code{NaN} and a warning identifies the causes with
+non-finite scores.
+}
+
+\section{Integration grid}{
+
+
+The integration grid determines the evaluation times for the IBS.
+Its largest time point is the \strong{effective integration horizon}.
+The grid is the same for all causes.
+
+If the user explicitly provides \code{times}, the supplied grid is used directly.
+Points beyond the maximum test-set follow-up are removed with a warning due to
+the limitations of \code{riskRegression::Score()}.
+At least two distinct evaluation times must remain.
+
+When \code{times = NULL} we construct a time grid consisting of \code{ntimes}
+equally spaced time points between time 0 and an upper time horizon.
+By default, the horizon is chosen as the time point corresponding to the
+\strong{90th percentile} of observed follow-up times (including both events and
+censored observations) in the test set.
+The user can change that percentile with \code{t_quantile}, or specify a fixed
+horizon with \code{t_max}.
+If \code{t_max} exceeds the maximum test-set follow-up, it is reduced to that maximum
+to satisfy the restrictions of \code{riskRegression}, and a warning reports the effective horizon.
+In any case, the resulting integration grid will always have exactly \code{ntimes}
+points and its construction is completely independent of the time grids of the
+predicted CIFs (and therefore of the learners used to make these predictions).
+
+The choice for the default 90th percentile is for minimizing the influence of
+extreme evaluation times, which may cause \strong{CIF extrapolation} (when the
+integration grid has times larger than the maximum anchor of the CIF time grid)
+and issues with \strong{large IPCW weights}.
 }
 
 \examples{
-\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Define the Learner
-learner = lrn("cmprsk.fg")
-learner
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines::po("encode")` if needed
-feats = c("age", "chol", "albumin", "ast", "bili", "protime")
-task$select(feats)
-
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.fg")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time = 100))
+# IBS over 100 equally spaced points from 0 to the 90th test-set follow-up percentile, weighted by event frequencies
+predictions$score(msr("cmprsk.ibs"))
 
-# AUC(t = 100), with user-specified weights
-predictions$score(msr("cmprsk.auc", cause = "mean", cause_weights = c(0.2, 0.8),
-  time = 100))
+# IBS with an upper integration horizon of 100 months
+predictions$score(msr("cmprsk.ibs", t_max = 100))
 
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time = 100))
+# IBS up to the 80th percentile of test-set follow-up times
+predictions$score(msr("cmprsk.ibs", t_quantile = 0.8))
 
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time = 100))
+# IBS over 20 equally spaced points up to the default 90th percentile
+predictions$score(msr("cmprsk.ibs", ntimes = 20L))
 
-# Prediction error (Brier score) at specific time point
-# BS(t = 100) => weighted mean score across causes (default)
-predictions$score(msr("cmprsk.brier", time = 100))
+# Define the integration grid in months
+times = seq(0, 100, by = 5)
 
-# BS(t = 100), 1st cause
-predictions$score(msr("cmprsk.brier", cause = 1, time = 100))
+# IBS from 0 to 100 months on a 5-month grid, weighted by event frequencies
+predictions$score(msr("cmprsk.ibs", times = times))
 
-# BS(t = 100), 2nd cause
-predictions$score(msr("cmprsk.brier", cause = 2, time = 100))
-\dontshow{\}) # examplesIf}
+# IBS from 0 to 100 months on a 5-month grid, with equal weights for both causes
+predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.5, 0.5)))
+
+# IBS from 0 to 100 months on a 5-month grid, with custom weights for transplant and death
+predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.2, 0.8)))
+
+# IBS from 0 to 100 months on a 5-month grid, for transplant only
+predictions$score(msr("cmprsk.ibs", times = times, cause = 1))
+
+# IBS from 0 to 100 months on a 5-month grid, for death only
+predictions$score(msr("cmprsk.ibs", times = times, cause = 2))
 }
 \references{
 Schoop, Roland, Beyersmann, Jan, Schumacher, Martin, Binder, Harald (2011).
 \dQuote{Quantifying the predictive accuracy of time-to-event models in the presence of competing risks.}
 \emph{Biometrical Journal}, \bold{53}(1), 88--112.
 \url{https://doi.org/10.1002/BIMJ.201000073}.
+
+Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018).
+\dQuote{Prediction errors for state occupation and transition probabilities in multi-state models.}
+\emph{Biometrical Journal}, \bold{60}(1), 34--48.
+ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.201600191}.
 }
 \section{Super classes}{
 \code{\link[mlr3:Measure]{mlr3::Measure}} -> \code{\link[mlr3cmprsk:MeasureCompRisks]{MeasureCompRisks}} -> \code{MeasureCompRisksIntegratedBrierScore}

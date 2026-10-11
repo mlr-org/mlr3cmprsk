@@ -10,7 +10,7 @@
 #' These elements are passed to the [PredictionCompRisks] constructor and
 #' validated there (using `check = TRUE` by default).
 #' The `cif` element must be a nonempty list of matrices, with one matrix for every task cause.
-#' This requirement also applies to internal prediction data.
+#' This requirement also applies to internal prediction data of `PredictionDataCompRisks` class.
 #'
 #' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
 #' - Cols `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
@@ -33,18 +33,26 @@
 #' learner$train(task)
 #' p = learner$predict(task)
 #'
-#' # from an existing prediction
+#' # from an existing PredictionCompRisks object (no change)
 #' as_prediction_cmprsk(p)
 #'
-#' # convert a named list
-#' as_prediction_cmprsk(list(row_ids = p$row_ids, truth = p$truth, cif = p$cif))
+#' # Convert a named list to a PredictionCompRisks object
+#' # The list must contain `row_ids`, `truth`, and `cif` elements
+#' p_list = list(
+#'   row_ids = p$row_ids,
+#'   truth = p$truth,
+#'   cif = p$cif
+#' )
+#' as_prediction_cmprsk(p_list)
 #'
-#' # from a data.frame
+#' # Convert a data.frame to a PredictionCompRisks object
+#' # The data.frame must contain the required columns: row_ids, time, event, and CIF
 #' tab = as.data.frame(as.data.table(p))
 #' as_prediction_cmprsk(tab)
 #'
-#' # from internal prediction data
-#' as_prediction(p$data, check = TRUE)
+#' # Convert internal prediction data using as_prediction()
+#' p$data
+#' as_prediction(p$data)
 as_prediction_cmprsk = function(x, ...) {
   UseMethod("as_prediction_cmprsk")
 }
@@ -104,4 +112,14 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
     cif = cif,
     .args = x_subset
   )
+}
+
+#' @rdname as_prediction_cmprsk
+#' @param check (`logical(1)`)\cr
+#'   Whether to validate internal `PredictionDataCompRisks` data during conversion with [mlr3::as_prediction()].
+#'   Use `TRUE` for user-supplied data; `FALSE` is intended for already validated internal data.
+#'   With `FALSE`, correct behavior is not guaranteed if the input is invalid.
+#' @export
+as_prediction.PredictionDataCompRisks = function(x, check = FALSE, ...) {
+  invoke(PredictionCompRisks$new, check = check, .args = x)
 }

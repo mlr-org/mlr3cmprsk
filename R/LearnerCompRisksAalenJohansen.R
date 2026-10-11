@@ -1,6 +1,6 @@
 #' @title Aalen Johansen Competing Risks Learner
 #' @name mlr_learners_cmprsk.aalen
-#' @templateVar id cmprsk.aalen
+#' @templateVar learner_id cmprsk.aalen
 #' @template cmprsk_learner
 #'
 #' @description
@@ -15,7 +15,10 @@
 #' @references
 #' `r format_bib("aalen_1978")`
 #'
-#' @template example_aalen
+#' @template example
+#' @examples
+#' # Score predictions
+#' predictions$score()
 #' @export
 LearnerCompRisksAalenJohansen = R6Class(
   "LearnerCompRisksAalenJohansen",

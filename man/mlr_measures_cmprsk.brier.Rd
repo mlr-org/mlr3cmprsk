@@ -13,7 +13,8 @@ By default, this measure returns a \strong{cause-independent BS(t)} (or all-caus
 score, calculated as a weighted average of the cause-specific Brier scores.
 The weights correspond to the relative event frequencies of each cause,
 following Equation (8) in Spitoni et al. (2018).
-User-supplied weights are also supported.
+User-supplied weights are also supported through \code{cause_weights}.
+See the \strong{Cause weights} section for weighting rules.
 
 Alternatively, users can obtain the \strong{cause-specific Brier score} for any
 individual cause by specifying the \code{cause} parameter.
@@ -29,8 +30,7 @@ Notes on the \code{riskRegression} implementation:
 \enumerate{
 \item IPCW weights are estimated using the \strong{test data only}, so smaller test
 sets may lead to less stable estimates.
-\item No extrapolation is supported: if \code{time} exceeds the maximum observed
-time on the test data, an error is thrown.
+\item Scoring at a \code{time} beyond the maximum observed test-set time produces an input error.
 }
 }
 \section{Dictionary}{
@@ -63,6 +63,28 @@ msr("cmprsk.brier")
 }
 }
 
+\section{Cause weights}{
+
+Cause weights are used only for \code{cause = "mean"}.
+The \code{cause_weights} parameter is ignored when scoring a specific cause.
+
+With \code{cause_weights = NULL}, weights are the relative frequencies of observed
+non-censored events from the test set.
+Causes without observed events receive zero weight, are listed in a warning and
+are skipped when calculating the mean score.
+If no events from any cause are observed, weights are undefined, and the
+measure warns and returns \code{NA_real_}.
+
+Alternatively, the user can supply custom weights via \code{cause_weights}.
+Weights must be finite, non-negative, sum to 1, and contain one entry per predicted cause.
+Entries must match the order of the predicted CIFs cause names.
+If any user-supplied weight happens to be zero, it is skipped silently.
+
+In general, non-finite scores from positive-weight causes propagate to the mean,
+causing the measure to return \code{NaN} and a warning identifies the causes with
+non-finite scores.
+}
+
 \section{Parameter details}{
 
 \itemize{
@@ -72,10 +94,7 @@ Default value is \code{"mean"} which returns an event-frequency weighted mean of
 the cause-specific Brier scores.
 \item \code{cause_weights} (\code{numeric()}|\code{NULL})\cr
 Optional custom weights for \code{cause = "mean"}.
-If \code{NULL}, observed cause frequencies \strong{from the test data} are used.
-The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-i.e. first weight for first cause, second weight for second cause, etc.
-See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
+See the \strong{Cause weights} section for weighting rules.
 \item \code{time} (\code{numeric(1)})\cr
 Single time point at which to return the score.
 If \code{NULL}, the \strong{median observed time point} from the test set is used.
@@ -83,57 +102,46 @@ If \code{NULL}, the \strong{median observed time point} from the test set is use
 }
 
 \examples{
-\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Define the Learner
-learner = lrn("cmprsk.fg")
-learner
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Subset task features as Fine-Gray model doesn't accept factors
-# Encode factors with `mlr3pipelines::po("encode")` if needed
-feats = c("age", "chol", "albumin", "ast", "bili", "protime")
-task$select(feats)
-
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.fg")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 
-# Score the predictions
-# AUC(t = 100), weighted mean score across causes (default)
-predictions$score(msr("cmprsk.auc", cause = "mean", time = 100))
+# Brier score at the median observed test-set time, weighted by event frequencies
+predictions$score(msr("cmprsk.brier"))
 
-# AUC(t = 100), with user-specified weights
-predictions$score(msr("cmprsk.auc", cause = "mean", cause_weights = c(0.2, 0.8),
-  time = 100))
-
-# AUC(t = 100), 1st cause
-predictions$score(msr("cmprsk.auc", cause = 1, time = 100))
-
-# AUC(t = 100), 2nd cause
-predictions$score(msr("cmprsk.auc", cause = 2, time = 100))
-
-# Prediction error (Brier score) at specific time point
-# BS(t = 100) => weighted mean score across causes (default)
+# Brier score at 100 months, weighted by event frequencies
 predictions$score(msr("cmprsk.brier", time = 100))
 
-# BS(t = 100), 1st cause
-predictions$score(msr("cmprsk.brier", cause = 1, time = 100))
+# Brier score at 100 months, with equal weights for both causes
+predictions$score(msr("cmprsk.brier", time = 100, cause_weights = c(0.5, 0.5)))
 
-# BS(t = 100), 2nd cause
-predictions$score(msr("cmprsk.brier", cause = 2, time = 100))
-\dontshow{\}) # examplesIf}
+# Brier score at 100 months, with custom weights for transplant and death
+predictions$score(msr("cmprsk.brier", time = 100, cause_weights = c(0.2, 0.8)))
+
+# Brier score at 100 months, for transplant only
+predictions$score(msr("cmprsk.brier", time = 100, cause = 1))
+
+# Brier score at 100 months, for death only
+predictions$score(msr("cmprsk.brier", time = 100, cause = 2))
 }
 \references{
 Schoop, Roland, Beyersmann, Jan, Schumacher, Martin, Binder, Harald (2011).

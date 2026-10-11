@@ -39,36 +39,31 @@ Empty ParamSet
 }
 
 \examples{
-\dontshow{if (mlr3misc::require_namespaces("riskRegression", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Define the Learner (Aalen-Johansen/AJ estimator)
-learner = lrn("cmprsk.aalen")
-learner
-
-# Define a Task
+# Define a task
 task = tsk("pbc")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 
-# Stratification based on event
+# Stratify by event status
 task$set_col_roles(cols = "status", add_to = "stratum")
+task
 
-# Create train and test set
+# Create training and test sets
+set.seed(42L)
 part = partition(task)
 
-# Train the learner on the training set
+# Define the learner
+learner = lrn("cmprsk.aalen")
+
+# Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
 
-# Make predictions for the test set
+# Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 
-# Score the predictions
-# AJ has random discriminative performance
-predictions$score(msr("cmprsk.auc", time = 100))
-
-# Prediction error (Brier score) at specific time point
-# BS(t) => weighted mean score across causes (default)
-predictions$score(msr("cmprsk.brier", time = 100))
-\dontshow{\}) # examplesIf}
+# Score predictions
+predictions$score()
 }
 \references{
 Aalen, O O, Johansen, Soren (1978).

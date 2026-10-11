@@ -3,7 +3,7 @@
 #' @name mlr_tasks_pbc
 #' @templateVar type CompRisks
 #' @templateVar task_type competing risks
-#' @templateVar id pbc
+#' @templateVar task_id pbc
 #' @templateVar data pbc
 #' @templateVar data_pkg survival
 #' @template task

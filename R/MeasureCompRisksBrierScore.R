@@ -1,6 +1,6 @@
 #' @title Brier Score Competing Risks Measure
 #' @name mlr_measures_cmprsk.brier
-#' @templateVar id cmprsk.brier
+#' @templateVar measure_id cmprsk.brier
 #' @template cmprsk_measure
 #'
 #' @description
@@ -12,7 +12,8 @@
 #' score, calculated as a weighted average of the cause-specific Brier scores.
 #' The weights correspond to the relative event frequencies of each cause,
 #' following Equation (8) in Spitoni et al. (2018).
-#' User-supplied weights are also supported.
+#' User-supplied weights are also supported through `cause_weights`.
+#' See the **Cause weights** section for weighting rules.
 #'
 #' Alternatively, users can obtain the **cause-specific Brier score** for any
 #' individual cause by specifying the `cause` parameter.
@@ -25,8 +26,9 @@
 #' Notes on the `riskRegression` implementation:
 #' 1. IPCW weights are estimated using the **test data only**, so smaller test
 #' sets may lead to less stable estimates.
-#' 2. No extrapolation is supported: if `time` exceeds the maximum observed
-#' time on the test data, an error is thrown.
+#' 2. Scoring at a `time` beyond the maximum observed test-set time produces an input error.
+#'
+#' @template cmprsk_cause_weights
 #'
 #' @section Parameter details:
 #' - `cause` (`numeric(1)|"mean"`)\cr
@@ -35,10 +37,7 @@
 #'  the cause-specific Brier scores.
 #' - `cause_weights` (`numeric()`|`NULL`)\cr
 #'  Optional custom weights for `cause = "mean"`.
-#'  If `NULL`, observed cause frequencies **from the test data** are used.
-#'  The weights must be non-negative, sum to 1 and match the number of causes 1-1,
-#'  i.e. first weight for first cause, second weight for second cause, etc.
-#'  See Spitoni et al. (2018), Equation (8) for a similar weighting scheme.
+#'  See the **Cause weights** section for weighting rules.
 #' - `time` (`numeric(1)`)\cr
 #'  Single time point at which to return the score.
 #'  If `NULL`, the **median observed time point** from the test set is used.
@@ -46,8 +45,9 @@
 #' @references
 #' `r format_bib("schoop_2011", "spitoni_2018")`
 #'
-#' @templateVar msr_id brier
-#' @template example_fine_gray
+#' @templateVar learner_id cmprsk.fg
+#' @template example
+#' @template example_measure
 #' @export
 MeasureCompRisksBrierScore = R6Class(
   "MeasureCompRisksBrierScore",
@@ -69,7 +69,7 @@ MeasureCompRisksBrierScore = R6Class(
         minimize = TRUE,
         properties = "na_score",
         packages = "riskRegression",
-        label = "Competing Risks Brier Score (fixed time)",
+        label = "Competing Risks Brier Score at a specified time",
         man = "mlr3cmprsk::mlr_measures_cmprsk.brier"
       )
     }
@@ -78,6 +78,11 @@ MeasureCompRisksBrierScore = R6Class(
   private = list(
     .score = function(prediction, task, ...) {
       pv = self$param_set$values
+
+      # get list of predicted CIF matrices and causes requested
+      cif_list = prediction$cif
+      causes = names(cif_list)
+      cause = assert_cause(pv$cause, causes)
 
       # Prepare test set data for IPCW
       # Must match the number of rows in the predicted CIF matrix
@@ -93,40 +98,21 @@ MeasureCompRisksBrierScore = R6Class(
       } else {
         assert_number(pv$time, lower = 0, finite = TRUE, na.ok = FALSE)
       }
+      time = validate_times(time, max(data$time))
 
-      # RiskRegression can't evaluate for time > max time point from the test set
-      t_max = max(data$time)
-      if (time > t_max) {
-        error_input(
-          sprintf(
-            "RiskRegression cannot evaluate time points larger than the maximum test-set time (%f).",
-            t_max
-          )
-        )
-      }
-
-      # list of predicted CIF matrices
-      cif_list = prediction$cif
-      causes = names(cif_list)
-      # cause should be 1,2,... or "mean"
-      cause = assert_cause(pv$cause, causes)
-
-      # check weights
-      cause_weights = pv$cause_weights
-      if (!is.null(cause_weights)) {
-        assert_numeric(
-          cause_weights,
-          lower = 0,
-          upper = 1,
-          len = length(causes),
-          any.missing = FALSE,
-          null.ok = FALSE
-        )
-
-        if (abs(sum(cause_weights) - 1) > 1e-8) {
-          error_input("Cause weights must sum to 1.")
+      # For cause = "mean", get cause weights
+      active_causes = cause
+      if (cause == "mean") {
+        weights = resolve_cause_weights(data$event, causes, pv$cause_weights)
+        if (anyNA(weights)) {
+          return(NA_real_)
         }
+        active_causes = causes[weights > 0]
       }
+
+      # Preserve absent causes for RiskRegression
+      data$event = factor(data$event, levels = c("0", causes))
+      warn_cif_extrapolation(cif_list, time, active_causes)
 
       brier_score = function(cause) {
         # get CIF on the given time point
@@ -154,9 +140,9 @@ MeasureCompRisksBrierScore = R6Class(
         return(brier_score(cause))
       }
 
-      brier_scores = vapply(causes, brier_score, numeric(1L))
+      brier_scores = vapply(active_causes, brier_score, numeric(1L))
 
-      aggregate_scores(brier_scores, data$event, cause_weights)
+      aggregate_cause_causes(brier_scores, weights[active_causes])
     }
   )
 )

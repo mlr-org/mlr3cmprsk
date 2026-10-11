@@ -10,6 +10,23 @@
 
 Provides a unified interface for right-censored competing risks tasks in 'mlr3'.
 }
+\section{Package Options}{
+
+The following options control optional predicted CIF diagnostics and default to \code{FALSE}.
+Set them with \code{\link[=options]{options()}} to enable diagnostics package-wide.
+\itemize{
+\item \code{mlr3cmprsk.warn_cif_sum}: Warn with class \code{Mlr3WarningCIFSumExceedsOne}
+when predictions contain cause-specific CIFs whose sum exceeds 1 (allowing
+numerical tolerance). Predictions are retained without changing their
+probabilities. Enable by using \code{options(mlr3cmprsk.warn_cif_sum = TRUE)}.
+\item \code{mlr3cmprsk.warn_cif_extrapolation}: Warn with class \code{Mlr3WarningCIFExtrapolation}
+when a measure evaluates times after a scored cause's final CIF anchor.
+CIFs are constantly extrapolated after the final anchor.
+One warning lists all affected causes per scoring call.
+Enable by using \code{options(mlr3cmprsk.warn_cif_extrapolation = TRUE)}.
+}
+}
+
 \seealso{
 Useful links:
 \itemize{

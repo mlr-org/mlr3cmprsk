@@ -23,6 +23,91 @@ riskRegr_score = function(mat_list, metric, data, formula, times, cause, summary
   )
 }
 
+#' Validates the upper integration horizon `tau` for IBS.
+#' This is required due to limitations in `riskRegression::Score()`, which
+#' cannot evaluate beyond the maximum test-set follow-up.
+#' @keywords internal
+#' @noRd
+validate_tau = function(tau, t_max_test) {
+  if (tau > t_max_test) {
+    warning_mlr3(
+      paste0(
+        "RiskRegression cannot evaluate beyond the maximum test-set follow-up (%g). ",
+        "The requested upper integration horizon is %g. Using effective tau = %g."
+      ),
+      t_max_test,
+      tau,
+      t_max_test
+    )
+    tau = t_max_test
+  }
+
+  tau
+}
+
+#' Validates the `times` parameter for measures such as IBS and AUC(t)
+#' This is required due to limitations in `riskRegression::Score()`, which
+#' cannot evaluate beyond the maximum test-set follow-up.
+#' @keywords internal
+#' @noRd
+validate_times = function(times, t_max_test, integrated = FALSE) {
+  beyond_follow_up = times > t_max_test
+  if (any(beyond_follow_up)) {
+    if (!integrated) {
+      error_input(
+        "RiskRegression does not evaluate time points larger than the maximum test-set time (%f).",
+        t_max_test
+      )
+    }
+
+    warning_mlr3(
+      paste0(
+        "RiskRegression does not evaluate time points larger than the maximum test-set time (%f). ",
+        "We remove %d time point(s) from `times`"
+      ),
+      t_max_test,
+      sum(beyond_follow_up)
+    )
+    times = times[!beyond_follow_up]
+  }
+
+  if (integrated && length(unique(times)) < 2L) {
+    error_mlr3("`times` must contain at least two distinct time points.")
+  }
+
+  times
+}
+
+#' Warns if scoring times exceed the final CIF prediction anchor (time point)
+#' @keywords internal
+#' @noRd
+warn_cif_extrapolation = function(cif_list, times, causes) {
+  if (!getOption("mlr3cmprsk.warn_cif_extrapolation", FALSE)) {
+    return(invisible(NULL))
+  }
+
+  affected = causes[vapply(
+    cif_list[causes],
+    function(mat) {
+      any(times > max(as.numeric(colnames(mat))))
+    },
+    logical(1L)
+  )]
+
+  if (length(affected)) {
+    warning_mlr3(
+      paste0(
+        "Scoring times exceed the final CIF prediction anchor for cause(s): %s. ",
+        "We apply constant CIF extrapolation after the final prediction time point."
+      ),
+      str_collapse(affected),
+      class = "Mlr3WarningCIFExtrapolation"
+    )
+  }
+
+  invisible(NULL)
+}
+
 #' Validates the `cause` parameter (against the `causes` from the prediction object)
 #' @keywords internal
 #' @noRd
@@ -37,30 +122,64 @@ assert_cause = function(cause, causes) {
   cause
 }
 
-#' Aggregates cause-specific scores into a single summary score. Weights can be:
-#' 1. The observed proportions of competing events in the test data or
-#' 2. User-specified weights (must sum to 1).
+#' Resolves custom or event-frequency weights into named `weights` aligned with `causes`.
+#' Warns for (automatically-derived) zero weights.
+#' Returns `NA` weights + a warning when no events are observed.
 #' @keywords internal
 #' @noRd
-aggregate_scores = function(scores, event, cause_weights = NULL) {
-  if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
+resolve_cause_weights = function(event, causes, cause_weights = NULL) {
+  # user-supplied (custom) weights
+  if (!is.null(cause_weights)) {
+    assert_numeric(
+      cause_weights,
+      lower = 0,
+      upper = 1,
+      len = length(causes),
+      finite = TRUE,
+      any.missing = FALSE
+    )
+    if (abs(sum(cause_weights) - 1) > 1e-8) {
+      error_input("Cause weights must sum to 1.")
+    }
+    # align weights with causes
+    return(set_names(cause_weights, causes))
+  }
+
+  # derive weights as the observed frequencies of non-censored events
+  event_counts = as.numeric(table(factor(event[event != 0], levels = causes)))
+  if (sum(event_counts) == 0) {
     warning_mlr3(
-      msg = "At least one of the scores is NaN",
-      class = "RiskRegressionScoreNaN"
+      "Event-frequency weights are undefined: no observed events. Returning NA."
+    )
+    return(set_names(rep(NA_real_, length(causes)), causes))
+  }
+
+  weights = set_names(event_counts / sum(event_counts), causes)
+  if (any(weights == 0)) {
+    warning_mlr3(
+      "Event-frequency weights are zero for cause(s): %s, with no observed events. These causes are skipped.",
+      str_collapse(causes[weights == 0])
     )
   }
 
-  if (!is.null(cause_weights)) {
-    w = cause_weights
-  } else {
-    # remove censored observations if present (event == 0)
-    event = event[event != 0]
-    # observed proportions per cause
-    # `table()` results are in increasing order, i.e. cause 1, cause 2, ...
-    w = as.numeric(prop.table(table(event)))
+  weights
+}
+
+#' Computes the weighted sum of cause-specific scores using weights ALREADY
+#' aligned with the scores.
+#' Warns if any score is non-finite.
+#' @keywords internal
+#' @noRd
+aggregate_cause_causes = function(scores, weights) {
+  if (!test_numeric(scores, any.missing = FALSE, finite = TRUE)) {
+    warning_mlr3(
+      msg = "Non-finite score (NaN, NA, or Inf) for cause(s): %s.",
+      str_collapse(names(scores)[!is.finite(scores)]),
+      class = "RiskRegressionScoreNotFinite"
+    )
   }
 
-  sum(w * scores)
+  sum(scores * weights)
 }
 
 #' @title Align CIF matrices on a common time grid

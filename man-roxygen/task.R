@@ -6,10 +6,10 @@
 #' @section Dictionary:
 #' This [Task][mlr3::Task] can be instantiated via the [dictionary][mlr3misc::Dictionary] [mlr_tasks][mlr3::mlr_tasks] or with the associated sugar function [tsk()][mlr3::tsk()]:
 #' ```
-#' mlr_tasks$get("<%= id %>")
-#' tsk("<%= id %>")
+#' mlr_tasks$get("<%= task_id %>")
+#' tsk("<%= task_id %>")
 #' ```
 #'
 #' @section Meta Information:
-#' `r mlr3misc::rd_info(mlr3::tsk("<%= id %>"))`
+#' `r mlr3misc::rd_info(mlr3::tsk("<%= task_id %>"))`
 #' @md
