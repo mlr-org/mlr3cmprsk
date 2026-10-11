@@ -6,7 +6,7 @@
 \title{Integrated Brier Score Competing Risks Measure}
 \description{
 Calculates the integrated competing risks prediction error (integrated Brier score, IBS)
-over given time points, using IPCW as described in Schoop et al. (2011).
+using IPCW as described in Schoop et al. (2011).
 }
 \details{
 By default, this measure returns a \strong{cause-independent IBS} (or all-cause)
@@ -31,8 +31,8 @@ Notes on the \code{riskRegression} implementation:
 \enumerate{
 \item IPCW weights are estimated using the \strong{test data only}, so smaller test
 sets may lead to less stable estimates.
-\item Integration times beyond the maximum observed test-set time are removed with a warning.
-At least two distinct time points must remain after this removal.
+\item Evaluation is limited to the maximum observed test-set follow-up time.
+See the \strong{Integration grid} section for how this restriction is applied.
 }
 }
 \section{Dictionary}{
@@ -62,27 +62,10 @@ msr("cmprsk.ibs")
    cause \tab integer \tab - \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    cause_weights \tab untyped \tab NULL \tab - \cr
    times \tab untyped \tab NULL \tab - \cr
+   ntimes \tab untyped \tab 100L \tab - \cr
+   t_max \tab untyped \tab NULL \tab - \cr
+   t_quantile \tab untyped \tab NULL \tab - \cr
 }
-}
-
-\section{Cause weights}{
-
-Cause weights are used only for \code{cause = "mean"}.
-The \code{cause_weights} parameter is ignored when scoring an explicit cause.
-
-With \code{cause_weights = NULL}, weights are the relative frequencies of observed non-censored events.
-All observed events contribute to these frequencies, regardless of the evaluation time points.
-Causes without observed events receive weight zero and are listed in a warning.
-If no events are observed, weights are undefined, and the measure warns and returns \code{NA_real_}.
-
-Alternatively, supply custom weights through \code{cause_weights}.
-They must be finite, non-negative, sum to 1, and contain one entry per predicted cause.
-Entries must match the order of the predicted CIFs cause names.
-
-Causes with weight zero are skipped before scoring.
-Custom zero weights are skipped silently (as per user request!).
-Non-finite scores from positive-weight causes propagate to the mean,
-and a warning identifies the affected causes.
 }
 
 \section{Parameter details}{
@@ -96,10 +79,77 @@ the cause-specific integrated Brier scores.
 Optional custom weights for \code{cause = "mean"}.
 See the \strong{Cause weights} section for weighting rules.
 \item \code{times} (\code{numeric()}|\code{NULL})\cr
-Integration time points, supplied as a sorted vector of at least two distinct,
-finite, non-negative values.
-If \code{NULL}, all unique observed times from the test set are used.
+Explicit integration grid, supplied as a sorted vector of at least two
+distinct, finite, non-negative time points.
+Default is \code{NULL}, which uses an automatically generated grid.
+\code{t_max} and \code{t_quantile} must both be \code{NULL} when supplying explicit \code{times}.
+\item \code{ntimes} (\code{integer(1)})\cr
+Number of points in an automatically constructed integration grid, including
+time 0 and the upper integration horizon.
+Must be at least 2; default is 100.
+Ignored when supplying explicit \code{times}.
+\item \code{t_max} (\code{numeric(1)}|\code{NULL})\cr
+Finite, non-negative upper integration horizon; default is \code{NULL}.
+Mutually exclusive with \code{t_quantile}.
+\item \code{t_quantile} (\code{numeric(1)}|\code{NULL})\cr
+Quantile probability of observed test-set follow-up times used to determine
+the upper integration horizon.
+Default is \code{NULL}, which uses the 90th percentile.
+Mutually exclusive with \code{t_max}.
 }
+}
+
+\section{Cause weights}{
+
+Cause weights are used only for \code{cause = "mean"}.
+The \code{cause_weights} parameter is ignored when scoring a specific cause.
+
+With \code{cause_weights = NULL}, weights are the relative frequencies of observed
+non-censored events from the test set.
+Causes without observed events receive zero weight, are listed in a warning and
+are skipped when calculating the mean score.
+If no events from any cause are observed, weights are undefined, and the
+measure warns and returns \code{NA_real_}.
+
+Alternatively, the user can supply custom weights via \code{cause_weights}.
+Weights must be finite, non-negative, sum to 1, and contain one entry per predicted cause.
+Entries must match the order of the predicted CIFs cause names.
+If any user-supplied weight happens to be zero, it is skipped silently.
+
+In general, non-finite scores from positive-weight causes propagate to the mean,
+causing the measure to return \code{NaN} and a warning identifies the causes with
+non-finite scores.
+}
+
+\section{Integration grid}{
+
+
+The integration grid determines the evaluation times for the IBS.
+Its largest time point is the \strong{effective integration horizon}.
+The grid is the same for all causes.
+
+If the user explicitly provides \code{times}, the supplied grid is used directly.
+Points beyond the maximum test-set follow-up are removed with a warning due to
+the limitations of \code{riskRegression::Score()}.
+At least two distinct evaluation times must remain.
+
+When \code{times = NULL} we construct a time grid consisting of \code{ntimes}
+equally spaced time points between time 0 and an upper time horizon.
+By default, the horizon is chosen as the time point corresponding to the
+\strong{90th percentile} of observed follow-up times (including both events and
+censored observations) in the test set.
+The user can change that percentile with \code{t_quantile}, or specify a fixed
+horizon with \code{t_max}.
+If \code{t_max} exceeds the maximum test-set follow-up, it is reduced to that maximum
+to satisfy the restrictions of \code{riskRegression}, and a warning reports the effective horizon.
+In any case, the resulting integration grid will always have exactly \code{ntimes}
+points and its construction is completely independent of the time grids of the
+predicted CIFs.
+
+The choice for the default 90th percentile is for minimizing the influence of
+extreme evaluation times, which may cause \strong{CIF extrapolation} (when the
+integration grid has times larger than the maximum anchor of the CIF time grid)
+and issues with \strong{large IPCW weights}.
 }
 
 \examples{
