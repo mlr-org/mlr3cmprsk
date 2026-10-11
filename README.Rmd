@@ -53,7 +53,7 @@ measures = list(
   msr("cmprsk.auc", time = 100, id = "auc_t100"),
   # BS(t = 100)
   msr("cmprsk.brier", time = 100, id = "bs_t100"),
-  # Integrated Brier score over the observed times in each test fold
+  # IBS: 100 equally spaced times from 0 to each test fold's 90th follow-up percentile
   msr("cmprsk.ibs", id = "ibs")
 )
 
