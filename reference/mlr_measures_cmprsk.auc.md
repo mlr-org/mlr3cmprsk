@@ -252,13 +252,13 @@ predictions
 #>      208   27     1 <list[2]>
 #>      213   47     1 <list[2]>
 
-# AUC at the median observed test-set time, weighted by event frequencies
+# AUC at the median observed test-set time,
+# weighted by event frequencies
 predictions$score(msr("cmprsk.auc"))
 #> cmprsk.auc 
 #>  0.8691053 
 
-# AUC at 100 months,
-# weighted by event frequencies
+# AUC at 100 months, weighted by event frequencies
 predictions$score(msr("cmprsk.auc", time = 100))
 #> cmprsk.auc 
 #>  0.8279221 

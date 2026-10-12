@@ -239,13 +239,13 @@ predictions
 #>      208   27     1 <list[2]>
 #>      213   47     1 <list[2]>
 
-# Brier score at the median observed test-set time, weighted by event frequencies
+# Brier score at the median observed test-set time,
+# weighted by event frequencies
 predictions$score(msr("cmprsk.brier"))
 #> cmprsk.brier 
 #>    0.1142599 
 
-# Brier score at 100 months,
-# weighted by event frequencies
+# Brier score at 100 months, weighted by event frequencies
 predictions$score(msr("cmprsk.brier", time = 100))
 #> cmprsk.brier 
 #>    0.1405361 

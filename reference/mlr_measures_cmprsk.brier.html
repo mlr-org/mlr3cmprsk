@@ -255,13 +255,13 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 <span class="r-out co"><span class="r-pr">#&gt;</span>      208   27     1 &lt;list[2]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      213   47     1 &lt;list[2]&gt;</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Brier score at the median observed test-set time, weighted by event frequencies</span></span></span>
+<span class="r-in"><span><span class="co"># Brier score at the median observed test-set time,</span></span></span>
+<span class="r-in"><span><span class="co"># weighted by event frequencies</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.brier"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.brier </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    0.1142599 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Brier score at 100 months,</span></span></span>
-<span class="r-in"><span><span class="co"># weighted by event frequencies</span></span></span>
+<span class="r-in"><span><span class="co"># Brier score at 100 months, weighted by event frequencies</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.brier"</span>, time <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.brier </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    0.1405361 </span>
