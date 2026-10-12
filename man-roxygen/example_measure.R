@@ -18,8 +18,8 @@ time_label = if (is_ibs) "from 0 to 100 months on a 5-month grid" else "at 100 m
 #' # IBS with an upper integration horizon of 100 months
 #' predictions$score(msr("<%= measure_id %>", t_max = 100))
 #'
-#' # IBS up to the 80th percentile of test-set follow-up times
-#' predictions$score(msr("<%= measure_id %>", t_quantile = 0.8))
+#' # IBS up to the 85th percentile of test-set follow-up times
+#' predictions$score(msr("<%= measure_id %>", t_quantile = 0.85))
 #'
 #' # IBS over 20 equally spaced points up to the default 90th percentile
 #' predictions$score(msr("<%= measure_id %>", ntimes = 20L))
