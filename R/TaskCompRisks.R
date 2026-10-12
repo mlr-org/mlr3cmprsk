@@ -75,7 +75,8 @@ TaskCompRisks = R6Class(
       backend = as_data_backend(backend)
 
       # check event is an integer starting from 0
-      event_vals = get_private(backend)$.data[, event, with = FALSE][[1L]]
+      assert_choice(event, backend$colnames)
+      event_vals = backend$data(rows = backend$rownames, cols = event)[[1L]]
       assert_integerish(event_vals, lower = 0L, any.missing = FALSE)
 
       # competing events must be encoded as 1, 2, ..., K
