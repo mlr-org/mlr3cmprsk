@@ -156,7 +156,8 @@ non-finite scores.</p>
 
 <p>The integration grid contains the time points at which Brier scores are evaluated for numerical integration.
 Its largest time point is the <strong>upper integration horizon</strong>.
-All causes use the same grid, with their predicted CIFs interpolated to these times.</p>
+All causes use the same grid, with their predicted CIFs constantly interpolated
+to these times.</p>
 <p>If the user explicitly provides <code>times</code>, the supplied grid is used directly.
 Points beyond the maximum test-set follow-up are removed with a warning due to
 the limitations of <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score()</a></code>.

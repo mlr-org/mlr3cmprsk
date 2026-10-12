@@ -135,7 +135,7 @@ the causes with non-finite scores.
 The integration grid contains the time points at which Brier scores are
 evaluated for numerical integration. Its largest time point is the
 **upper integration horizon**. All causes use the same grid, with their
-predicted CIFs interpolated to these times.
+predicted CIFs constantly interpolated to these times.
 
 If the user explicitly provides `times`, the supplied grid is used
 directly. Points beyond the maximum test-set follow-up are removed with
