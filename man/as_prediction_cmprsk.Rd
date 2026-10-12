@@ -55,6 +55,8 @@ If \code{x} is a \code{data.frame}/\code{data.table} input, the following requir
 CIF vectors corresponding to the same cause should be of equal length (same time points).
 \item Values for the \code{event} column must be 0 (censoring) or one of the consecutive
 cause codes 1, 2, ..., K.
+Missing values in \code{time} and \code{event} are allowed and denote an unknown outcome,
+e.g. for predictions on unlabeled data from \verb{$predict_newdata()}.
 }
 }
 \examples{

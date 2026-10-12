@@ -21,6 +21,8 @@
 #' CIF vectors corresponding to the same cause should be of equal length (same time points).
 #' - Values for the `event` column must be 0 (censoring) or one of the consecutive
 #' cause codes 1, 2, ..., K.
+#' Missing values in `time` and `event` are allowed and denote an unknown outcome,
+#' e.g. for predictions on unlabeled data from `$predict_newdata()`.
 #'
 #' @inheritParams mlr3::as_prediction
 #'
@@ -93,8 +95,9 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
     assert_list(obs_cif, min.len = 2L)
     assert_names(names(obs_cif), identical.to = cmp_event_ids)
   }
-  # Check that the event column contains only 0 (censoring) or one of the cause codes
-  assert_integerish(x$event, lower = 0L, upper = length(cmp_event_ids), any.missing = FALSE)
+  # Check that the event column contains only 0 (censoring) or one of the cause codes.
+  # Missing values are allowed, e.g. for predictions on unlabeled data from `$predict_newdata()`
+  assert_integerish(x$event, lower = 0L, upper = length(cmp_event_ids))
 
   # Reconstruct the list of CIF matrices (one per cause)
   mat_list = lapply(cmp_event_ids, function(event_id) {

@@ -70,6 +70,21 @@ test_that("data.table/frame roundtrip", {
   dt_df = as.data.frame(dt)
   p3 = as_prediction_cmprsk(dt_df)
   expect_prediction_cmprsk(p3)
+
+  # predictions on unlabeled data have missing truth and still roundtrip
+  p4 = learner$predict_newdata(task$data(cols = task$feature_names)[1:3])
+  dt = as.data.table(p4)
+  expect_true(all(is.na(dt$time)))
+  expect_true(all(is.na(dt$event)))
+  p5 = as_prediction_cmprsk(dt)
+  expect_prediction_cmprsk(p5)
+  expect_equal(p5$cif, p4$cif)
+  expect_identical(attr(p5$truth, "states"), task$cmp_events)
+  expect_true(all(is.na(p5$truth)))
+
+  # observed event codes are still validated
+  dt$event[1L] = 7L
+  expect_error(as_prediction_cmprsk(dt), "<= 3")
 })
 
 test_that("named lists convert to predictions with validation", {
