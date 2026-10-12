@@ -83,6 +83,16 @@ The package includes two learners, both of which return CIF predictions for ever
 
 For additional models, see the [available list](https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners) in `mlr3extralearners`, including CoxBoost (`cmprsk.coxboost`) and random forests (`cmprsk.rfsrc`).
 
+## Citation
+
+If you use `mlr3cmprsk` in your work, please cite it using the following BibTeX entry:
+
+```{r citation, echo = FALSE, results = "asis"}
+meta = as.list(read.dcf("DESCRIPTION")[1L, ])
+meta$Date = as.character(Sys.Date())
+cat("```bibtex\n", paste(toBibtex(citation(auto = meta)), collapse = "\n"), "\n```\n", sep = "")
+```
+
 ## Code of Conduct
 
 This project follows a [Contributor Code of Conduct](https://mlr3cmprsk.mlr-org.com/CODE_OF_CONDUCT.html).
