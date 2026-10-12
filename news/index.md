@@ -2,6 +2,8 @@
 
 ## mlr3cmprsk 0.0.7
 
+- fix: Unloading the package preserves unrelated hooks and tolerates
+  dictionary entries that have already been removed.
 - fix: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now resolve cause
   weights before scoring and skip zero-weight causes. Event-frequency
   weights warn for absent causes and return `NA` if no events are

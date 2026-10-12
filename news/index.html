@@ -49,7 +49,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.7" id="mlr3cmprsk-007">mlr3cmprsk 0.0.7<a class="anchor" aria-label="anchor" href="#mlr3cmprsk-007"></a></h2>
-<ul><li>fix: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return <code>NA</code> if no events are observed.</li>
+<ul><li>fix: Unloading the package preserves unrelated hooks and tolerates dictionary entries that have already been removed.</li>
+<li>fix: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return <code>NA</code> if no events are observed.</li>
 <li>feat: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> now identify the affected causes when warning about non-finite scores.</li>
 <li>feat: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> can now warn when scoring requires constant CIF extrapolation after a cause’s final prediction anchor.</li>
 <li>feat: <code>cmprsk.auc</code> now explicitly rejects scoring times beyond the maximum test-set follow-up, following the behavior of the Brier score.</li>
