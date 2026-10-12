@@ -10,7 +10,7 @@ Authors@R: c(
 Description: Provides a unified interface for right-censored competing
     risks tasks in 'mlr3'.
 License: MIT + file LICENSE
-URL: https://github.com/mlr-org/mlr3cmprsk
+URL: https://mlr3cmprsk.mlr-org.com, https://github.com/mlr-org/mlr3cmprsk
 BugReports: https://github.com/mlr-org/mlr3cmprsk/issues
 Depends:
     mlr3 (>= 1.8.0),
