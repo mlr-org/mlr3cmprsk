@@ -32,6 +32,31 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
 }
 
 #' @export
+create_empty_prediction_data.TaskCompRisks = function(task, learner) {
+  predict_types = mlr_reflections$learner_predict_types[["cmprsk"]][[learner$predict_type]]
+  causes = task$cmp_events
+
+  pdata = list(
+    row_ids = integer(),
+    truth = Surv(numeric(), factor(integer(), levels = c("0", causes)))
+  )
+
+  if ("cif" %in% predict_types) {
+    # one empty (0 x 0) matrix per cause
+    pdata$cif = set_names(
+      replicate(length(causes), matrix(numeric(), nrow = 0L, ncol = 0L), simplify = FALSE),
+      causes
+    )
+  }
+
+  if ("weights_measure" %in% task$properties) {
+    pdata$weights = numeric()
+  }
+
+  set_class(pdata, c("PredictionDataCompRisks", "PredictionData"))
+}
+
+#' @export
 is_missing_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   miss = logical(length(pdata$row_ids))
 
