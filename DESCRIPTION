@@ -4,6 +4,8 @@ Version: 0.0.7
 Authors@R: c(
     person("John", "Zobolas", , "bblodfon@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-3609-8674")),
+    person("Andreas", "Bender", , "bender.andreas@lmu.de", role = c("aut"),
+           comment = c(ORCID = "0000-0001-5628-8611")),
     person("Andrzej", "Galecki", , "agalecki@umich.edu", role = "ctb",
            comment = c(ORCID = "0000-0003-1542-4001"))
   )
