@@ -128,7 +128,8 @@ predictions
 # Brier score at the median observed test-set time, weighted by event frequencies
 predictions$score(msr("cmprsk.brier"))
 
-# Brier score at 100 months, weighted by event frequencies
+# Brier score at 100 months,
+# weighted by event frequencies
 predictions$score(msr("cmprsk.brier", time = 100))
 
 # Brier score at 100 months, with equal weights for both causes

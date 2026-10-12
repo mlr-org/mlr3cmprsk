@@ -27,7 +27,8 @@ time_label = if (is_ibs) "from 0 to 100 months on a 5-month grid" else "at 100 m
 #' times = seq(0, 100, by = 5)
 #'
 <% } %>
-#' # <%= score_name %> <%= time_label %>, weighted by event frequencies
+#' # <%= score_name %> <%= time_label %>,
+#' # weighted by event frequencies
 #' predictions$score(msr("<%= measure_id %>", <%= time_arg %>))
 #'
 #' # <%= score_name %> <%= time_label %>, with equal weights for both causes
