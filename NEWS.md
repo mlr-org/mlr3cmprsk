@@ -1,5 +1,6 @@
 # mlr3cmprsk 0.0.7
 
+* fix: `as_prediction_cmprsk()` now errors when per-observation CIF vectors of the same cause differ in length or time names, instead of silently recycling values.
 * fix: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return `NA` if no events are observed.
 * feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now identify the affected causes when warning about non-finite scores.
 * feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` can now warn when scoring requires constant CIF extrapolation after a cause's final prediction anchor.

@@ -51,8 +51,9 @@ If \code{x} is a \code{data.frame}/\code{data.table} input, the following requir
 \item The per-observation \code{CIF} object must be a named list of numeric vectors
 (one per cause), with names exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order
 (where \code{K} is the number of competing risks).
-\item Cause names should be identical across observations and in the same order;
-CIF vectors corresponding to the same cause should be of equal length (same time points).
+\item Cause names must be identical across observations and in the same order.
+\item CIF vectors corresponding to the same cause must have the same length and the same time names
+(the names of the vectors) across all observations.
 \item Values for the \code{event} column must be 0 (censoring) or one of the consecutive
 cause codes 1, 2, ..., K.
 }
