@@ -39,7 +39,7 @@ An existing \link{PredictionCompRisks} is returned unchanged.
 Use \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}} to convert its internal \code{PredictionDataCompRisks} data.
 }
 \details{
-A named \code{list} must contain \code{row_ids}, \code{truth}, and \code{cif}.
+A named \code{list} must contain \code{row_ids}, \code{truth}, and \code{cif}, and may contain \code{weights} and \code{extra}.
 These elements are passed to the \link{PredictionCompRisks} constructor and
 validated there (using \code{check = TRUE} by default).
 The \code{cif} element must be a nonempty list of matrices, with one matrix for every task cause.
@@ -48,6 +48,7 @@ This requirement also applies to internal prediction data of \code{PredictionDat
 If \code{x} is a \code{data.frame}/\code{data.table} input, the following requirements must be met:
 \itemize{
 \item Cols \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
+\item An optional col \code{weights} holds measurement weights.
 \item The per-observation \code{CIF} object must be a named list of numeric vectors
 (one per cause), with names exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order
 (where \code{K} is the number of competing risks).

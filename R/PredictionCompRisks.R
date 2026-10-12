@@ -77,6 +77,14 @@ PredictionCompRisks = R6Class(
     #'   The names of the `list` must correspond to the cause names in the `truth`
     #'   object, i.e. `"1"`, `"2"`, ..., `"K"`, exactly in that order.
     #'
+    #' @param weights (`numeric()`)\cr
+    #'   Optional measurement weights for the predicted observations, as supplied by a task with
+    #'   column role `"weights_measure"`.
+    #'
+    #' @param extra (`list()`)\cr
+    #'   Optional named list of additional per-observation data returned by a learner.
+    #'   Each element must have the same length as `row_ids`.
+    #'
     #' @param check (`logical(1)`)\cr
     #'   If `TRUE`, performs argument checks.
     #'   Use `TRUE` for user-supplied data.
@@ -86,9 +94,11 @@ PredictionCompRisks = R6Class(
       row_ids = task$row_ids,
       truth = task$truth(),
       cif,
+      weights = NULL,
+      extra = NULL,
       check = TRUE
     ) {
-      pdata = list(row_ids = row_ids, truth = truth, cif = cif)
+      pdata = list(row_ids = row_ids, truth = truth, cif = cif, weights = weights, extra = extra)
       pdata = discard(pdata, is.null)
       class(pdata) = c("PredictionDataCompRisks", "PredictionData")
 
@@ -134,6 +144,14 @@ as.data.table.PredictionCompRisks = function(x, ...) {
       names(cif_list) = names(x$cif) # preserve the cause ids
       cif_list
     })
+  }
+
+  if (!is.null(x$data$weights)) {
+    tab$weights = x$data$weights
+  }
+
+  if (!is.null(x$data$extra)) {
+    tab = cbind(tab, as.data.table(x$data$extra))
   }
 
   setcolorder(tab, c("row_ids", "time", "event"))[]

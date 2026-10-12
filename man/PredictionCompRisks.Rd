@@ -81,6 +81,8 @@ Access the stored CIFs.}
   row_ids = task$row_ids,
   truth = task$truth(),
   cif,
+  weights = NULL,
+  extra = NULL,
   check = TRUE
 )}
     \if{html}{\out{</div>}}
@@ -102,6 +104,12 @@ Each matrix represents a different competing event (or cause) and stores the
 In each matrix, rows represent observations and columns time points.
 The names of the \code{list} must correspond to the cause names in the \code{truth}
 object, i.e. \code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
+      \item{\code{weights}}{(\code{numeric()})\cr
+Optional measurement weights for the predicted observations, as supplied by a task with
+column role \code{"weights_measure"}.}
+      \item{\code{extra}}{(\code{list()})\cr
+Optional named list of additional per-observation data returned by a learner.
+Each element must have the same length as \code{row_ids}.}
       \item{\code{check}}{(\code{logical(1)})\cr
 If \code{TRUE}, performs argument checks.
 Use \code{TRUE} for user-supplied data.

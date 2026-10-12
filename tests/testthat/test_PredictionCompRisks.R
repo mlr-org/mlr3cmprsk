@@ -117,6 +117,68 @@ test_that("filtering", {
   expect_silent(check_prediction_data(p$data))
 })
 
+test_that("measurement weights are supported", {
+  task_w = task$clone(deep = TRUE)$cbind(data.frame(w = runif(task$nrow)))
+  task_w$set_col_roles("w", "weights_measure")
+
+  p = learner$train(task_w)$predict(task_w)
+  expect_prediction_cmprsk(p)
+  expect_numeric(p$weights, len = task_w$nrow, any.missing = FALSE)
+  expect_equal(p$weights, task_w$weights_measure$weight)
+
+  dt = as.data.table(p)
+  expect_data_table(dt, nrows = task_w$nrow, ncols = 5L)
+  expect_equal(dt$weights, p$weights)
+  p2 = as_prediction_cmprsk(dt)
+  expect_equal(p2$weights, p$weights)
+  p3 = as_prediction_cmprsk(list(row_ids = p$row_ids, truth = p$truth, cif = p$cif, weights = p$weights))
+  expect_equal(p3$weights, p$weights)
+
+  p$filter(c(20, 37, 42))
+  expect_equal(p$weights, task_w$weights_measure[list(c(20, 37, 42)), on = "row_id"]$weight)
+
+  pc = c(p, p)
+  expect_prediction_cmprsk(pc)
+  expect_equal(pc$weights, rep(p$weights, 2L))
+  pc = c(p, p, keep_duplicates = FALSE)
+  expect_equal(pc$weights, p$weights)
+
+  # mismatched weights length and mixing weighted/unweighted predictions are rejected
+  expect_error(
+    PredictionCompRisks$new(row_ids = p$row_ids, truth = p$truth, cif = p$cif, weights = 1),
+    "same length"
+  )
+  p_unweighted = PredictionCompRisks$new(row_ids = p$row_ids, truth = p$truth, cif = p$cif)
+  expect_error(c(p, p_unweighted), "others do not", class = "Mlr3ErrorInput")
+})
+
+test_that("extra data is supported", {
+  p = learner$train(task)$predict(task)
+  extra = list(score = seq_len(task$nrow), flag = rep(c(TRUE, FALSE), length.out = task$nrow))
+  pe = PredictionCompRisks$new(row_ids = p$row_ids, truth = p$truth, cif = p$cif, extra = extra)
+  expect_prediction_cmprsk(pe)
+  expect_equal(pe$extra, extra)
+
+  dt = as.data.table(pe)
+  expect_data_table(dt, nrows = task$nrow, ncols = 6L)
+  expect_equal(dt$score, extra$score)
+
+  pe$filter(c(20, 37, 42))
+  expect_equal(pe$extra$score, c(20L, 37L, 42L))
+  expect_equal(pe$extra$flag, extra$flag[c(20, 37, 42)])
+
+  pc = c(pe, pe)
+  expect_equal(pc$extra$score, rep(c(20L, 37L, 42L), 2L))
+  pc = c(pe, pe, keep_duplicates = FALSE)
+  expect_equal(pc$extra$score, c(20L, 37L, 42L))
+
+  expect_error(
+    PredictionCompRisks$new(row_ids = p$row_ids, truth = p$truth, cif = p$cif, extra = list(score = 1)),
+    "same length"
+  )
+  expect_error(c(pe, p), "others do not", class = "Mlr3ErrorInput")
+})
+
 test_that("prediction validation rejects invalid CIFs and causes", {
   truth = Surv(1:2, factor(1:2, levels = 0:2))
   cif = list(
