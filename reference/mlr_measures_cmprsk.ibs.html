@@ -312,10 +312,10 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 <span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.ibs </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  0.1036116 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># IBS up to the 80th percentile of test-set follow-up times</span></span></span>
-<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.ibs"</span>, t_quantile <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># IBS up to the 85th percentile of test-set follow-up times</span></span></span>
+<span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.ibs"</span>, t_quantile <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.ibs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1036116 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1076083 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># IBS over 20 equally spaced points up to the default 90th percentile</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.ibs"</span>, ntimes <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span><span class="op">)</span></span></span>

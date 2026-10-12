@@ -302,10 +302,10 @@ predictions$score(msr("cmprsk.ibs", t_max = 100))
 #> cmprsk.ibs 
 #>  0.1036116 
 
-# IBS up to the 80th percentile of test-set follow-up times
-predictions$score(msr("cmprsk.ibs", t_quantile = 0.8))
+# IBS up to the 85th percentile of test-set follow-up times
+predictions$score(msr("cmprsk.ibs", t_quantile = 0.85))
 #> cmprsk.ibs 
-#>  0.1036116 
+#>  0.1076083 
 
 # IBS over 20 equally spaced points up to the default 90th percentile
 predictions$score(msr("cmprsk.ibs", ntimes = 20L))
