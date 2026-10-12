@@ -54,7 +54,8 @@
 #' - `t_quantile` (`numeric(1)`|`NULL`)\cr
 #'  Quantile probability of observed test-set follow-up times used to determine
 #'  the upper integration horizon.
-#'  Default is `NULL`, which uses the 90th percentile.
+#'  Must be finite and between 0 and 1, inclusive.
+#'  Default is `NULL`, which uses the 90th percentile when `t_max` is also `NULL`.
 #'  Mutually exclusive with `t_max`.
 #'
 #' @template cmprsk_cause_weights
