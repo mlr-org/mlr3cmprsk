@@ -79,7 +79,7 @@ Rscript -e "devtools::check()"
 - Internal functions should not have roxygen documentation.
 - Always re-document the package after changing a roxygen2 comment.
 - Don’t hand-edit generated artifacts: `man/`, or `NAMESPACE`.
-- Never edit `README.md` directly -- it is generated from `README.Rmd`. Always edit `README.Rmd` and then run `rmarkdown::render("README.Rmd")` to regenerate `README.md`.
+- Never edit `README.md` directly -- it is generated from `README.Rmd`. Always edit `README.Rmd` and then run `devtools::build_readme()` to regenerate `README.md`.
 - When adding a new S3 method (such as `print.<ClassName>`), always run `devtools::document()` afterwards to re-generate the NAMESPACE.
 - Environment variables and options are documented in package-level documentation (typically `R/package.R`).
 - Roxygen templates live in `man-roxygen/`. Use `@template` to avoid duplicating common parameter descriptions.
