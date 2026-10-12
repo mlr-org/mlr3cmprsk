@@ -102,7 +102,7 @@ If you use `mlr3cmprsk` in your work, please cite it using the following
 BibTeX entry:
 
 ``` bibtex
-@Manual{,
+@Manual{mlr3cmprsk,
   title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
   author = {John Zobolas and Andreas Bender},
   year = {2026},

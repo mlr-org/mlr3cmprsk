@@ -90,7 +90,9 @@ If you use `mlr3cmprsk` in your work, please cite it using the following BibTeX 
 ```{r citation, echo = FALSE, results = "asis"}
 meta = as.list(read.dcf("DESCRIPTION")[1L, ])
 meta$Date = as.character(Sys.Date())
-cat("```bibtex\n", paste(toBibtex(citation(auto = meta)), collapse = "\n"), "\n```\n", sep = "")
+ref = citation(auto = meta)
+ref$key = meta$Package
+cat("```bibtex\n", paste(toBibtex(ref), collapse = "\n"), "\n```\n", sep = "")
 ```
 
 ## Code of Conduct
