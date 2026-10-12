@@ -314,7 +314,8 @@ predictions$score(msr("cmprsk.ibs", ntimes = 20L))
 # Define the integration grid in months
 times = seq(0, 100, by = 5)
 
-# IBS from 0 to 100 months on a 5-month grid, weighted by event frequencies
+# IBS from 0 to 100 months on a 5-month grid,
+# weighted by event frequencies
 predictions$score(msr("cmprsk.ibs", times = times))
 #> cmprsk.ibs 
 #>  0.1002826 

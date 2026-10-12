@@ -257,7 +257,8 @@ predictions$score(msr("cmprsk.auc"))
 #> cmprsk.auc 
 #>  0.8691053 
 
-# AUC at 100 months, weighted by event frequencies
+# AUC at 100 months,
+# weighted by event frequencies
 predictions$score(msr("cmprsk.auc", time = 100))
 #> cmprsk.auc 
 #>  0.8279221 
