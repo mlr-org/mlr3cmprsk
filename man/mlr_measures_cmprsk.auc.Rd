@@ -131,11 +131,11 @@ learner$native_model
 predictions = learner$predict(task, row_ids = part$test)
 predictions
 
-# AUC at the median observed test-set time, weighted by event frequencies
+# AUC at the median observed test-set time,
+# weighted by event frequencies
 predictions$score(msr("cmprsk.auc"))
 
-# AUC at 100 months,
-# weighted by event frequencies
+# AUC at 100 months, weighted by event frequencies
 predictions$score(msr("cmprsk.auc", time = 100))
 
 # AUC at 100 months, with equal weights for both causes
