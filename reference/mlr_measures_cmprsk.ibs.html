@@ -125,7 +125,8 @@ Mutually exclusive with <code>t_quantile</code>.</p></li>
 <li><p><code>t_quantile</code> (<code>numeric(1)</code>|<code>NULL</code>)<br>
 Quantile probability of observed test-set follow-up times used to determine
 the upper integration horizon.
-Default is <code>NULL</code>, which uses the 90th percentile.
+Must be finite and between 0 and 1, inclusive.
+Default is <code>NULL</code>, which uses the 90th percentile when <code>t_max</code> is also <code>NULL</code>.
 Mutually exclusive with <code>t_max</code>.</p></li>
 </ul></div>
     <div class="section level2">
@@ -153,29 +154,29 @@ non-finite scores.</p>
 
 
 
-<p>The integration grid determines the evaluation times for the IBS.
-Its largest time point is the <strong>effective integration horizon</strong>.
-The grid is the same for all causes.</p>
+<p>The integration grid contains the time points at which Brier scores are evaluated for numerical integration.
+Its largest time point is the <strong>upper integration horizon</strong>.
+All causes use the same grid, with their predicted CIFs interpolated to these times.</p>
 <p>If the user explicitly provides <code>times</code>, the supplied grid is used directly.
 Points beyond the maximum test-set follow-up are removed with a warning due to
 the limitations of <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score()</a></code>.
 At least two distinct evaluation times must remain.</p>
-<p>When <code>times = NULL</code> we construct a time grid consisting of <code>ntimes</code>
-equally spaced time points between time 0 and an upper time horizon.
-By default, the horizon is chosen as the time point corresponding to the
-<strong>90th percentile</strong> of observed follow-up times (including both events and
-censored observations) in the test set.
-The user can change that percentile with <code>t_quantile</code>, or specify a fixed
-horizon with <code>t_max</code>.
+<p>When <code>times = NULL</code>, the upper integration horizon is determined first.
+By default, it is the <strong>90th percentile</strong> of observed test-set follow-up times,
+including both events and censored observations.
+Set <code>t_quantile</code> to change the quantile probability (e.g., <code>0.8</code> for the 80th
+percentile), or supply <code>t_max</code> to specify the time horizon directly.
 If <code>t_max</code> exceeds the maximum test-set follow-up, it is reduced to that maximum
-to satisfy the restrictions of <code>riskRegression</code>, and a warning reports the effective horizon.
-In any case, the resulting integration grid will always have exactly <code>ntimes</code>
-points and its construction is completely independent of the time grids of the
-predicted CIFs (and therefore of the learners used to make these predictions).</p>
-<p>The choice for the default 90th percentile is for minimizing the influence of
-extreme evaluation times, which may cause <strong>CIF extrapolation</strong> (when the
-integration grid has times larger than the maximum anchor of the CIF time grid)
-and issues with <strong>large IPCW weights</strong>.</p>
+before constructing the grid, and a warning reports the effective horizon.</p>
+<p>The automatic grid is then generated and contains exactly <code>ntimes</code> equally
+spaced points from time 0 to the horizon, including both endpoints.
+Thus, the default grid consists of 100 points from 0 to the 90th percentile
+of test-set follow-up times.
+Note that the generated grid is completely independent of the time grids of
+the predicted CIFs.</p>
+<p>The default 90th percentile is chosen to limit evaluation at extreme follow-up
+times, where IPCW weights may be large or CIF extrapolation beyond the last
+predicted time point may be needed.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

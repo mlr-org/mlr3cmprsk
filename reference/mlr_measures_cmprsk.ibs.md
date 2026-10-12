@@ -105,8 +105,9 @@ with the associated sugar function
 
 - `t_quantile` (`numeric(1)`\|`NULL`)  
   Quantile probability of observed test-set follow-up times used to
-  determine the upper integration horizon. Default is `NULL`, which uses
-  the 90th percentile. Mutually exclusive with `t_max`.
+  determine the upper integration horizon. Must be finite and between 0
+  and 1, inclusive. Default is `NULL`, which uses the 90th percentile
+  when `t_max` is also `NULL`. Mutually exclusive with `t_max`.
 
 ## Cause weights
 
@@ -131,9 +132,10 @@ the causes with non-finite scores.
 
 ## Integration grid
 
-The integration grid determines the evaluation times for the IBS. Its
-largest time point is the **effective integration horizon**. The grid is
-the same for all causes.
+The integration grid contains the time points at which Brier scores are
+evaluated for numerical integration. Its largest time point is the
+**upper integration horizon**. All causes use the same grid, with their
+predicted CIFs interpolated to these times.
 
 If the user explicitly provides `times`, the supplied grid is used
 directly. Points beyond the maximum test-set follow-up are removed with
@@ -141,24 +143,24 @@ a warning due to the limitations of
 [`riskRegression::Score()`](https://rdrr.io/pkg/riskRegression/man/Score.html).
 At least two distinct evaluation times must remain.
 
-When `times = NULL` we construct a time grid consisting of `ntimes`
-equally spaced time points between time 0 and an upper time horizon. By
-default, the horizon is chosen as the time point corresponding to the
-**90th percentile** of observed follow-up times (including both events
-and censored observations) in the test set. The user can change that
-percentile with `t_quantile`, or specify a fixed horizon with `t_max`.
-If `t_max` exceeds the maximum test-set follow-up, it is reduced to that
-maximum to satisfy the restrictions of `riskRegression`, and a warning
-reports the effective horizon. In any case, the resulting integration
-grid will always have exactly `ntimes` points and its construction is
-completely independent of the time grids of the predicted CIFs (and
-therefore of the learners used to make these predictions).
+When `times = NULL`, the upper integration horizon is determined first.
+By default, it is the **90th percentile** of observed test-set follow-up
+times, including both events and censored observations. Set `t_quantile`
+to change the quantile probability (e.g., `0.8` for the 80th
+percentile), or supply `t_max` to specify the time horizon directly. If
+`t_max` exceeds the maximum test-set follow-up, it is reduced to that
+maximum before constructing the grid, and a warning reports the
+effective horizon.
 
-The choice for the default 90th percentile is for minimizing the
-influence of extreme evaluation times, which may cause **CIF
-extrapolation** (when the integration grid has times larger than the
-maximum anchor of the CIF time grid) and issues with **large IPCW
-weights**.
+The automatic grid is then generated and contains exactly `ntimes`
+equally spaced points from time 0 to the horizon, including both
+endpoints. Thus, the default grid consists of 100 points from 0 to the
+90th percentile of test-set follow-up times. Note that the generated
+grid is completely independent of the time grids of the predicted CIFs.
+
+The default 90th percentile is chosen to limit evaluation at extreme
+follow-up times, where IPCW weights may be large or CIF extrapolation
+beyond the last predicted time point may be needed.
 
 ## References
 
