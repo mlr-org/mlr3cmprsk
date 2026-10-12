@@ -75,21 +75,21 @@ All currently available measures use **cumulative incidence function
 the Integrated Brier Score (IBS) is the default measure for competing
 risks tasks.
 
-| ID                                                                                        | Measure                                | Category       | Prediction Type |
-|:------------------------------------------------------------------------------------------|:---------------------------------------|:---------------|:----------------|
-| [`cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.html)     | Integrated Brier score                 | Scoring Rule   | `cif`           |
-| [`cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.html) | Brier score at a specified time        | Scoring Rule   | `cif`           |
-| [`cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.html)     | Time-dependent AUC at a specified time | Discrimination | `cif`           |
+| ID | Measure | Category | Prediction Type |
+|:---|:---|:---|:---|
+| [`cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.html) | Integrated Brier score | Scoring Rule | `cif` |
+| [`cmprsk.brier`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.brier.html) | Brier score at a specified time | Scoring Rule | `cif` |
+| [`cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.html) | Time-dependent AUC at a specified time | Discrimination | `cif` |
 
 ## Learners
 
 The package includes two learners, both of which return CIF predictions
 for every cause.
 
-| ID                                                                                        | Learner                                 | Underlying Package    |
-|:------------------------------------------------------------------------------------------|:----------------------------------------|:----------------------|
-| [`cmprsk.aalen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.html) | Aalen-Johansen estimator                | `survival::survfit()` |
-| [`cmprsk.fg`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.html)       | Fine-Gray subdistribution hazards model | `cmprsk::crr()`       |
+| ID | Learner | Underlying Package |
+|:---|:---|:---|
+| [`cmprsk.aalen`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.aalen.html) | Aalen-Johansen estimator | `survival::survfit()` |
+| [`cmprsk.fg`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.html) | Fine-Gray subdistribution hazards model | `cmprsk::crr()` |
 
 For additional models, see the [available
 list](https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks-learners)
