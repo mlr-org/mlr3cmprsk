@@ -49,7 +49,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.7" id="mlr3cmprsk-007">mlr3cmprsk 0.0.7<a class="anchor" aria-label="anchor" href="#mlr3cmprsk-007"></a></h2>
-<ul><li>fix: <code><a href="../reference/as_prediction_cmprsk.html">as_prediction_cmprsk()</a></code> no longer converts a <code>data.frame</code> input to a <code>data.table</code> by reference.</li>
+<ul><li>fix: <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code> on <code>PredictionDataCompRisks</code> objects now preserves the <code>PredictionData</code> class, so the combined data works with <code><a href="https://mlr3.mlr-org.com/reference/as_prediction_data.html" class="external-link">as_prediction_data()</a></code> and other mlr3 generics.</li>
+<li>fix: <code><a href="../reference/as_prediction_cmprsk.html">as_prediction_cmprsk()</a></code> no longer converts a <code>data.frame</code> input to a <code>data.table</code> by reference.</li>
 <li>fix: <code><a href="../reference/as_task_cmprsk.html">as_task_cmprsk()</a></code> now derives the default task id with <code><a href="https://rdrr.io/r/base/deparse.html" class="external-link">deparse1()</a></code>, so multi-line input expressions no longer fail the id validation.</li>
 <li>fix: Unloading the package preserves unrelated hooks and tolerates dictionary entries that have already been removed.</li>
 <li>fix: <code>cmprsk.auc</code>, <code>cmprsk.brier</code>, and <code>cmprsk.ibs</code> now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return <code>NA</code> if no events are observed.</li>

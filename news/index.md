@@ -2,6 +2,11 @@
 
 ## mlr3cmprsk 0.0.7
 
+- fix: [`c()`](https://rdrr.io/r/base/c.html) on
+  `PredictionDataCompRisks` objects now preserves the `PredictionData`
+  class, so the combined data works with
+  [`as_prediction_data()`](https://mlr3.mlr-org.com/reference/as_prediction_data.html)
+  and other mlr3 generics.
 - fix:
   [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
   no longer converts a `data.frame` input to a `data.table` by
