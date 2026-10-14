@@ -15,7 +15,7 @@ Predefined measures can be found in the
 ## See also
 
 Default competing risks measure:
-[`cmprsk.auc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.auc.md)
+[`cmprsk.ibs`](https://mlr3cmprsk.mlr-org.com/reference/mlr_measures_cmprsk.ibs.md)
 
 ## Super class
 
