@@ -37,6 +37,7 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
 
   if (!is.null(pdata$extra)) {
     assert_list(pdata$extra, names = "unique")
+    assert_names(names(pdata$extra), disjunct.from = c("row_ids", "time", "event", "CIF", "weights"))
     if (any(lengths(pdata$extra) != n_obs)) {
       error_learner_predict("Extra data must have the same length as the number of predictions")
     }

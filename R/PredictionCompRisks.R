@@ -84,6 +84,7 @@ PredictionCompRisks = R6Class(
     #' @param extra (`list()`)\cr
     #'   Optional named list of additional per-observation data returned by a learner.
     #'   Each element must have the same length as `row_ids`.
+    #'   Names must not be `row_ids`, `time`, `event`, `CIF`, or `weights`, which are reserved prediction columns.
     #'
     #' @param check (`logical(1)`)\cr
     #'   If `TRUE`, performs argument checks.
