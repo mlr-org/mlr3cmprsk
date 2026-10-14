@@ -1,5 +1,6 @@
 # mlr3cmprsk 0.0.7
 
+* fix: `as_prediction_cmprsk()` no longer converts a `data.frame` input to a `data.table` by reference.
 * fix: `as_task_cmprsk()` now derives the default task id with `deparse1()`, so multi-line input expressions no longer fail the id validation.
 * fix: Unloading the package preserves unrelated hooks and tolerates dictionary entries that have already been removed.
 * fix: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return `NA` if no events are observed.
