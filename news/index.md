@@ -3,6 +3,10 @@
 ## mlr3cmprsk 0.0.7
 
 - fix:
+  [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+  no longer converts a `data.frame` input to a `data.table` by
+  reference.
+- fix:
   [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
   now derives the default task id with
   [`deparse1()`](https://rdrr.io/r/base/deparse.html), so multi-line
