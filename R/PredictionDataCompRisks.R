@@ -87,7 +87,7 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
     result$cif = merged_cifs
   }
 
-  set_class(result, "PredictionDataCompRisks")
+  set_class(result, c("PredictionDataCompRisks", "PredictionData"))
 }
 
 #' @export
