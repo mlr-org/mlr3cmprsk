@@ -3,18 +3,21 @@
 #' @description
 #' Convert object to a [PredictionCompRisks].
 #' An existing [PredictionCompRisks] is returned unchanged.
-#' Use [mlr3::as_prediction()] to convert its internal `PredictionDataCompRisks` data.
+#' See Details for requirements on `list` and `data.frame` inputs.
+#'
+#' Use [mlr3::as_prediction()] to convert the internal `PredictionDataCompRisks` data to a [PredictionCompRisks] object.
 #'
 #' @details
-#' A named `list` must contain `row_ids`, `truth`, and `cif`, and may contain `weights` and `extra`.
+#' If `x` is a named `list`, it must contain `row_ids`, `truth`, and `cif`.
+#' The `weights` and `extra` elements are optional.
 #' These elements are passed to the [PredictionCompRisks] constructor and
 #' validated there (using `check = TRUE` by default).
-#' The `cif` element must be a nonempty list of matrices, with one matrix for every task cause.
-#' This requirement also applies to internal prediction data of `PredictionDataCompRisks` class.
+#' The `cif` element must be a nonempty list of matrices, with one matrix for every task competing cause.
+#' This requirement also applies to the internal prediction data of `PredictionDataCompRisks` class.
 #'
 #' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
-#' - Cols `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
-#' - An optional col `weights` holds measurement weights.
+#' - Columns `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
+#' - An optional column `weights` may hold measurement weights.
 #' - The per-observation `CIF` object must be a named list of numeric vectors
 #' (one per cause), with names exactly `"1"`, `"2"`, ..., `"K"`, in that order
 #' (where `K` is the number of competing risks).
