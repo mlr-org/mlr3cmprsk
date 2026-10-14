@@ -56,6 +56,23 @@ test_that("TaskCompRisks methods work", {
   expect_equal(task$cens_prop(), 0)
 })
 
+test_that("construction works with any DataBackend", {
+  task = tsk("pbc")
+  task$select(c("age", "sex"))
+  # `$cbind()` wraps the backend in a `DataBackendCbind`
+  task$cbind(data.frame(extra = runif(task$nrow)))
+  backend = task$backend
+  expect_class(backend, "DataBackendCbind")
+
+  task2 = TaskCompRisks$new(id = "cbind", backend = backend, time = "time", event = "status")
+  expect_task_cmprsk(task2)
+  expect_equal(task2$cmp_events, task$cmp_events)
+  expect_equal(task2$event(), task$event())
+  expect_true("extra" %in% task2$feature_names)
+
+  expect_error(TaskCompRisks$new(id = "cbind", backend = backend, time = "time", event = "foo"), "foo")
+})
+
 test_that("as_task_cmprsk", {
   # events must be coded as 1, 2, ..., K (censoring (0) is not needed)
   expect_error(

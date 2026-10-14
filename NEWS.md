@@ -1,5 +1,6 @@
 # mlr3cmprsk 0.0.7
 
+* fix: `TaskCompRisks` now reads the event column through the public `DataBackend` interface, so tasks can be constructed from any backend, such as `DataBackendCbind`.
 * fix: `c()` on `PredictionDataCompRisks` objects now preserves the `PredictionData` class, so the combined data works with `as_prediction_data()` and other mlr3 generics.
 * fix: `as_prediction_cmprsk()` no longer converts a `data.frame` input to a `data.table` by reference.
 * fix: `as_task_cmprsk()` now derives the default task id with `deparse1()`, so multi-line input expressions no longer fail the id validation.
