@@ -45,6 +45,23 @@ non-homogeneous Markov chains based on censored observations.”
 
 ## See also
 
+- Chapter in the [mlr3book](https://mlr3book.mlr-org.com/):
+  <https://mlr3book.mlr-org.com/chapters/chapter2/data_and_basic_modeling.html#sec-learners>
+
+- [Dictionary](https://mlr3misc.mlr-org.com/reference/Dictionary.html)
+  of [Learners](https://mlr3.mlr-org.com/reference/Learner.html):
+  [mlr3::mlr_learners](https://mlr3.mlr-org.com/reference/mlr_learners.html)
+
+- `as.data.table(mlr_learners)` for a table of available
+  [Learners](https://mlr3.mlr-org.com/reference/Learner.html) in the
+  running session
+
+- [mlr3pipelines](https://CRAN.R-project.org/package=mlr3pipelines) to
+  combine learners with pre- and postprocessing steps
+
+- [mlr3tuning](https://CRAN.R-project.org/package=mlr3tuning) for tuning
+  of hyperparameters
+
 Other competing risk learners:
 [`mlr_learners_cmprsk.fg`](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
 
