@@ -88,6 +88,7 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
     result[[elem]] = do.call(c, map(dots, elem))[ii]
   }
 
+  # combine `extra` (list of named lists) by row-binding
   if ("extra" %in% names(dots[[1L]])) {
     extra = rbindlist(map(dots, "extra"), fill = TRUE, use.names = TRUE)
     result$extra = as.list(extra[ii])
