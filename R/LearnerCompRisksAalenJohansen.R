@@ -2,6 +2,7 @@
 #' @name mlr_learners_cmprsk.aalen
 #' @templateVar learner_id cmprsk.aalen
 #' @template cmprsk_learner
+#' @template seealso_learner
 #'
 #' @description
 #' This learner estimates the Cumulative Incidence Function (CIF) for competing
