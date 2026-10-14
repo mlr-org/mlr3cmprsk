@@ -17,12 +17,12 @@ Source:
 
 Zobolas J, Bender A (2026). *mlr3cmprsk: Competing Risks Machine
 Learning for 'mlr3'*. R package version 0.0.7,
-<https://github.com/mlr-org/mlr3cmprsk>.
+<https://mlr3cmprsk.mlr-org.com>.
 
     @Manual{,
       title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
       author = {John Zobolas and Andreas Bender},
       year = {2026},
       note = {R package version 0.0.7},
-      url = {https://github.com/mlr-org/mlr3cmprsk},
+      url = {https://mlr3cmprsk.mlr-org.com},
     }
