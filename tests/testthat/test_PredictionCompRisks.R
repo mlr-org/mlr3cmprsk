@@ -76,6 +76,8 @@ test_that("data.table/frame roundtrip", {
   dt_df = as.data.frame(dt)
   p3 = as_prediction_cmprsk(dt_df)
   expect_prediction_cmprsk(p3)
+  # the caller's data.frame is not converted to a data.table by reference
+  expect_identical(class(dt_df), "data.frame")
 })
 
 test_that("named lists convert to predictions with validation", {

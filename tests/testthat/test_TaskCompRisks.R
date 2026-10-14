@@ -77,6 +77,18 @@ test_that("as_task_cmprsk", {
     )
   )
 
+  # default id is derived from the input expression, also for multi-line expressions
+  df = data.frame(time = c(1, 2), event = c(1, 2))
+  expect_equal(as_task_cmprsk(df)$id, "df")
+  expect_equal(as_task_cmprsk(as_data_backend(df))$id, "as_data_backend(df)")
+  task = as_task_cmprsk(data.frame(
+    time = c(1, 2),
+    event = c(1, 2),
+    a_long_feature_name_to_force_line_breaks = c(1, 2),
+    another_long_feature_name_to_force_line_breaks = c(3, 4)
+  ))
+  expect_string(task$id)
+
   # Deep-cloning: changing one task, doesn't change the other
   t1 = tsk("pbc")
   t2 = as_task_cmprsk(t1, clone = TRUE)

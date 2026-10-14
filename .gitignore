@@ -186,3 +186,9 @@ revdep/
 .posit/*
 
 attic/*
+
+# AI
+.claude/settings.local.json
+.claude/worktrees
+.yolobox.toml
+AGENTS.d/yolobox.md
