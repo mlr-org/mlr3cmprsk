@@ -77,14 +77,16 @@ register_mlr3cmprsk = function() {
   x$learner_properties$cmprsk = x$learner_properties$regr
   x$learner_predict_types$cmprsk = list(cif = "cif")
 
-  # dictionary
-  register_namespace_callback(pkgname, "mlr3", register_mlr3cmprsk)
+  # mlr3 is an imported dependency, so its dictionaries are already available
+  # Direct registration avoids unloading callbacks that inspect unrelated IDE or package hooks
+  register_mlr3cmprsk()
 }
 
 .onUnload = function(libpath) {
-  walk(names(learners), function(id) mlr_learners$remove(id))
-  walk(names(measures), function(id) mlr_measures$remove(id))
-  walk(names(tasks), function(id) mlr_tasks$remove(id))
+  # Another cleanup may have already removed shared dictionary entries
+  walk(intersect(names(learners), mlr_learners$keys()), function(id) mlr_learners$remove(id))
+  walk(intersect(names(measures), mlr_measures$keys()), function(id) mlr_measures$remove(id))
+  walk(intersect(names(tasks), mlr_tasks$keys()), function(id) mlr_tasks$remove(id))
 
   # reflections
   x = utils::getFromNamespace("mlr_reflections", ns = "mlr3")

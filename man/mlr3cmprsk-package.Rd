@@ -41,6 +41,7 @@ Useful links:
 Authors:
 \itemize{
   \item John Zobolas \email{bblodfon@gmail.com} (\href{https://orcid.org/0000-0002-3609-8674}{ORCID})
+  \item Andreas Bender \email{bender.andreas@lmu.de} (\href{https://orcid.org/0000-0001-5628-8611}{ORCID})
 }
 
 Other contributors:
