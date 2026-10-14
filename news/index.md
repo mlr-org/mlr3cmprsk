@@ -2,6 +2,9 @@
 
 ## mlr3cmprsk 0.0.7
 
+- fix: `TaskCompRisks` now reads the event column through the public
+  `DataBackend` interface, so tasks can be constructed from any backend,
+  such as `DataBackendCbind`.
 - fix: [`c()`](https://rdrr.io/r/base/c.html) on
   `PredictionDataCompRisks` objects now preserves the `PredictionData`
   class, so the combined data works with
