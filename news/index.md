@@ -2,6 +2,11 @@
 
 ## mlr3cmprsk 0.0.7
 
+- fix:
+  [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
+  now derives the default task id with
+  [`deparse1()`](https://rdrr.io/r/base/deparse.html), so multi-line
+  input expressions no longer fail the id validation.
 - fix: Unloading the package preserves unrelated hooks and tolerates
   dictionary entries that have already been removed.
 - fix: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now resolve cause

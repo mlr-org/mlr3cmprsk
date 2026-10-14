@@ -16,7 +16,7 @@ as_task_cmprsk(
   x,
   time = "time",
   event = "event",
-  id = deparse(substitute(x)),
+  id = deparse1(substitute(x)),
   ...
 )
 
@@ -25,7 +25,7 @@ as_task_cmprsk(
   x,
   time = "time",
   event = "event",
-  id = deparse(substitute(x)),
+  id = deparse1(substitute(x)),
   ...
 )
 ```
