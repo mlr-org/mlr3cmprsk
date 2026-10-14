@@ -24,7 +24,7 @@
 #'
 #' @family Measure
 #' @seealso
-#' Default competing risks measure: [`cmprsk.auc`][mlr_measures_cmprsk.auc]
+#' Default competing risks measure: [`cmprsk.ibs`][mlr_measures_cmprsk.ibs]
 #' @export
 MeasureCompRisks = R6Class(
   "MeasureCompRisks",
