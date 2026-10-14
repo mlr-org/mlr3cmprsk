@@ -24,7 +24,11 @@
 ^CRAN-SUBMISSION$
 ^CODE_OF_CONDUCT\.md$
 ^AGENTS\.md$
+^CLAUDE\.md$
 ^attic$
 ^cspell\.json$
-^extra-rules$
+^AGENTS\.d$
 ^[.]?air[.]toml$
+^\.claude$
+^\.codex$
+^tools$

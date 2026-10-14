@@ -55,6 +55,12 @@ test_that("combining predictions", {
   # row ids are correctly combined
   dt = as.data.table(pred)
   expect_equal(dt$row_ids, c(p[[1]]$row_ids, p[[2]]$row_ids, p[[3]]$row_ids))
+
+  # combined prediction data keeps both classes, so mlr3 generics dispatch on it
+  pdata = c(p[[1L]]$data, p[[2L]]$data)
+  expect_class(pdata, c("PredictionDataCompRisks", "PredictionData"))
+  expect_class(as_prediction_data(pdata), c("PredictionDataCompRisks", "PredictionData"))
+  expect_prediction_cmprsk(as_prediction(pdata))
 })
 
 test_that("data.table/frame roundtrip", {
@@ -70,6 +76,8 @@ test_that("data.table/frame roundtrip", {
   dt_df = as.data.frame(dt)
   p3 = as_prediction_cmprsk(dt_df)
   expect_prediction_cmprsk(p3)
+  # the caller's data.frame is not converted to a data.table by reference
+  expect_identical(class(dt_df), "data.frame")
 })
 
 test_that("named lists convert to predictions with validation", {

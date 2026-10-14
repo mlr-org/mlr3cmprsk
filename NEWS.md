@@ -1,6 +1,11 @@
 # mlr3cmprsk 0.0.7
 
 * fix: `PredictionCompRisks` now supports measurement weights (task column role `weights_measure`) and `extra` learner data, so `$predict()` no longer fails on tasks with measurement weights. Both are kept when filtering, combining, and converting predictions to a `data.table`.
+* fix: `TaskCompRisks` now reads the event column through the public `DataBackend` interface, so tasks can be constructed from any backend, such as `DataBackendCbind`.
+* fix: `c()` on `PredictionDataCompRisks` objects now preserves the `PredictionData` class, so the combined data works with `as_prediction_data()` and other mlr3 generics.
+* fix: `as_prediction_cmprsk()` no longer converts a `data.frame` input to a `data.table` by reference.
+* fix: `as_task_cmprsk()` now derives the default task id with `deparse1()`, so multi-line input expressions no longer fail the id validation.
+* fix: Unloading the package preserves unrelated hooks and tolerates dictionary entries that have already been removed.
 * fix: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now resolve cause weights before scoring and skip zero-weight causes. Event-frequency weights warn for absent causes and return `NA` if no events are observed.
 * feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` now identify the affected causes when warning about non-finite scores.
 * feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` can now warn when scoring requires constant CIF extrapolation after a cause's final prediction anchor.

@@ -103,8 +103,8 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
   })
   cif = set_names(mat_list, cmp_event_ids)
 
-  # we need to convert here, because if `x` is a data.frame, `with = FALSE` below does not work!
-  setDT(x)
+  # convert a copy, so that a data.frame passed by the caller is not modified by reference
+  x = as.data.table(x)
   x_subset = x[, setdiff(names(x), c("time", "event", "CIF")), with = FALSE]
 
   invoke(

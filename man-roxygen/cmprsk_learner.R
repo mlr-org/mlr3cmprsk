@@ -15,4 +15,3 @@
 #' @md
 #'
 #' @family competing risk learners
-#' @template seealso_learner
