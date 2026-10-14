@@ -92,6 +92,15 @@ Fine, P J, Gray, J R (1999).
 \doi{10.1080/01621459.1999.10474144}.
 }
 \seealso{
+\itemize{
+\item Chapter in the \href{https://mlr3book.mlr-org.com/}{mlr3book}:
+\url{https://mlr3book.mlr-org.com/chapters/chapter2/data_and_basic_modeling.html#sec-learners}
+\item \link[mlr3misc:Dictionary]{Dictionary} of \link[mlr3:Learner]{Learners}: \link[mlr3:mlr_learners]{mlr3::mlr_learners}
+\item \code{as.data.table(mlr_learners)} for a table of available \link[mlr3:Learner]{Learners} in the running session
+\item \CRANpkg{mlr3pipelines} to combine learners with pre- and postprocessing steps
+\item \CRANpkg{mlr3tuning} for tuning of hyperparameters
+}
+
 Other competing risk learners:
 \code{\link{mlr_learners_cmprsk.aalen}}
 }

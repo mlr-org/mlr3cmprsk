@@ -2,6 +2,7 @@
 #' @name mlr_learners_cmprsk.fg
 #' @templateVar learner_id cmprsk.fg
 #' @template cmprsk_learner
+#' @template seealso_learner
 #'
 #' @description
 #' Fine-Gray subdistribution hazards model for competing risks using
