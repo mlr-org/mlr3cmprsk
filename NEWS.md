@@ -1,5 +1,6 @@
 # mlr3cmprsk 0.0.7
 
+* fix: `as_prediction_cmprsk()` now errors when per-observation CIF vectors of the same cause differ in length or time names, instead of silently recycling values.
 * fix: `PredictionCompRisks` now supports measurement weights (task column role `weights_measure`) and `extra` learner data, so `$predict()` no longer fails on tasks with measurement weights. Both are kept when filtering, combining, and converting predictions to a `data.table`.
 * fix: `TaskCompRisks` now reads the event column through the public `DataBackend` interface, so tasks can be constructed from any backend, such as `DataBackendCbind`.
 * fix: `c()` on `PredictionDataCompRisks` objects now preserves the `PredictionData` class, so the combined data works with `as_prediction_data()` and other mlr3 generics.
