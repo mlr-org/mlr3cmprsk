@@ -2,6 +2,11 @@
 
 ## mlr3cmprsk 0.0.7
 
+- fix: `PredictionCompRisks` now supports measurement weights (task
+  column role `weights_measure`) and `extra` learner data, so
+  `$predict()` no longer fails on tasks with measurement weights. Both
+  are kept when filtering, combining, and converting predictions to a
+  `data.table`.
 - fix: `TaskCompRisks` now reads the event column through the public
   `DataBackend` interface, so tasks can be constructed from any backend,
   such as `DataBackendCbind`.

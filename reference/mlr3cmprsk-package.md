@@ -27,6 +27,8 @@ package-wide.
 
 Useful links:
 
+- <https://mlr3cmprsk.mlr-org.com>
+
 - <https://github.com/mlr-org/mlr3cmprsk>
 
 - Report bugs at <https://github.com/mlr-org/mlr3cmprsk/issues>

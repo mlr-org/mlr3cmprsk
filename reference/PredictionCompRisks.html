@@ -117,6 +117,8 @@ Access the stored CIFs.</p></dd>
 <span>  row_ids <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="va">row_ids</span>,</span>
 <span>  truth <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="fu">truth</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">cif</span>,</span>
+<span>  weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  extra <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  check <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -142,6 +144,17 @@ Each matrix represents a different competing event (or cause) and stores the
 In each matrix, rows represent observations and columns time points.
 The names of the <code>list</code> must correspond to the cause names in the <code>truth</code>
 object, i.e. <code>"1"</code>, <code>"2"</code>, ..., <code>"K"</code>, exactly in that order.</p></dd>
+
+      <dt><code>weights</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric()</a></code>)<br>
+Optional measurement weights for the predicted observations, as supplied by a task with
+column role <code>"weights_measure"</code>.</p></dd>
+
+      <dt><code>extra</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
+Optional named list of additional per-observation data returned by a learner.
+Each element must have the same length as <code>row_ids</code>.
+Names must not be <code>row_ids</code>, <code>time</code>, <code>event</code>, <code>CIF</code>, or <code>weights</code>, which are reserved prediction columns.</p></dd>
 
       <dt><code>check</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>

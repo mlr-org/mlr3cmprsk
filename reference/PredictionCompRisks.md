@@ -65,6 +65,8 @@ Creates a new instance of this
       row_ids = task$row_ids,
       truth = task$truth(),
       cif,
+      weights = NULL,
+      extra = NULL,
       check = TRUE
     )
 
@@ -96,6 +98,20 @@ Creates a new instance of this
   matrix, rows represent observations and columns time points. The names
   of the `list` must correspond to the cause names in the `truth`
   object, i.e. `"1"`, `"2"`, ..., `"K"`, exactly in that order.
+
+- `weights`:
+
+  ([`numeric()`](https://rdrr.io/r/base/numeric.html))  
+  Optional measurement weights for the predicted observations, as
+  supplied by a task with column role `"weights_measure"`.
+
+- `extra`:
+
+  ([`list()`](https://rdrr.io/r/base/list.html))  
+  Optional named list of additional per-observation data returned by a
+  learner. Each element must have the same length as `row_ids`. Names
+  must not be `row_ids`, `time`, `event`, `CIF`, or `weights`, which are
+  reserved prediction columns.
 
 - `check`:
 

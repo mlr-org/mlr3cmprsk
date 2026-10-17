@@ -49,7 +49,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.7" id="mlr3cmprsk-007">mlr3cmprsk 0.0.7<a class="anchor" aria-label="anchor" href="#mlr3cmprsk-007"></a></h2>
-<ul><li>fix: <code>TaskCompRisks</code> now reads the event column through the public <code>DataBackend</code> interface, so tasks can be constructed from any backend, such as <code>DataBackendCbind</code>.</li>
+<ul><li>fix: <code>PredictionCompRisks</code> now supports measurement weights (task column role <code>weights_measure</code>) and <code>extra</code> learner data, so <code>$predict()</code> no longer fails on tasks with measurement weights. Both are kept when filtering, combining, and converting predictions to a <code>data.table</code>.</li>
+<li>fix: <code>TaskCompRisks</code> now reads the event column through the public <code>DataBackend</code> interface, so tasks can be constructed from any backend, such as <code>DataBackendCbind</code>.</li>
 <li>fix: <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code> on <code>PredictionDataCompRisks</code> objects now preserves the <code>PredictionData</code> class, so the combined data works with <code><a href="https://mlr3.mlr-org.com/reference/as_prediction_data.html" class="external-link">as_prediction_data()</a></code> and other mlr3 generics.</li>
 <li>fix: <code><a href="../reference/as_prediction_cmprsk.html">as_prediction_cmprsk()</a></code> no longer converts a <code>data.frame</code> input to a <code>data.table</code> by reference.</li>
 <li>fix: <code><a href="../reference/as_task_cmprsk.html">as_task_cmprsk()</a></code> now derives the default task id with <code><a href="https://rdrr.io/r/base/deparse.html" class="external-link">deparse1()</a></code>, so multi-line input expressions no longer fail the id validation.</li>
