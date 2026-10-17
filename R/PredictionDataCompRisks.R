@@ -28,6 +28,21 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
     }
   }
 
+  if (!is.null(pdata$weights)) {
+    pdata$weights = assert_numeric(unname(pdata$weights), any.missing = FALSE)
+    if (length(pdata$weights) != n_obs) {
+      error_learner_predict("Weights must have the same length as the number of predictions")
+    }
+  }
+
+  if (!is.null(pdata$extra)) {
+    assert_list(pdata$extra, names = "unique")
+    assert_names(names(pdata$extra), disjunct.from = c("row_ids", "time", "event", "CIF", "weights"))
+    if (any(lengths(pdata$extra) != n_obs)) {
+      error_learner_predict("Extra data must have the same length as the number of predictions")
+    }
+  }
+
   pdata
 }
 
@@ -54,17 +69,30 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
     error_input("Cannot combine predictions: Different prediction types")
   }
 
+  if (length(unique(map_lgl(dots, function(x) is.null(x$weights)))) > 1L) {
+    error_input("Cannot combine predictions: Some predictions have weights, others do not")
+  }
+
+  if (length(unique(map_lgl(dots, function(x) is.null(x$extra)))) > 1L) {
+    error_input("Cannot combine predictions: Some predictions have extra data, others do not")
+  }
+
   predict_types = predict_types[[1L]]
   row_ids = do.call(c, map(dots, "row_ids"))
   # row ids to keep (default => all)
   ii = if (keep_duplicates) seq_along(row_ids) else which(!duplicated(row_ids, fromLast = TRUE))
 
-  # combine `truth` and `row_ids` (easy to combine via `c`)
-  elems = c("row_ids", "truth")
+  # combine `row_ids`, `truth`, and `weights` (easy to combine via `c`)
+  elems = c("row_ids", "truth", if ("weights" %in% names(dots[[1L]])) "weights")
   result = named_list(elems)
-  result$row_ids = row_ids[ii]
   for (elem in elems) {
     result[[elem]] = do.call(c, map(dots, elem))[ii]
+  }
+
+  # combine `extra` (list of named lists) by row-binding
+  if ("extra" %in% names(dots[[1L]])) {
+    extra = rbindlist(map(dots, "extra"), fill = TRUE, use.names = TRUE)
+    result$extra = as.list(extra[ii])
   }
 
   # combine CIFs (list of matrices) for each cause
@@ -99,6 +127,14 @@ filter_prediction_data.PredictionDataCompRisks = function(pdata, row_ids, ...) {
   if (!is.null(pdata$cif)) {
     # simply keep the observations (rows) in each CIF matrix
     pdata$cif = lapply(pdata$cif, function(mat) mat[keep, , drop = FALSE])
+  }
+
+  if (!is.null(pdata$weights)) {
+    pdata$weights = pdata$weights[keep]
+  }
+
+  if (!is.null(pdata$extra)) {
+    pdata$extra = map(pdata$extra, function(x) x[keep])
   }
 
   pdata

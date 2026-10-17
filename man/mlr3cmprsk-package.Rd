@@ -30,6 +30,7 @@ Enable by using \code{options(mlr3cmprsk.warn_cif_extrapolation = TRUE)}.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://mlr3cmprsk.mlr-org.com}
   \item \url{https://github.com/mlr-org/mlr3cmprsk}
   \item Report bugs at \url{https://github.com/mlr-org/mlr3cmprsk/issues}
 }
