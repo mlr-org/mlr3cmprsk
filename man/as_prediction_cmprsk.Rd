@@ -36,18 +36,24 @@ With \code{FALSE}, correct behavior is not guaranteed if the input is invalid.}
 \description{
 Convert object to a \link{PredictionCompRisks}.
 An existing \link{PredictionCompRisks} is returned unchanged.
-Use \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}} to convert its internal \code{PredictionDataCompRisks} data.
+See Details for requirements on \code{list} and \code{data.frame} inputs.
+
+Use \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}} to convert the internal \code{PredictionDataCompRisks} data to a \link{PredictionCompRisks} object.
 }
 \details{
-A named \code{list} must contain \code{row_ids}, \code{truth}, and \code{cif}.
+If \code{x} is a named \code{list}, it must contain \code{row_ids}, \code{truth}, and \code{cif}.
+The \code{weights} and \code{extra} elements are optional.
 These elements are passed to the \link{PredictionCompRisks} constructor and
 validated there (using \code{check = TRUE} by default).
-The \code{cif} element must be a nonempty list of matrices, with one matrix for every task cause.
-This requirement also applies to internal prediction data of \code{PredictionDataCompRisks} class.
+The \code{cif} element must be a nonempty list of matrices, with one matrix for every task competing cause.
+This requirement also applies to the internal prediction data of \code{PredictionDataCompRisks} class.
 
 If \code{x} is a \code{data.frame}/\code{data.table} input, the following requirements must be met:
 \itemize{
-\item Cols \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
+\item Columns \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
+\item An optional column \code{weights} may hold measurement weights.
+\item All other columns are stored as \code{extra} data.
+Column names must be unique.
 \item The per-observation \code{CIF} object must be a named list of numeric vectors
 (one per cause), with names exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order
 (where \code{K} is the number of competing risks).

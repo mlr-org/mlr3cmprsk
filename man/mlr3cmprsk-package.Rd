@@ -30,6 +30,7 @@ Enable by using \code{options(mlr3cmprsk.warn_cif_extrapolation = TRUE)}.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://mlr3cmprsk.mlr-org.com}
   \item \url{https://github.com/mlr-org/mlr3cmprsk}
   \item Report bugs at \url{https://github.com/mlr-org/mlr3cmprsk/issues}
 }
@@ -41,6 +42,7 @@ Useful links:
 Authors:
 \itemize{
   \item John Zobolas \email{bblodfon@gmail.com} (\href{https://orcid.org/0000-0002-3609-8674}{ORCID})
+  \item Andreas Bender \email{bender.andreas@lmu.de} (\href{https://orcid.org/0000-0001-5628-8611}{ORCID})
 }
 
 Other contributors:
