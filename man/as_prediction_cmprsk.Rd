@@ -52,6 +52,8 @@ If \code{x} is a \code{data.frame}/\code{data.table} input, the following requir
 \itemize{
 \item Columns \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
 \item An optional column \code{weights} may hold measurement weights.
+\item All other columns are stored as \code{extra} data.
+Column names must be unique.
 \item The per-observation \code{CIF} object must be a named list of numeric vectors
 (one per cause), with names exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order
 (where \code{K} is the number of competing risks).

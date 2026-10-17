@@ -109,7 +109,8 @@ Optional measurement weights for the predicted observations, as supplied by a ta
 column role \code{"weights_measure"}.}
       \item{\code{extra}}{(\code{list()})\cr
 Optional named list of additional per-observation data returned by a learner.
-Each element must have the same length as \code{row_ids}.}
+Each element must have the same length as \code{row_ids}.
+Names must not be \code{row_ids}, \code{time}, \code{event}, \code{CIF}, or \code{weights}, which are reserved prediction columns.}
       \item{\code{check}}{(\code{logical(1)})\cr
 If \code{TRUE}, performs argument checks.
 Use \code{TRUE} for user-supplied data.
