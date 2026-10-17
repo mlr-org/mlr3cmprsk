@@ -31,9 +31,11 @@ as_task_cmprsk.data.frame = function(
   x,
   time = "time",
   event = "event",
-  id = deparse(substitute(x)),
+  id = deparse1(substitute(x)),
   ...
 ) {
+  force(id)
+
   assert_data_frame(x, min.rows = 1L, min.cols = 2L, col.names = "unique")
 
   ii = which(map_lgl(keep(x, is.double), anyInfinite))
@@ -53,8 +55,10 @@ as_task_cmprsk.DataBackend = function(
   x,
   time = "time",
   event = "event",
-  id = deparse(substitute(x)),
+  id = deparse1(substitute(x)),
   ...
 ) {
+  force(id)
+
   TaskCompRisks$new(id = id, backend = x, time = time, event = event, ...)
 }

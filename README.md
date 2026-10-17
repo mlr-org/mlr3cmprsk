@@ -96,6 +96,24 @@ list](https://mlr3extralearners.mlr-org.com/reference/index.html#competing-risks
 in `mlr3extralearners`, including CoxBoost (`cmprsk.coxboost`) and
 random forests (`cmprsk.rfsrc`).
 
+We welcome contributions and pull requests to add new competing risks
+learners in `mlr3extralearners`.
+
+## Citation
+
+If you use `mlr3cmprsk` in your work, please cite it using the following
+BibTeX entry:
+
+``` bibtex
+@Manual{mlr3cmprsk,
+  title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
+  author = {John Zobolas and Andreas Bender},
+  year = {2026},
+  note = {R package version 0.0.7, https://github.com/mlr-org/mlr3cmprsk},
+  url = {https://mlr3cmprsk.mlr-org.com},
+}
+```
+
 ## Code of Conduct
 
 This project follows a [Contributor Code of

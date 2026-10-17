@@ -3,17 +3,23 @@
 #' @description
 #' Convert object to a [PredictionCompRisks].
 #' An existing [PredictionCompRisks] is returned unchanged.
-#' Use [mlr3::as_prediction()] to convert its internal `PredictionDataCompRisks` data.
+#' See Details for requirements on `list` and `data.frame` inputs.
+#'
+#' Use [mlr3::as_prediction()] to convert the internal `PredictionDataCompRisks` data to a [PredictionCompRisks] object.
 #'
 #' @details
-#' A named `list` must contain `row_ids`, `truth`, and `cif`.
+#' If `x` is a named `list`, it must contain `row_ids`, `truth`, and `cif`.
+#' The `weights` and `extra` elements are optional.
 #' These elements are passed to the [PredictionCompRisks] constructor and
 #' validated there (using `check = TRUE` by default).
-#' The `cif` element must be a nonempty list of matrices, with one matrix for every task cause.
-#' This requirement also applies to internal prediction data of `PredictionDataCompRisks` class.
+#' The `cif` element must be a nonempty list of matrices, with one matrix for every task competing cause.
+#' This requirement also applies to the internal prediction data of `PredictionDataCompRisks` class.
 #'
 #' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
-#' - Cols `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
+#' - Columns `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
+#' - An optional column `weights` may hold measurement weights.
+#' - All other columns are stored as `extra` data.
+#' Column names must be unique.
 #' - The per-observation `CIF` object must be a named list of numeric vectors
 #' (one per cause), with names exactly `"1"`, `"2"`, ..., `"K"`, in that order
 #' (where `K` is the number of competing risks).
@@ -69,7 +75,7 @@ as_prediction_cmprsk.list = function(x, ...) {
   assert_names(
     names(x),
     must.include = c("row_ids", "truth", "cif"),
-    subset.of = c("row_ids", "truth", "cif")
+    subset.of = c("row_ids", "truth", "cif", "weights", "extra")
   )
 
   invoke(
@@ -82,7 +88,8 @@ as_prediction_cmprsk.list = function(x, ...) {
 #' @export
 as_prediction_cmprsk.data.frame = function(x, ...) {
   mandatory = c("row_ids", "time", "event", "CIF")
-  assert_names(names(x), must.include = mandatory, subset.of = mandatory)
+  reserved = c(mandatory, "weights")
+  assert_names(names(x), type = "unique", must.include = mandatory)
   assert_list(x$CIF, min.len = 1L)
 
   cmp_event_ids = unique(unlist(lapply(x$CIF, names)))
@@ -102,14 +109,17 @@ as_prediction_cmprsk.data.frame = function(x, ...) {
   })
   cif = set_names(mat_list, cmp_event_ids)
 
-  # we need to convert here, because if `x` is a data.frame, `with = FALSE` below does not work!
-  setDT(x)
-  x_subset = x[, setdiff(names(x), c("time", "event", "CIF")), with = FALSE]
+  # convert a copy, so that a data.frame passed by the caller is not modified by reference
+  x = as.data.table(x)
+  extra_cols = setdiff(names(x), reserved)
+  extra = if (length(extra_cols)) as.list(x[, extra_cols, with = FALSE]) else NULL
+  x_subset = x[, intersect(names(x), c("row_ids", "weights")), with = FALSE]
 
   invoke(
     PredictionCompRisks$new,
     truth = Surv(x$time, factor(x$event, levels = c("0", cmp_event_ids))),
     cif = cif,
+    extra = extra,
     .args = x_subset
   )
 }
