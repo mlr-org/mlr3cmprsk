@@ -127,6 +127,26 @@ test_that("filtering", {
   expect_silent(check_prediction_data(p$data))
 })
 
+test_that("empty predictions", {
+  p = learner$train(task)$predict(task, row_ids = integer())
+  expect_prediction_cmprsk(p)
+  expect_identical(p$row_ids, integer())
+  expect_length(p$truth, 0L)
+  expect_identical(attr(p$truth, "states"), task$cmp_events)
+  expect_named(p$cif, task$cmp_events)
+  for (mat in p$cif) {
+    expect_matrix(mat, mode = "numeric", nrows = 0L, ncols = 0L)
+  }
+  expect_data_table(as.data.table(p), nrows = 0L)
+
+  # combining with a nonempty prediction works in both orders
+  p2 = learner$predict(task, row_ids = 1:3)
+  expect_equal(c(p, p2)$row_ids, 1:3)
+  pc = c(p2, p)
+  expect_equal(pc$row_ids, 1:3)
+  expect_equal(pc$cif, p2$cif)
+})
+
 test_that("measure weights are supported", {
   task_w = task$clone(deep = TRUE)$cbind(data.frame(w = runif(task$nrow)))
   task_w$set_col_roles("w", "weights_measure")
