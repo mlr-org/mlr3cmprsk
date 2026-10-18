@@ -18,6 +18,10 @@ test_that("Initialization works", {
 
   # from a model prediction
   expect_prediction_cmprsk(pred)
+  expect_output(
+    expect_invisible(print(pred$data)),
+    "<PredictionDataCompRisks> 50 obs, 3 causes, CIF times: 1=[0-9]+, 2=[0-9]+, 3=[0-9]+$"
+  )
 })
 
 test_that("combining predictions", {
@@ -120,11 +124,21 @@ test_that("filtering", {
   expect_equal(p$data$row_ids, 20)
   expect_length(p$truth, 1)
   expect_length(p$cif, 3)
+  expect_output(
+    print(p$data),
+    "<PredictionDataCompRisks> 1 obs, 3 causes, CIF times:",
+    fixed = TRUE
+  )
 
   # filter to 0 observations using non-existent (positive) id
   p$filter(42L)
   expect_prediction_cmprsk(p)
   expect_silent(check_prediction_data(p$data))
+  expect_output(
+    print(p$data),
+    "<PredictionDataCompRisks> 0 obs, 3 causes, CIF times:",
+    fixed = TRUE
+  )
 })
 
 test_that("measure weights are supported", {
