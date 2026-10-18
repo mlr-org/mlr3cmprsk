@@ -148,7 +148,7 @@ as_prediction_cmprsk(tab)
 
 # Convert internal prediction data using as_prediction()
 p$data
-#> <PredictionDataCompRisks:276>
+#> <PredictionDataCompRisks> 276 obs, 2 causes, CIF times: 1=80, 2=80
 as_prediction(p$data)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────

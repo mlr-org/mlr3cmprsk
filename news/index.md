@@ -43,6 +43,10 @@
   grid size and horizon, using test-set outcomes only. Horizons
   exceeding the maximum test-set follow-up are reduced with a warning
   before constructing exactly `ntimes` points.
+- feat: [`print()`](https://rdrr.io/r/base/print.html) for
+  `PredictionDataCompRisks` now shows the number of observations, all
+  defined causes, and the CIF time point count for each cause in one
+  line ([\#42](https://github.com/mlr-org/mlr3cmprsk/issues/42)).
 - feat: CIF sum and extrapolation diagnostics are now disabled by
   default. Enable them package-wide with
   `options(mlr3cmprsk.warn_cif_sum = TRUE, mlr3cmprsk.warn_cif_extrapolation = TRUE)`;
