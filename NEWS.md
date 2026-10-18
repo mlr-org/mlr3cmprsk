@@ -1,3 +1,5 @@
+# mlr3cmprsk 0.0.8
+
 # mlr3cmprsk 0.0.7
 
 * fix: `as_prediction_cmprsk()` now errors when per-observation CIF vectors of the same cause differ in length or time names, instead of silently recycling values.
