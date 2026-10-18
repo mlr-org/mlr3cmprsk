@@ -70,10 +70,24 @@ test_that("construction works with any DataBackend", {
   expect_equal(task2$event(), task$event())
   expect_true("extra" %in% task2$feature_names)
 
-  expect_error(TaskCompRisks$new(id = "cbind", backend = backend, time = "time", event = "foo"), "foo")
+  expect_error(
+    TaskCompRisks$new(id = "cbind", backend = backend, time = "time", event = "foo"),
+    "foo"
+  )
 })
 
 test_that("as_task_cmprsk", {
+  # Inf values in the data frame are detected and a warning is issued
+  expect_warning(
+    {
+      task = as_task_cmprsk(data.frame(time = c(1, 2), event = c(1, 2), x = c(Inf, -2)))
+    },
+    "Detected columns with unsupported Inf values in data: x",
+    class = "Mlr3WarningInput",
+    fixed = TRUE
+  )
+  expect_task_cmprsk(task)
+
   # events must be coded as 1, 2, ..., K (censoring (0) is not needed)
   expect_error(
     as_task_cmprsk(data.frame(time = c(1, 2, 3), event = c(1, 4, 2))),
