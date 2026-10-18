@@ -118,8 +118,9 @@ Column names must be unique.</p></li>
 <li><p>The per-observation <code>CIF</code> object must be a named list of numeric vectors
 (one per cause), with names exactly <code>"1"</code>, <code>"2"</code>, ..., <code>"K"</code>, in that order
 (where <code>K</code> is the number of competing risks).</p></li>
-<li><p>Cause names should be identical across observations and in the same order;
-CIF vectors corresponding to the same cause should be of equal length (same time points).</p></li>
+<li><p>Cause names must be identical across observations and in the same order.</p></li>
+<li><p>CIF vectors corresponding to the same cause must have the same length and the same time names
+(the names of the vectors) across all observations.</p></li>
 <li><p>Values for the <code>event</code> column must be 0 (censoring) or one of the consecutive
 cause codes 1, 2, ..., K.</p></li>
 </ul></div>

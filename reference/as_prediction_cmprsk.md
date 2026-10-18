@@ -83,9 +83,12 @@ must be met:
   vectors (one per cause), with names exactly `"1"`, `"2"`, ..., `"K"`,
   in that order (where `K` is the number of competing risks).
 
-- Cause names should be identical across observations and in the same
-  order; CIF vectors corresponding to the same cause should be of equal
-  length (same time points).
+- Cause names must be identical across observations and in the same
+  order.
+
+- CIF vectors corresponding to the same cause must have the same length
+  and the same time names (the names of the vectors) across all
+  observations.
 
 - Values for the `event` column must be 0 (censoring) or one of the
   consecutive cause codes 1, 2, ..., K.
