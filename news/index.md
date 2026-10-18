@@ -2,6 +2,9 @@
 
 ## mlr3cmprsk 0.0.7
 
+- fix: `LearnerCompRisks` can now predict on an empty set of row ids,
+  e.g. `learner$predict(task, row_ids = integer())`, returning an empty
+  `PredictionCompRisks` that retains the task’s causes.
 - fix: `PredictionCompRisks` now supports measurement weights (task
   column role `weights_measure`) and `extra` learner data, so
   `$predict()` no longer fails on tasks with measurement weights. Both
