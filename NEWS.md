@@ -1,7 +1,7 @@
 # mlr3cmprsk 0.0.8
 
-* test: `as_task_cmprsk()` now has coverage for warnings about infinite feature values.
-* test: `default_fallback()` now has coverage for errors on unsupported prediction types.
+* test: `as_task_cmprsk()` now has coverage for warnings about infinite feature values ([#3](https://github.com/mlr-org/mlr3cmprsk/issues/3)).
+* test: `default_fallback()` now has coverage for errors on unsupported prediction types ([#3](https://github.com/mlr-org/mlr3cmprsk/issues/3)).
 
 # mlr3cmprsk 0.0.7
 
