@@ -13,7 +13,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/mlr-org/mlr3cmprsk/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/mlr-org/mlr3cmprsk/blob/v0.0.7/DESCRIPTION)
 
 Zobolas J, Bender A (2026). *mlr3cmprsk: Competing Risks Machine
 Learning for 'mlr3'*. R package version 0.0.7,
