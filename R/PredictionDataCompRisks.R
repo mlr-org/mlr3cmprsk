@@ -1,6 +1,22 @@
 # Here we define some mlr3-mandatory S3 methods of the `PredictionDataCompRisks` object
 
 #' @export
+print.PredictionDataCompRisks = function(x, ...) {
+  n_times = map_int(x$cif, function(mat) ncol(mat) %??% 0L)
+  cif_times = if (length(n_times)) {
+    str_collapse(sprintf("%s=%i", names(x$cif), n_times))
+  } else {
+    "none"
+  }
+
+  catf(
+    "<PredictionDataCompRisks> %i obs, %i causes, CIF times: %s",
+    length(x$row_ids), length(attr(x$truth, "states")), cif_times
+  )
+  invisible(x)
+}
+
+#' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   n_obs = length(assert_row_ids(pdata$row_ids))
   if (n_obs > 0) {
@@ -44,6 +60,31 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   }
 
   pdata
+}
+
+#' @export
+create_empty_prediction_data.TaskCompRisks = function(task, learner) {
+  predict_types = mlr_reflections$learner_predict_types[["cmprsk"]][[learner$predict_type]]
+  causes = task$cmp_events
+
+  pdata = list(
+    row_ids = integer(),
+    truth = Surv(numeric(), factor(integer(), levels = c("0", causes)))
+  )
+
+  if ("cif" %in% predict_types) {
+    # one empty (0 x 0) matrix per cause
+    pdata$cif = set_names(
+      replicate(length(causes), matrix(numeric(), nrow = 0L, ncol = 0L), simplify = FALSE),
+      causes
+    )
+  }
+
+  if ("weights_measure" %in% task$properties) {
+    pdata$weights = numeric()
+  }
+
+  set_class(pdata, c("PredictionDataCompRisks", "PredictionData"))
 }
 
 #' @export

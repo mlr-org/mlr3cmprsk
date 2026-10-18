@@ -1,6 +1,7 @@
 # mlr3cmprsk 0.0.7
 
 * fix: `as_prediction_cmprsk()` now errors when per-observation CIF vectors of the same cause differ in length or time names, instead of silently recycling values.
+* fix: `LearnerCompRisks` can now predict on an empty set of row ids, e.g. `learner$predict(task, row_ids = integer())`, returning an empty `PredictionCompRisks` that retains the task's causes.
 * fix: `PredictionCompRisks` now supports measurement weights (task column role `weights_measure`) and `extra` learner data, so `$predict()` no longer fails on tasks with measurement weights. Both are kept when filtering, combining, and converting predictions to a `data.table`.
 * fix: `TaskCompRisks` now reads the event column through the public `DataBackend` interface, so tasks can be constructed from any backend, such as `DataBackendCbind`.
 * fix: `c()` on `PredictionDataCompRisks` objects now preserves the `PredictionData` class, so the combined data works with `as_prediction_data()` and other mlr3 generics.
@@ -12,6 +13,7 @@
 * feat: `cmprsk.auc`, `cmprsk.brier`, and `cmprsk.ibs` can now warn when scoring requires constant CIF extrapolation after a cause's final prediction anchor.
 * feat: `cmprsk.auc` now explicitly rejects scoring times beyond the maximum test-set follow-up, following the behavior of the Brier score.
 * feat: `cmprsk.ibs` now defaults to 100 equally spaced integration points from 0 to the 90th percentile of test-set follow-up. New parameters `ntimes`, `t_max`, and `t_quantile` control the automatic grid size and horizon, using test-set outcomes only. Horizons exceeding the maximum test-set follow-up are reduced with a warning before constructing exactly `ntimes` points.
+* feat: `print()` for `PredictionDataCompRisks` now shows the number of observations, all defined causes, and the CIF time point count for each cause in one line ([#42](https://github.com/mlr-org/mlr3cmprsk/issues/42)).
 * feat: CIF sum and extrapolation diagnostics are now disabled by default. Enable them package-wide with `options(mlr3cmprsk.warn_cif_sum = TRUE, mlr3cmprsk.warn_cif_extrapolation = TRUE)`; warnings and errors affecting score validity remain enabled.
 * refine doc: better learner and measure examples
 

@@ -18,6 +18,10 @@ test_that("Initialization works", {
 
   # from a model prediction
   expect_prediction_cmprsk(pred)
+  expect_output(
+    expect_invisible(print(pred$data)),
+    "<PredictionDataCompRisks> 50 obs, 3 causes, CIF times: 1=[0-9]+, 2=[0-9]+, 3=[0-9]+$"
+  )
 })
 
 test_that("combining predictions", {
@@ -130,11 +134,41 @@ test_that("filtering", {
   expect_equal(p$data$row_ids, 20)
   expect_length(p$truth, 1)
   expect_length(p$cif, 3)
+  expect_output(
+    print(p$data),
+    "<PredictionDataCompRisks> 1 obs, 3 causes, CIF times:",
+    fixed = TRUE
+  )
 
   # filter to 0 observations using non-existent (positive) id
   p$filter(42L)
   expect_prediction_cmprsk(p)
   expect_silent(check_prediction_data(p$data))
+  expect_output(
+    print(p$data),
+    "<PredictionDataCompRisks> 0 obs, 3 causes, CIF times:",
+    fixed = TRUE
+  )
+})
+
+test_that("empty predictions", {
+  p = learner$train(task)$predict(task, row_ids = integer())
+  expect_prediction_cmprsk(p)
+  expect_identical(p$row_ids, integer())
+  expect_length(p$truth, 0L)
+  expect_identical(attr(p$truth, "states"), task$cmp_events)
+  expect_named(p$cif, task$cmp_events)
+  for (mat in p$cif) {
+    expect_matrix(mat, mode = "numeric", nrows = 0L, ncols = 0L)
+  }
+  expect_data_table(as.data.table(p), nrows = 0L)
+
+  # combining with a nonempty prediction works in both orders
+  p2 = learner$predict(task, row_ids = 1:3)
+  expect_equal(c(p, p2)$row_ids, 1:3)
+  pc = c(p2, p)
+  expect_equal(pc$row_ids, 1:3)
+  expect_equal(pc$cif, p2$cif)
 })
 
 test_that("measure weights are supported", {
