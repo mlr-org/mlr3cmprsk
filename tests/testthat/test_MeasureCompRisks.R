@@ -7,7 +7,7 @@ l2 = lrn("cmprsk.fg")
 p1 = l1$train(task)$predict(task)
 p2 = l2$train(task)$predict(task)
 
-test_that("cmprsk.auc works", {
+test_that("cmprsk.auc", {
   withr::local_options(list(
     mlr3cmprsk.warn_cif_sum = NULL,
     mlr3cmprsk.warn_cif_extrapolation = NULL
@@ -179,7 +179,7 @@ test_that("cmprsk.auc works", {
   )
 })
 
-test_that("cmprsk.brier works", {
+test_that("cmprsk.brier", {
   withr::local_options(list(
     mlr3cmprsk.warn_cif_sum = NULL,
     mlr3cmprsk.warn_cif_extrapolation = NULL
@@ -326,7 +326,7 @@ test_that("cmprsk.brier works", {
   expect_no_warning(expect_error(p$score(m), regexp = "test", class = "Mlr3ErrorInput"))
 })
 
-test_that("cmprsk.ibs works", {
+test_that("cmprsk.ibs", {
   withr::local_options(list(
     mlr3cmprsk.warn_cif_sum = NULL,
     mlr3cmprsk.warn_cif_extrapolation = NULL
@@ -432,7 +432,8 @@ test_that("cmprsk.ibs works", {
     score,
     # cause 1 => 2 events (2/5 = 0.4 weight)
     # cause 3 => 3 events (3/5 = 0.6 weight)
-    0.4 * p$score(msr("cmprsk.ibs", cause = 1, ntimes = 5L)) +
+    0.4 *
+      p$score(msr("cmprsk.ibs", cause = 1, ntimes = 5L)) +
       0.6 * p$score(msr("cmprsk.ibs", cause = 3, ntimes = 5L))
   )
 
@@ -605,7 +606,11 @@ test_that("cmprsk.ibs works", {
     expect_identical(grid, seq(0, 120, length.out = ntimes))
   }
   # too low `t_max` can cause an error
-  expect_error(get_grid(p, t_max = 0, ntimes = 5L), "at least two distinct time points", class = "Mlr3Error")
+  expect_error(
+    get_grid(p, t_max = 0, ntimes = 5L),
+    "at least two distinct time points",
+    class = "Mlr3Error"
+  )
   # `t_quantile` also controls the upper limit of the grid
   expect_identical(get_grid(p, t_quantile = 0, ntimes = 5L), seq(0, 40, length.out = 5L))
   expect_identical(get_grid(p, t_quantile = 1, ntimes = 5L), seq(0, 120, length.out = 5L))

@@ -1,12 +1,12 @@
 with_seed(42L, {
-  task = gen_cmprsk_task(n = 50, n_events = 3)
+  task = tgen("cmprsk", n_causes = 3L)$generate(50L)
   task$set_col_roles(cols = "event", add_to = "stratum")
   cif_list = gen_cif(n = 50, n_events = 3)
   learner = lrn("cmprsk.aalen")
   pred = learner$train(task)$predict(task)
 })
 
-test_that("Initialization works", {
+test_that("initialization", {
   # use constructor
   expect_prediction_cmprsk(
     PredictionCompRisks$new(
@@ -86,11 +86,19 @@ test_that("data.table/frame roundtrip", {
   # CIF vectors with mismatched lengths or time names are rejected instead of recycled
   dt_short = dt[1:2]
   dt_short$CIF[[2L]][["1"]] = dt_short$CIF[[2L]][["1"]][1L]
-  expect_error(as_prediction_cmprsk(dt_short), "same length and time names", class = "Mlr3ErrorInput")
+  expect_error(
+    as_prediction_cmprsk(dt_short),
+    "same length and time names",
+    class = "Mlr3ErrorInput"
+  )
 
   dt_renamed = dt[1:2]
   names(dt_renamed$CIF[[2L]][["1"]])[1L] = "100"
-  expect_error(as_prediction_cmprsk(dt_renamed), "same length and time names", class = "Mlr3ErrorInput")
+  expect_error(
+    as_prediction_cmprsk(dt_renamed),
+    "same length and time names",
+    class = "Mlr3ErrorInput"
+  )
 
   # the caller's data.frame is not converted to a data.table by reference
   expect_identical(class(dt_df), "data.frame")

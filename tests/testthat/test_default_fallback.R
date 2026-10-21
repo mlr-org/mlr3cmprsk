@@ -1,4 +1,4 @@
-test_that("default_fallback works", {
+test_that("default_fallback", {
   learner = lrn("cmprsk.fg")
   fallback = default_fallback(learner)
   expect_class(fallback, "LearnerCompRisksAalenJohansen")
