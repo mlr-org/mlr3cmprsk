@@ -58,6 +58,10 @@ reference:
   - title: Competing Risks Tasks
     contents:
       - mlr_tasks_pbc
+  - title: Competing Risks Simulation
+    contents:
+      - mlr_task_generators_cmprsk
+      - sim_cmprsk
   - title: Competing Risks Learners
     contents:
       - starts_with("mlr_learners_cmprsk")

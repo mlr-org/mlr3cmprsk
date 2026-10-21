@@ -23,10 +23,13 @@
 #' @importFrom stats median
 "_PACKAGE"
 
-# add tasks, learners and measures to mlr3 dictionaries
+# add tasks, task generators, learners, and measures to mlr3 dictionaries
 register_mlr3cmprsk = function() {
   x = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
   iwalk(tasks, function(obj, nm) x$add(nm, obj))
+
+  x = utils::getFromNamespace("mlr_task_generators", ns = "mlr3")
+  iwalk(task_generators, function(obj, nm) x$add(nm, obj))
 
   x = utils::getFromNamespace("mlr_learners", ns = "mlr3")
   iwalk(learners, function(obj, nm) x$add(nm, obj))
@@ -87,6 +90,7 @@ register_mlr3cmprsk = function() {
   walk(intersect(names(learners), mlr_learners$keys()), function(id) mlr_learners$remove(id))
   walk(intersect(names(measures), mlr_measures$keys()), function(id) mlr_measures$remove(id))
   walk(intersect(names(tasks), mlr_tasks$keys()), function(id) mlr_tasks$remove(id))
+  walk(intersect(names(task_generators), mlr_task_generators$keys()), function(id) mlr_task_generators$remove(id))
 
   # reflections
   x = utils::getFromNamespace("mlr_reflections", ns = "mlr3")

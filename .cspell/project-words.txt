@@ -2,6 +2,7 @@ Aalen
 Andreas
 Andrzej
 autotest
+Beyersmann
 bibentries
 bibtex
 bili
@@ -17,12 +18,14 @@ coxboost
 CRAN
 datatable
 deparsed
+deqn
 Dpenicillmain
 extralearners
 Galecki
 hepato
 Heyard
 hyperparameters
+infty
 interp
 IPCW
 Johansen
@@ -30,6 +33,7 @@ lightswitch
 lockfiles
 lrns
 mathjax
+mathrm
 mirai
 missings
 msrs
@@ -43,6 +47,7 @@ pkgdown
 pkgdowntemplate
 preds
 proba
+probs
 protime
 RCMD
 rdname
@@ -69,4 +74,5 @@ testthat
 tgen
 tgens
 tsks
+Weibull
 Zobolas

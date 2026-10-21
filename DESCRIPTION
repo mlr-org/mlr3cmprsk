@@ -49,6 +49,7 @@ Collate:
     'PredictionCompRisks.R'
     'PredictionDataCompRisks.R'
     'TaskCompRisks.R'
+    'TaskGeneratorCompRisks.R'
     'Task_pbc.R'
     'as_prediction_cmprsk.R'
     'as_task_cmprsk.R'
@@ -56,4 +57,5 @@ Collate:
     'bibentries.R'
     'default_fallback.R'
     'helpers.R'
+    'sim_cmprsk.R'
     'zzz.R'
