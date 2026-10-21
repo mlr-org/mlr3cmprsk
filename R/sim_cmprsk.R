@@ -140,19 +140,22 @@ sim_cmprsk = function(
 ) {
   assert_count(n, positive = TRUE)
   assert_int(n_features, lower = 1L, upper = 10L)
-  assert_int(n_causes, lower = 2L, upper = 5L)
-  if (n < n_causes) {
-    error_input(
-      "`n` must be at least `n_causes` (%i). Increase `n` or reduce `n_causes`.",
-      n_causes
-    )
-  }
-  assert_number(shape, lower = 0, finite = TRUE)
-  assert_number(rate, lower = 0, finite = TRUE)
+  assert(
+    check_int(n_causes, lower = 2L, upper = 5L),
+    check_true(n >= n_causes),
+    combine = "and"
+  )
+  assert(
+    check_number(shape, lower = 0, finite = TRUE),
+    check_true(shape > 0),
+    combine = "and"
+  )
+  assert(
+    check_number(rate, lower = 0, finite = TRUE),
+    check_true(rate > 0),
+    combine = "and"
+  )
   assert_number(beta_sd, lower = 0, finite = TRUE)
-  if (shape == 0 || rate == 0) {
-    error_input("`shape` and `rate` must be strictly positive.")
-  }
   event_probs = event_probs %??% rep(0.8 / n_causes, n_causes)
   assert(check_cmprsk_event_probs(event_probs), .var.name = "event_probs")
   assert_numeric(event_probs, len = n_causes)
@@ -231,9 +234,9 @@ sim_cmprsk = function(
     event_time = event_time,
     event_cause = event_cause,
     cens_time = cens_time,
-    total_rate = total_rate,
     as.data.table(lp),
-    as.data.table(rates)
+    as.data.table(rates),
+    total_rate = total_rate
   )
 }
 
