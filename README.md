@@ -15,7 +15,6 @@ evaluation within the `mlr3` framework.
 [![codecov](https://codecov.io/gh/mlr-org/mlr3cmprsk/graph/badge.svg)](https://codecov.io/gh/mlr-org/mlr3cmprsk)
 [![CRAN
 Status](https://www.r-pkg.org/badges/version-ago/mlr3cmprsk)](https://cran.r-project.org/package=mlr3cmprsk)
-[![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
 <!-- badges: end -->
 
 ## Installation
@@ -109,7 +108,7 @@ BibTeX entry:
   title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
   author = {John Zobolas and Andreas Bender},
   year = {2026},
-  note = {R package version 0.0.7, https://github.com/mlr-org/mlr3cmprsk},
+  note = {R package version 0.0.8, https://github.com/mlr-org/mlr3cmprsk},
   url = {https://mlr3cmprsk.mlr-org.com},
 }
 ```
