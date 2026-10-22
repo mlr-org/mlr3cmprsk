@@ -30,6 +30,15 @@ tsk("pbc")
 }
 }
 
+\section{Competing risks scenario}{
+
+Patients with primary biliary cholangitis are followed until liver transplantation (cause 1),
+death without prior transplantation (cause 2), or censoring (0).
+Transplantation and death before transplantation are mutually exclusive first events.
+This analysis reduces a potentially more complex multi-state process to its first event:
+patients may die after transplantation, but subsequent deaths are not considered.
+}
+
 \section{Pre-processing}{
 
 \itemize{
@@ -53,6 +62,9 @@ to \code{factor}s.
 }
 
 Other Task:
-\code{\link{TaskCompRisks}}
+\code{\link{TaskCompRisks}},
+\code{\link{mlr_tasks_hoel}},
+\code{\link{mlr_tasks_mgus2}},
+\code{\link{mlr_tasks_transplant}}
 }
 \concept{Task}

@@ -9,6 +9,13 @@
 #' @template task
 #' @template seealso_task
 #'
+#' @section Competing risks scenario:
+#' Patients with primary biliary cholangitis are followed until liver transplantation (cause 1),
+#' death without prior transplantation (cause 2), or censoring (0).
+#' Transplantation and death before transplantation are mutually exclusive first events.
+#' This analysis reduces a potentially more complex multi-state process to its first event:
+#' patients may die after transplantation, but subsequent deaths are not considered.
+#'
 #' @section Pre-processing:
 #' - Removed column `id`.
 #' - Kept only complete cases (no missing values).
