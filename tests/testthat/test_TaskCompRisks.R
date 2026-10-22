@@ -70,10 +70,24 @@ test_that("construction works with any DataBackend", {
   expect_equal(task2$event(), task$event())
   expect_true("extra" %in% task2$feature_names)
 
-  expect_error(TaskCompRisks$new(id = "cbind", backend = backend, time = "time", event = "foo"), "foo")
+  expect_error(
+    TaskCompRisks$new(id = "cbind", backend = backend, time = "time", event = "foo"),
+    "foo"
+  )
 })
 
 test_that("as_task_cmprsk", {
+  # Inf values in the data frame are detected and a warning is issued
+  expect_warning(
+    {
+      task = as_task_cmprsk(data.frame(time = c(1, 2), event = c(1, 2), x = c(Inf, -2)))
+    },
+    "Detected columns with unsupported Inf values in data: x",
+    class = "Mlr3WarningInput",
+    fixed = TRUE
+  )
+  expect_task_cmprsk(task)
+
   # events must be coded as 1, 2, ..., K (censoring (0) is not needed)
   expect_error(
     as_task_cmprsk(data.frame(time = c(1, 2, 3), event = c(1, 4, 2))),
@@ -121,4 +135,41 @@ test_that("as_task_cmprsk", {
   t1$select("edema")
   expect_false("sex" %in% names(t1$data()))
   expect_false("sex" %in% names(t2$data()))
+})
+
+test_that("predefined competing risks tasks are registered and constructed", {
+  dataset_ids = c("pbc", "hoel", "transplant", "mgus2")
+  expect_true(all(mlr_tasks$has(keys = dataset_ids)))
+
+  # pbc
+  task = tsk("pbc")
+  expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
+  expect_equal(task$cmp_events, c("1", "2"))
+  expect_setequal(task$event(), 0:2)
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_pbc")
+
+  # mgus2
+  task = tsk("mgus2")
+  expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
+  expect_equal(task$cmp_events, c("1", "2"))
+  expect_setequal(task$event(), 0:2)
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_mgus2")
+
+  # transplant
+  task = tsk("transplant")
+  expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
+  expect_equal(task$cmp_events, c("1", "2", "3"))
+  expect_setequal(task$event(), 0:3)
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_transplant")
+
+  # hoel
+  task = tsk("hoel")
+  expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
+  expect_equal(task$cmp_events, c("1", "2", "3"))
+  expect_setequal(task$event(), 1:3)
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_hoel")
 })

@@ -1,13 +1,17 @@
-task = tsk("pbc")
-feats = c("age", "chol", "albumin", "ast", "bili", "protime")
-task$select(feats)
+n_causes = 2
+task = with_seed(
+  42L,
+  tgen("cmprsk", n_causes = n_causes, event_probs = c(0.5, 0.2))$generate(100L)
+)
+max_time = max(task$times())
+early_time = min(task$times()) / 2
 
 l1 = lrn("cmprsk.aalen")
 l2 = lrn("cmprsk.fg")
 p1 = l1$train(task)$predict(task)
 p2 = l2$train(task)$predict(task)
 
-test_that("cmprsk.auc works", {
+test_that("cmprsk.auc", {
   withr::local_options(list(
     mlr3cmprsk.warn_cif_sum = NULL,
     mlr3cmprsk.warn_cif_extrapolation = NULL
@@ -27,12 +31,12 @@ test_that("cmprsk.auc works", {
 
   # AUC(t) can't be calculated via RiskRegression beyond the
   # maximum observed time from the test set
-  m = msr("cmprsk.auc", time = 160)
+  m = msr("cmprsk.auc", time = max_time + 1)
   expect_error(p1$score(m), "test", class = "Mlr3ErrorInput")
   expect_error(p2$score(m), "test", class = "Mlr3ErrorInput")
 
   # AUC is undefined when a positive-weight cause has no cases by the evaluation time
-  m = msr("cmprsk.auc", time = 5)
+  m = msr("cmprsk.auc", time = early_time)
   expect_warning(
     {
       score = p2$score(m)
@@ -43,7 +47,7 @@ test_that("cmprsk.auc works", {
   expect_true(is.nan(score))
 
   # request for cause that doesn't exist should give an error
-  m = msr("cmprsk.auc", cause = 3)
+  m = msr("cmprsk.auc", cause = n_causes + 1L)
   expect_error(p2$score(m), "Invalid cause")
 
   # cause weights must sum to 1
@@ -51,27 +55,22 @@ test_that("cmprsk.auc works", {
   expect_error(p2$score(m), "must sum to 1")
 
   # check usage of cause_weights for AUC(t) calculation
-  m = msr("cmprsk.auc", cause = "mean", cause_weights = c(1, 0))
-  expect_equal(m$param_set$values$cause_weights, c(1, 0))
-  auc1 = p2$score(m)
+  auc_causes = numeric(n_causes)
+  for (cause in seq_len(n_causes)) {
+    # e.g. cause = 1 or cause_weights = (1,0) produce the same score
+    auc_causes[cause] = p2$score(msr("cmprsk.auc", cause = cause))
 
-  m = msr("cmprsk.auc", cause = 1)
-  auc11 = p2$score(m)
-  expect_equal(auc1, auc11)
+    c_weights = as.numeric(seq_len(n_causes) == cause) # (1,0) or (0,1)
+    m = msr("cmprsk.auc", cause_weights = c_weights)
+    expect_equal(m$param_set$values$cause_weights, c_weights)
 
-  m = msr("cmprsk.auc", cause = "mean", cause_weights = c(0, 1))
-  expect_equal(m$param_set$values$cause_weights, c(0, 1))
-  auc2 = p2$score(m)
+    expect_equal(unname(p2$score(m)), auc_causes[cause])
+  }
 
-  m = msr("cmprsk.auc", cause = 2)
-  auc22 = p2$score(m)
-  expect_equal(auc2, auc22)
-
-  m = msr("cmprsk.auc", cause = "mean", cause_weights = c(0.5, 0.5))
-  expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
+  # AUC with equal weights across causes
+  m = msr("cmprsk.auc", cause_weights = c(0.5, 0.5))
   auc_mean = p2$score(m)
-  expect_equal(auc_mean, 0.5 * auc1 + 0.5 * auc2)
-  # weighted mean AUC across causes should be different from mean AUC across causes
+  expect_equal(unname(auc_mean), mean(auc_causes))
   expect_true(auc_fg != auc_mean)
 
   # manually calculate weighted mean AUC across causes with user-specified weights
@@ -83,7 +82,7 @@ test_that("cmprsk.auc works", {
   # AUC is undefined when a requested cause has no cases by the requested time
   p1 = gen_PredictionCompRisks(c(1, 0, 3, 0, 3, 1, 3, 0, 1, 1, 3, 3)) # no event 2
   for (cause in c(2L, 3L)) {
-    # we dont issue a NaN warning as the user knows which cause it is!
+    # Explicitly requested causes return NaN without a warning
     expect_true(
       is.nan(p1$score(msr("cmprsk.auc", cause = cause, time = 2)))
     )
@@ -179,7 +178,7 @@ test_that("cmprsk.auc works", {
   )
 })
 
-test_that("cmprsk.brier works", {
+test_that("cmprsk.brier", {
   withr::local_options(list(
     mlr3cmprsk.warn_cif_sum = NULL,
     mlr3cmprsk.warn_cif_extrapolation = NULL
@@ -197,17 +196,17 @@ test_that("cmprsk.brier works", {
 
   # BS(t) can't be calculated via RiskRegression beyond the
   # maximum observed time from the test set
-  m = msr("cmprsk.brier", time = 160)
+  m = msr("cmprsk.brier", time = max_time + 1)
   expect_error(p1$score(m), class = "Mlr3ErrorInput")
   expect_error(p2$score(m), class = "Mlr3ErrorInput")
 
   # request for early time point works just fine for BS(t)
-  m = msr("cmprsk.brier", time = 3)
+  m = msr("cmprsk.brier", time = early_time)
   expect_gte(p1$score(m), 0)
   expect_gte(p2$score(m), 0)
 
   # request for cause that doesn't exist should give an error
-  m = msr("cmprsk.brier", cause = 3)
+  m = msr("cmprsk.brier", cause = n_causes + 1L)
   expect_error(p2$score(m), "Invalid cause")
 
   # cause weights must sum to 1
@@ -215,27 +214,22 @@ test_that("cmprsk.brier works", {
   expect_error(p2$score(m), "must sum to 1")
 
   # check usage of cause_weights for BS(t) calculation
-  m = msr("cmprsk.brier", cause = "mean", cause_weights = c(1, 0))
-  expect_equal(m$param_set$values$cause_weights, c(1, 0))
-  bs1 = p2$score(m)
+  bs_causes = numeric(n_causes)
+  for (cause in seq_len(n_causes)) {
+    # e.g. cause = 1 or cause_weights = (1,0) produce the same score
+    bs_causes[cause] = p2$score(msr("cmprsk.brier", cause = cause))
 
-  m = msr("cmprsk.brier", cause = 1)
-  bs11 = p2$score(m)
-  expect_equal(bs1, bs11)
+    c_weights = as.numeric(seq_len(n_causes) == cause) # (1,0) or (0,1)
+    m = msr("cmprsk.brier", cause_weights = c_weights)
+    expect_equal(m$param_set$values$cause_weights, c_weights)
 
-  m = msr("cmprsk.brier", cause = "mean", cause_weights = c(0, 1))
-  expect_equal(m$param_set$values$cause_weights, c(0, 1))
-  bs2 = p2$score(m)
+    expect_equal(unname(p2$score(m)), bs_causes[cause])
+  }
 
-  m = msr("cmprsk.brier", cause = 2)
-  bs22 = p2$score(m)
-  expect_equal(bs2, bs22)
-
-  m = msr("cmprsk.brier", cause = "mean", cause_weights = c(0.5, 0.5))
-  expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
+  # BS(t) with equal weights across causes
+  m = msr("cmprsk.brier", cause_weights = c(0.5, 0.5))
   bs_mean = p2$score(m)
-  expect_equal(bs_mean, 0.5 * bs1 + 0.5 * bs2)
-  # weighted mean BS(t) across causes should be different from mean BS(t) across causes
+  expect_equal(unname(bs_mean), mean(bs_causes))
   expect_true(bs_fg != bs_mean)
 
   # manually calculate weighted mean BS(t) across causes with user-specified weights
@@ -326,7 +320,7 @@ test_that("cmprsk.brier works", {
   expect_no_warning(expect_error(p$score(m), regexp = "test", class = "Mlr3ErrorInput"))
 })
 
-test_that("cmprsk.ibs works", {
+test_that("cmprsk.ibs", {
   withr::local_options(list(
     mlr3cmprsk.warn_cif_sum = NULL,
     mlr3cmprsk.warn_cif_extrapolation = NULL
@@ -347,17 +341,16 @@ test_that("cmprsk.ibs works", {
   ibs_fg = p2$score(m)
   expect_lt(ibs_fg, ibs_aj)
 
-  # IBS can't be calculated via RiskRegression beyond the
-  # maximum observed time from the test set (149)
-  m = msr("cmprsk.ibs", times = c(0, 1, 10, 100, 120, 150))
+  # IBS removes evaluation times beyond the maximum observed test-set time
+  m = msr("cmprsk.ibs", times = c(0, max_time / 3, max_time / 2, max_time + 1))
   expect_warning(p1$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning")
   expect_warning(p2$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning")
-  m = msr("cmprsk.ibs", times = c(0, 1, 10, 100, 120, 150, 200))
+  m = msr("cmprsk.ibs", times = c(0, max_time / 2, max_time + 1, max_time + 2))
   expect_warning(p1$score(m), regexp = "We remove 2 time point", class = "Mlr3Warning")
 
   # IBS must have at least two distinct time points
   expect_error(msr("cmprsk.ibs", times = 42))
-  m = msr("cmprsk.ibs", times = c(42, 160))
+  m = msr("cmprsk.ibs", times = c(0, max_time + 1))
   # ...even when some are removed due to being larger than the max test set time
   expect_error(
     expect_warning(p1$score(m), regexp = "We remove 1 time point", class = "Mlr3Warning"),
@@ -366,12 +359,12 @@ test_that("cmprsk.ibs works", {
   )
 
   # request for early time points works just fine for IBS
-  m = msr("cmprsk.ibs", times = c(0, 1, 2))
+  m = msr("cmprsk.ibs", times = c(0, early_time))
   expect_gte(p1$score(m), 0)
   expect_gte(p2$score(m), 0)
 
   # request for cause that doesn't exist should give an error
-  m = msr("cmprsk.ibs", cause = 3, ntimes = 5L)
+  m = msr("cmprsk.ibs", cause = n_causes + 1L, ntimes = 5L)
   expect_error(p2$score(m), "Invalid cause")
 
   # cause weights must sum to 1
@@ -379,27 +372,22 @@ test_that("cmprsk.ibs works", {
   expect_error(p2$score(m), "must sum to 1")
 
   # check usage of cause_weights for IBS calculation
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(1, 0), ntimes = 5L)
-  expect_equal(m$param_set$values$cause_weights, c(1, 0))
-  ibs1 = p2$score(m)
+  ibs_causes = numeric(n_causes)
+  for (cause in seq_len(n_causes)) {
+    # e.g. cause = 1 or cause_weights = (1,0) produce the same score
+    ibs_causes[cause] = p2$score(msr("cmprsk.ibs", cause = cause, ntimes = 5L))
 
-  m = msr("cmprsk.ibs", cause = 1, ntimes = 5L)
-  ibs11 = p2$score(m)
-  expect_equal(ibs1, ibs11)
+    c_weights = as.numeric(seq_len(n_causes) == cause) # (1,0) or (0,1)
+    m = msr("cmprsk.ibs", cause_weights = c_weights, ntimes = 5L)
+    expect_equal(m$param_set$values$cause_weights, c_weights)
 
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0, 1), ntimes = 5L)
-  expect_equal(m$param_set$values$cause_weights, c(0, 1))
-  ibs2 = p2$score(m)
+    expect_equal(unname(p2$score(m)), ibs_causes[cause])
+  }
 
-  m = msr("cmprsk.ibs", cause = 2, ntimes = 5L)
-  ibs22 = p2$score(m)
-  expect_equal(ibs2, ibs22)
-
-  m = msr("cmprsk.ibs", cause = "mean", cause_weights = c(0.5, 0.5), ntimes = 5L)
-  expect_equal(m$param_set$values$cause_weights, c(0.5, 0.5))
+  # IBS with equal weights across causes
+  m = msr("cmprsk.ibs", cause_weights = c(0.5, 0.5), ntimes = 5L)
   ibs_mean = p2$score(m)
-  expect_equal(ibs_mean, 0.5 * ibs1 + 0.5 * ibs2)
-  # weighted mean IBS across causes should be different from mean IBS across causes
+  expect_equal(unname(ibs_mean), mean(ibs_causes))
   expect_true(ibs_fg != ibs_mean)
 
   # manually calculate weighted mean IBS across causes with user-specified weights
@@ -432,7 +420,8 @@ test_that("cmprsk.ibs works", {
     score,
     # cause 1 => 2 events (2/5 = 0.4 weight)
     # cause 3 => 3 events (3/5 = 0.6 weight)
-    0.4 * p$score(msr("cmprsk.ibs", cause = 1, ntimes = 5L)) +
+    0.4 *
+      p$score(msr("cmprsk.ibs", cause = 1, ntimes = 5L)) +
       0.6 * p$score(msr("cmprsk.ibs", cause = 3, ntimes = 5L))
   )
 
@@ -605,7 +594,11 @@ test_that("cmprsk.ibs works", {
     expect_identical(grid, seq(0, 120, length.out = ntimes))
   }
   # too low `t_max` can cause an error
-  expect_error(get_grid(p, t_max = 0, ntimes = 5L), "at least two distinct time points", class = "Mlr3Error")
+  expect_error(
+    get_grid(p, t_max = 0, ntimes = 5L),
+    "at least two distinct time points",
+    class = "Mlr3Error"
+  )
   # `t_quantile` also controls the upper limit of the grid
   expect_identical(get_grid(p, t_quantile = 0, ntimes = 5L), seq(0, 40, length.out = 5L))
   expect_identical(get_grid(p, t_quantile = 1, ntimes = 5L), seq(0, 120, length.out = 5L))
