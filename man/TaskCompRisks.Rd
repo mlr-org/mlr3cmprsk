@@ -57,7 +57,10 @@ task$cmp_events
 }
 \seealso{
 Other Task:
-\code{\link{mlr_tasks_pbc}}
+\code{\link{mlr_tasks_hoel}},
+\code{\link{mlr_tasks_mgus2}},
+\code{\link{mlr_tasks_pbc}},
+\code{\link{mlr_tasks_transplant}}
 }
 \concept{Task}
 \section{Super classes}{

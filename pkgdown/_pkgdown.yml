@@ -57,7 +57,10 @@ reference:
       - MeasureCompRisks
   - title: Competing Risks Tasks
     contents:
+      - mlr_tasks_hoel
+      - mlr_tasks_mgus2
       - mlr_tasks_pbc
+      - mlr_tasks_transplant
   - title: Competing Risks Simulation
     contents:
       - mlr_task_generators_cmprsk
