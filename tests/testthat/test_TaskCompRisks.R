@@ -136,3 +136,32 @@ test_that("as_task_cmprsk", {
   expect_false("sex" %in% names(t1$data()))
   expect_false("sex" %in% names(t2$data()))
 })
+
+test_that("predefined competing risks tasks are registered and constructed", {
+  dataset_ids = c("pbc", "hoel", "transplant", "mgus2")
+  expect_true(all(mlr_tasks$has(keys = dataset_ids)))
+
+  # pbc
+  task = tsk("pbc")
+  expect_task_cmprsk(task)
+  expect_equal(task$cmp_events, c("1", "2"))
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_pbc")
+
+  # mgus2
+  task = tsk("mgus2")
+  expect_task_cmprsk(task)
+  expect_equal(task$cmp_events, c("1", "2"))
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_mgus2")
+
+  # transplant
+  task = tsk("transplant")
+  expect_task_cmprsk(task)
+  expect_equal(task$cmp_events, c("1", "2", "3"))
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_transplant")
+
+  # hoel
+  task = tsk("hoel")
+  expect_task_cmprsk(task)
+  expect_equal(task$cmp_events, c("1", "2", "3"))
+  expect_equal(task$man, "mlr3cmprsk::mlr_tasks_hoel")
+})
