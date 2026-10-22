@@ -144,24 +144,32 @@ test_that("predefined competing risks tasks are registered and constructed", {
   # pbc
   task = tsk("pbc")
   expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
   expect_equal(task$cmp_events, c("1", "2"))
+  expect_setequal(task$event(), 0:2)
   expect_equal(task$man, "mlr3cmprsk::mlr_tasks_pbc")
 
   # mgus2
   task = tsk("mgus2")
   expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
   expect_equal(task$cmp_events, c("1", "2"))
+  expect_setequal(task$event(), 0:2)
   expect_equal(task$man, "mlr3cmprsk::mlr_tasks_mgus2")
 
   # transplant
   task = tsk("transplant")
   expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
   expect_equal(task$cmp_events, c("1", "2", "3"))
+  expect_setequal(task$event(), 0:3)
   expect_equal(task$man, "mlr3cmprsk::mlr_tasks_transplant")
 
   # hoel
   task = tsk("hoel")
   expect_task_cmprsk(task)
+  expect_true(all(task$times() > 0))
   expect_equal(task$cmp_events, c("1", "2", "3"))
+  expect_setequal(task$event(), 0:3)
   expect_equal(task$man, "mlr3cmprsk::mlr_tasks_hoel")
 })
