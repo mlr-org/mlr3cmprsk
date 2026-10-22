@@ -49,7 +49,6 @@ patients may die after transplantation, but subsequent deaths are not considered
 to \code{factor}s.
 \item Column \code{trt} has levels \code{Dpenicillmain} and \code{placebo} instead of 1 and 2.
 \item Column \code{status} has 0 for censored, 1 for transplant and 2 for death.
-\item Column \code{time} as been converted from days to months.
 }
 }
 

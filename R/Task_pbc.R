@@ -24,7 +24,6 @@
 #' to `factor`s.
 #' - Column `trt` has levels `Dpenicillmain` and `placebo` instead of 1 and 2.
 #' - Column `status` has 0 for censored, 1 for transplant and 2 for death.
-#' - Column `time` as been converted from days to months.
 NULL
 load_pbc = function() {
   data = survival::pbc
@@ -37,7 +36,6 @@ load_pbc = function() {
     levels = c("Dpenicillmain", "placebo")
   )
   data$stage = factor(data$stage)
-  data$time = floor(data$time / 30.44) # convert to months
 
   b = as_data_backend(data)
   task = TaskCompRisks$new(
