@@ -45,7 +45,7 @@ load_pbc = function() {
     b,
     time = "time",
     event = "status",
-    label = "Primary Biliary Cholangitis"
+    label = "Mayo Clinic Primary Biliary Cholangitis Data"
   )
   b$hash = task$man = "mlr3cmprsk::mlr_tasks_pbc"
 
