@@ -22,7 +22,7 @@ tsk("transplant")
 
 \itemize{
 \item Task type: \dQuote{cmprsk}
-\item Dimensions: 797x6
+\item Dimensions: 793x6
 \item Properties: -
 \item Has Missings: \code{FALSE}
 \item Target: \dQuote{time}, \dQuote{event}
@@ -45,6 +45,7 @@ are not considered.
 
 \itemize{
 \item Kept only complete cases (no missing values).
+\item Removed four observations with zero follow-up time.
 \item Renamed \code{futime} to \code{time}, preserving the original values in days.
 \item Retained numeric predictors \code{age} and \code{year} and the existing factors
 \code{sex} and \code{abo}, without conversion.

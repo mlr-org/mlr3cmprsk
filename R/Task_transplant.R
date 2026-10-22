@@ -20,6 +20,7 @@
 #'
 #' @section Pre-processing:
 #' - Kept only complete cases (no missing values).
+#' - Removed four observations with zero follow-up time.
 #' - Renamed `futime` to `time`, preserving the original values in days.
 #' - Retained numeric predictors `age` and `year` and the existing factors
 #'   `sex` and `abo`, without conversion.
@@ -29,6 +30,7 @@ NULL
 load_transplant = function() {
   data = survival::transplant
   data = stats::na.omit(data)
+  data = data[data$futime > 0, ]
   names(data)[names(data) == "futime"] = "time"
   event_codes = c(censored = 0L, death = 1L, ltx = 2L, withdraw = 3L)
   data$event = unname(event_codes[as.character(data$event)])
