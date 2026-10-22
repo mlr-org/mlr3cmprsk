@@ -3,6 +3,7 @@
 * test: `as_task_cmprsk()` now has coverage for warnings about infinite feature values ([#3](https://github.com/mlr-org/mlr3cmprsk/issues/3)).
 * test: `default_fallback()` now has coverage for errors on unsupported prediction types ([#3](https://github.com/mlr-org/mlr3cmprsk/issues/3)).
 * feat: `sim_cmprsk()` and `tgen("cmprsk")` simulate competing risks data with cause-specific Weibull hazards, numerical features, and independent censoring, defaulting to constant hazards ([#23](https://github.com/mlr-org/mlr3cmprsk/issues/23)).
+* feat: added 3 new competing risk datasets from `survival` R package via `tsk()`: `hoel`, `mgus2`, and `transplant`, with documented event definitions and preprocessing.
 
 # mlr3cmprsk 0.0.7
 
