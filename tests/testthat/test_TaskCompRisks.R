@@ -170,6 +170,6 @@ test_that("predefined competing risks tasks are registered and constructed", {
   expect_task_cmprsk(task)
   expect_true(all(task$times() > 0))
   expect_equal(task$cmp_events, c("1", "2", "3"))
-  expect_setequal(task$event(), 0:3)
+  expect_setequal(task$event(), 1:3)
   expect_equal(task$man, "mlr3cmprsk::mlr_tasks_hoel")
 })
