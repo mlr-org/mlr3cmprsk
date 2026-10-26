@@ -1,8 +1,10 @@
 #' @title Assert a List of Cumulative Incidence Matrices
 #'
 #' @description
-#' Checks the structure, cause names, and probabilities of a list of cumulative incidence function (CIF) matrices.
-#' This is the format used by [PredictionCompRisks] to store predictions for competing events.
+#' Checks and validates the structure, cause codes, and probabilities in a list
+#' of cumulative incidence function (CIF) matrices.
+#' This is the format used by [PredictionCompRisks] to store the predictions of
+#' competing risk models.
 #'
 #' @param x (`list()`)\cr
 #'   A list of at least two numeric matrices, one per competing event.
@@ -12,9 +14,9 @@
 #'   Expected number of observations in each matrix.
 #'   If `NULL`, no specific row count is required.
 #' @param causes (`character()`|`NULL`)\cr
-#'   Expected competing event names: `"1"`, `"2"`, ..., `"K"`, in that order.
+#'   Expected competing event codes: `"1"`, `"2"`, ..., `"K"`, in that order.
 #'   If supplied, these must match the list names exactly.
-#'   If `NULL`, the expected names are determined from the length of `x`.
+#'   When `NULL`, the expected names are determined from the length of `x`.
 #'
 #' @details
 #' Each matrix is checked with [survdistr::assert_prob()] using `type = "cif"`:
@@ -26,7 +28,6 @@
 #' Matrices are checked individually and may use different time grids.
 #'
 #' @return Returns `NULL` invisibly if all checks pass, otherwise raises an error.
-#' @export
 #' @examples
 #' cif = list(
 #'   "1" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4), nrow = 2L),
@@ -39,6 +40,7 @@
 #'
 #' assert_cif_list(cif)
 #' assert_cif_list(cif, n_rows = 2L, causes = c("1", "2"))
+#' @export
 assert_cif_list = function(x, n_rows = NULL, causes = NULL) {
   # List of matrices, with at least 2 elements/competing risks
   assert_list(
@@ -92,4 +94,20 @@ assert_cif_list = function(x, n_rows = NULL, causes = NULL) {
   }
 
   invisible(NULL)
+}
+
+# Validates cause labels/names and upon successful check, returns them.
+# `causes` must be c(1,2,...,K) and `cause_names` must be a character vector of length K.
+assert_cause_names = function(cause_names, causes) {
+  cause_names = cause_names %??% paste("Cause", causes)
+
+  assert_character(
+    cause_names,
+    any.missing = FALSE,
+    unique = TRUE,
+    len = length(causes),
+    pattern = "\\S" # non-empty string
+  )
+
+  invisible(cause_names)
 }
