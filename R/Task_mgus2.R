@@ -46,7 +46,8 @@ load_mgus2 = function() {
     b,
     time = "time",
     event = "event",
-    label = "Monoclonal Gammopathy Data"
+    label = "Monoclonal Gammopathy Data",
+    cause_names = c("Plasma cell malignancy", "Death without progression")
   )
   b$hash = task$man = "mlr3cmprsk::mlr_tasks_mgus2"
 

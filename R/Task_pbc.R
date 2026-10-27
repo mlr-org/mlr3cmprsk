@@ -43,7 +43,8 @@ load_pbc = function() {
     b,
     time = "time",
     event = "status",
-    label = "Mayo Clinic Primary Biliary Cholangitis Data"
+    label = "Mayo Clinic Primary Biliary Cholangitis Data",
+    cause_names = c("Liver transplantation", "Death without transplantation")
   )
   b$hash = task$man = "mlr3cmprsk::mlr_tasks_pbc"
 

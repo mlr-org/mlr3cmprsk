@@ -41,7 +41,8 @@ load_transplant = function() {
     b,
     time = "time",
     event = "event",
-    label = "Liver Transplant Waiting List Data"
+    label = "Liver Transplant Waiting List Data",
+    cause_names = c("Death", "Liver transplantation", "Withdrawal")
   )
   b$hash = task$man = "mlr3cmprsk::mlr_tasks_transplant"
 

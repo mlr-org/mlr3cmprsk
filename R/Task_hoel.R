@@ -42,7 +42,8 @@ load_hoel = function() {
     b,
     time = "time",
     event = "event",
-    label = "Mouse Cancer Data"
+    label = "Mouse Cancer Data",
+    cause_names = c("Thymic lymphoma", "Reticulum cell sarcoma", "Other causes")
   )
   b$hash = task$man = "mlr3cmprsk::mlr_tasks_hoel"
 
