@@ -3,7 +3,7 @@
 #' @description
 #'
 #' This task extends [mlr3::Task] and [mlr3::TaskSupervised] for competing risks survival analysis.
-#' The target consists of a survival time and an event indicator.
+#' The target outcome consists of a survival time and an event indicator.
 #' Event codes must be non-negative integers in \eqn{(0, 1, 2, ..., K)}.
 #' \eqn{0} denotes censoring, and positive integers denote distinct event causes.
 #' Each row represents one observation.
@@ -31,6 +31,9 @@
 #' library(mlr3)
 #' task = tsk("pbc")
 #'
+#' # General info
+#' task
+#'
 #' # Time and event target columns
 #' task$target_names
 #' # Feature names
@@ -38,20 +41,24 @@
 #' # Censoring type
 #' task$cens_type
 #'
-#' # survival data
+#' # Survival data
 #' task$formula(c("age", "sex")) # formula with survival::Surv() on LHS
 #' task$truth() # survival::Surv() object
 #' task$times() # (unsorted) times
 #' task$event() # event indicators (0 = censored, >0 = different causes)
 #' task$unique_times() # sorted unique times
 #' task$unique_event_times() # sorted unique event times (from any cause)
+#' task$unique_event_times(cause = 1L) # times for cause 1 only
 #' task$cens_prop() # proportion of censored observations
+#' task$event_counts() # observed counts and proportions, including censoring
 #'
 #' # Aalen-Johansen estimator
 #' task$aalen_johansen(strata = "sex")
 #'
 #' # Causes
-#' task$cmp_events
+#' task$n_causes
+#' task$causes
+#' task$cause_names
 #'
 #' @export
 TaskCompRisks = R6Class(
@@ -69,7 +76,15 @@ TaskCompRisks = R6Class(
     #' @template param_time
     #' @template param_event
     #' @template param_label
-    initialize = function(id, backend, time = "time", event = "event", label = NA_character_) {
+    #' @template param_cause_names
+    initialize = function(
+      id,
+      backend,
+      time = "time",
+      event = "event",
+      label = NA_character_,
+      cause_names = NULL
+    ) {
       # only right-censoring supported
       private$.cens_type = "right"
       backend = as_data_backend(backend)
@@ -99,7 +114,8 @@ TaskCompRisks = R6Class(
       }
 
       # keep all the event levels
-      private$.causes = as.character(causes)
+      private$.causes = causes
+      private$.cause_names = assert_cause_names(cause_names, causes)
 
       super$initialize(
         id = id,
@@ -111,9 +127,43 @@ TaskCompRisks = R6Class(
     },
 
     #' @description
+    #' Prints the task information, including cause names, event counts,
+    #' proportions, and censoring frequency.
+    #'
+    #' @param ... (any)\cr
+    #'   Additional arguments passed to the parent print method.
+    #'
+    #' @return The task object, invisibly.
+    print = function(...) {
+      super$print(...)
+      counts = self$event_counts()
+
+      cat_cli({
+        cli_li("Causes ({self$n_causes}):")
+        ulid = cli_ul()
+        for (cause in self$causes) {
+          cause_text = sprintf("%i (%s)", cause, self$cause_names[[as.character(cause)]])
+          text = sprintf(
+            "%s: %i (%.1f%%)",
+            cause_text,
+            counts$n[cause + 1L],
+            100 * counts$prop[cause + 1L]
+          )
+          cli_li("{text}")
+        }
+        cli_end(ulid)
+
+        censored = sprintf("%i (%.1f%%)", counts$n[1L], 100 * counts$prop[1L])
+        cli_li("Censored: {censored}")
+      })
+
+      invisible(self)
+    },
+
+    #' @description
     #' True response for specified `row_ids`. This is the multi-state format
     #' using [Surv][survival::Surv()] with the `event` target column as a `factor`.
-    #' Defaults to all rows with role `"use"`.
+    #' Defaults to all active rows with role `"use"`.
     #'
     #' @return [survival::Surv()].
     truth = function(rows = NULL) {
@@ -125,7 +175,7 @@ TaskCompRisks = R6Class(
       args = list(
         time = times,
         # levels is needed, otherwise subsetting `Surv()` doesn't work as it should
-        event = factor(events, levels = c("0", self$cmp_events))
+        event = factor(events, levels = as.character(0:self$n_causes))
       )
 
       invoke(Surv, .args = args)
@@ -141,7 +191,7 @@ TaskCompRisks = R6Class(
     #' @return [stats::formula()].
     formula = function(rhs = NULL) {
       tn = self$target_names
-      event_levels = str_collapse(c("0", self$cmp_events), sep = ", ")
+      event_levels = str_collapse(0:self$n_causes, sep = ", ")
       lhs = sprintf("Surv(`%s`, factor(`%s`, levels = c(%s)))", tn[1L], tn[2L], event_levels)
       formulate(lhs, rhs %??% ".", env = getNamespace("survival"))
     },
@@ -156,7 +206,7 @@ TaskCompRisks = R6Class(
 
     #' @description
     #' Returns the event indicators.
-    #' \eqn{0} denotes censoring, and positive integers denote distinct event causes.
+    #' `0` denotes censoring, and positive integers denote distinct event causes.
     #' @return `integer()`
     event = function(rows = NULL) {
       truth = self$truth(rows)
@@ -171,28 +221,65 @@ TaskCompRisks = R6Class(
     },
 
     #' @description
-    #' Returns the sorted unique event outcome times (by any cause).
+    #' Returns the sorted unique event outcome times, optionally restricted to
+    #' a specific cause.
+    #'
+    #' @param cause (`integer(1)`|`NULL`)\cr
+    #'   Cause code from `$causes`, or `NULL` to include events of every cause.
+    #'
     #' @return `numeric()`
-    unique_event_times = function(rows = NULL) {
-      sort(unique(self$times(rows)[self$event(rows) != 0]))
+    unique_event_times = function(rows = NULL, cause = NULL) {
+      if (!is.null(cause)) {
+        assert_int(cause, lower = 1L, upper = self$n_causes)
+      }
+
+      events = self$event(rows)
+      times = self$times(rows)
+      keep = if (is.null(cause)) events != 0L else events == cause
+
+      sort(unique(times[keep]))
     },
 
     #' @description
     #' Calls [survival::survfit()] to calculate the Aalen–Johansen estimator.
     #'
     #' @param strata (`character()`)\cr
-    #'   Stratification variables to use.
+    #'   Vector of features to use for stratification.
     #' @param rows (`integer()`)\cr
     #'   Subset of row indices.
     #' @param ... (any)\cr
     #'   Additional arguments passed down to [survival::survfit.formula()].
     #' @return [survival::survfit.object].
     aalen_johansen = function(strata = NULL, rows = NULL, ...) {
-      assert_character(strata, null.ok = TRUE)
+      assert_character(strata, any.missing = FALSE, unique = TRUE, null.ok = TRUE)
+      assert_subset(strata, self$feature_names)
+
       f = self$formula(strata %??% 1)
-      cols = c(self$target_names, intersect(self$backend$colnames, strata))
+      cols = c(self$target_names, strata)
       data = self$data(rows = rows, cols = cols)
       survival::survfit(f, data = data, ...)
+    },
+
+    #' @description
+    #' Returns the counts and relative frequencies of observed outcomes,
+    #' including censoring (`0`) and all competing causes (`1`, ..., `K`).
+    #' Frequencies are calculated over the specified rows (all active rows by default).
+    #'
+    #' @return A [data.table::data.table()] with columns:
+    #' - `cause`: Integer cause code (`0` denotes censoring).
+    #' - `name`: Descriptive cause name.
+    #' - `n`: Number of observations.
+    #' - `prop`: Proportion of observations.
+    event_counts = function(rows = NULL) {
+      events = self$event(rows)
+      counts = tabulate(events + 1L, nbins = self$n_causes + 1L)
+
+      data.table(
+        cause = 0:self$n_causes,
+        name = c("Censored", unname(self$cause_names)),
+        n = counts,
+        prop = counts / length(events)
+      )
     },
 
     #' @description
@@ -200,11 +287,11 @@ TaskCompRisks = R6Class(
     #'
     #' @return `numeric()`
     cens_prop = function(rows = NULL) {
-      event = self$event(rows)
-      total_censored = sum(event == 0)
-      n_obs = length(event)
+      events = self$event(rows)
+      n_cens = sum(events == 0)
+      n_obs = length(events)
 
-      total_censored / n_obs
+      n_cens / n_obs
     },
 
     #' @description
@@ -216,8 +303,7 @@ TaskCompRisks = R6Class(
     #'
     #' @return Returns the object itself, but modified **by reference.**
     filter = function(rows = NULL) {
-      events_before = self$cmp_events
-      n_events_before = length(events_before)
+      n_events_before = self$n_causes
       events_after = setdiff(unique(self$event(rows)), 0)
       n_events_after = length(events_after)
 
@@ -231,7 +317,7 @@ TaskCompRisks = R6Class(
 
       if (n_events_after < n_events_before) {
         warning_mlr3(
-          "While filtering task '%s': %i competing events found, but row filtering
+          "Original task '%s' has %i competing events, but row filtering
           results in %i unique competing events.\nThis may result in errors when
           training models as some causes will be missing from the data.",
           self$id,
@@ -247,24 +333,39 @@ TaskCompRisks = R6Class(
   active = list(
     #' @field cens_type (`character(1)`)\cr
     #' Returns the type of censoring.
-    #'
     #' Currently, only `"right"` censoring type is supported.
-    #' The API might change in the future to support left and interval censoring.
     cens_type = function(rhs) {
       assert_ro_binding(rhs)
       private$.cens_type
     },
 
-    #' @field cmp_events (`character()`)\cr
-    #' Returns the competing event names: `"1"`, `"2"`, ..., `"K"`, in that order.
-    cmp_events = function(rhs) {
+    #' @field causes (`integer()`)\cr
+    #' Read-only cause codes `1, 2, ..., K`, including causes absent from the active rows.
+    causes = function(rhs) {
       assert_ro_binding(rhs)
       private$.causes
+    },
+
+    #' @field n_causes (`integer(1)`)\cr
+    #' Read-only number of defined causes, excluding censoring.
+    n_causes = function(rhs) {
+      assert_ro_binding(rhs)
+      length(private$.causes)
+    },
+
+    #' @field cause_names (`character()`)\cr
+    #' Named vector with read-only descriptive names of the competing events.
+    #' Names are the codes `1, 2, ..., K`. All causes are included, even those
+    #' absent from the task's active rows.
+    cause_names = function(rhs) {
+      assert_ro_binding(rhs)
+      set_names(private$.cause_names, nm = as.character(private$.causes))
     }
   ),
 
   private = list(
     .cens_type = NULL,
-    .causes = NULL
+    .causes = NULL, # integer vector
+    .cause_names = NULL # character vector
   )
 )
