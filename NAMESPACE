@@ -35,6 +35,11 @@ import(mlr3)
 import(mlr3misc)
 import(paradox)
 importFrom(R6,R6Class)
+importFrom(cli,
+  cli_end,
+  cli_li,
+  cli_ul
+)
 importFrom(stats,median)
 importFrom(survival,Surv)
 importFrom(utils,

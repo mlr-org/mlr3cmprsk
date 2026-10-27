@@ -13,6 +13,7 @@
 #' Enable by using `options(mlr3cmprsk.warn_cif_extrapolation = TRUE)`.
 #'
 #' @import checkmate
+#' @importFrom cli cli_li cli_ul cli_end
 #' @import data.table
 #' @import mlr3
 #' @import mlr3misc
