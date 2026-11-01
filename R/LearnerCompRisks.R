@@ -10,11 +10,11 @@
 #' in the test set.
 #'
 #' @details
-#' Competing risks learners fit models for all causes defined in the training task
-#' and return cumulative incidence function (CIF) predictions for each cause
-#' and observation in [PredictionCompRisks].
-#' For example, [LearnerCompRisksFineGray] fits a separate subdistribution hazards
-#' model for each cause and combines their CIF predictions into a single object.
+#' Competing risks learners train models for all causes defined in the training task
+#' and, during prediction, return cumulative incidence function (CIF) predictions
+#' for every cause and observation in [PredictionCompRisks].
+#' For example, [LearnerCompRisksFineGray] trains one subdistribution hazards model
+#' per cause and uses these models to predict the corresponding cause-specific CIFs.
 #'
 #' @template param_id
 #' @template param_set
