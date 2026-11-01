@@ -6,9 +6,9 @@
 #' The `task_type` is set to `"cmprsk"`.
 #'
 #' Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
-#' By design, predictions contain one CIF matrix for every cause in `task$cmp_events`,
+#' By design, **predictions contain one CIF matrix for every cause** in `task$causes`,
 #' including causes that are not observed among the predicted observations.
-#' Filtering prediction rows retains all cause levels and CIFs, even for unobserved causes.
+#' Filtering observations retains all cause levels and CIFs, even for unobserved causes.
 #' Combining predictions requires the same cause set.
 #'
 #' Accessing all-cause survival or cause-specific hazard functions or similar quantities
@@ -24,10 +24,11 @@
 #' p
 #'
 #' # CIF list: 1 matrix (obs x times) per competing event
-#' names(p$cif) # competing events
-#' # CIF matrix for competing event 1 (first 5 test observations and 20 time points)
+#' names(p$cif) # cause codes
+#' p$cause_names # descriptive names, indexed by numeric cause codes
+#' # CIF matrix for cause 1 (first 5 test observations and 20 time points)
 #' p$cif[["1"]][1:5, 1:20]
-#' # CIF matrix for competing event 2 (first 5 test observations and 20 time points)
+#' # CIF matrix for cause 2 (first 5 test observations and 20 time points)
 #' p$cif[["2"]][1:5, 1:20]
 #'
 #' # data.table conversion
@@ -45,7 +46,7 @@ PredictionCompRisks = R6Class(
     #' @details
     #' The `cif` input is a list of CIF matrices.
     #' With `check = TRUE`, nonempty predictions are validated using [assert_cif_list()].
-    #' This checks the list structure and cause names, the time points used for
+    #' This checks the list structure and cause codes, the time points used for
     #' prediction, and validates each CIF matrix, including probabilities in \[0, 1\]
     #' and non-decreasing probabilities over time.
     #'
@@ -60,7 +61,7 @@ PredictionCompRisks = R6Class(
     #' as the Fine-Gray model.
     #'
     #' @param task ([TaskCompRisks])\cr
-    #'   Task, used to extract defaults for `row_ids` and `truth`.
+    #'   Task, used to extract defaults for `row_ids`, `truth`, and `cause_names`.
     #'
     #' @param row_ids (`integer()`)\cr
     #'   Row ids of the predicted observations, i.e. the row ids of the test set.
@@ -74,7 +75,7 @@ PredictionCompRisks = R6Class(
     #'   Each matrix represents a different competing event (or cause) and stores the
     #'   **Cumulative Incidence function** for each test observation.
     #'   In each matrix, rows represent observations and columns time points.
-    #'   The names of the `list` must correspond to the cause names in the `truth`
+    #'   The names of the `list` must correspond to the numeric cause codes in the `truth`
     #'   object, i.e. `"1"`, `"2"`, ..., `"K"`, exactly in that order.
     #'
     #' @param weights (`numeric()`)\cr
@@ -90,6 +91,7 @@ PredictionCompRisks = R6Class(
     #'   If `TRUE`, performs argument checks.
     #'   Use `TRUE` for user-supplied data.
     #'   With `FALSE`, inputs are assumed valid and correct behavior is not guaranteed.
+    #' @template param_cause_names
     initialize = function(
       task = NULL,
       row_ids = task$row_ids,
@@ -97,9 +99,21 @@ PredictionCompRisks = R6Class(
       cif,
       weights = NULL,
       extra = NULL,
-      check = TRUE
+      check = TRUE,
+      cause_names = NULL
     ) {
-      pdata = list(row_ids = row_ids, truth = truth, cif = cif, weights = weights, extra = extra)
+      assert_flag(check)
+      # take cause names from the attributes
+      cause_names = assert_cause_names(cause_names, causes)
+
+      pdata = list(
+        row_ids = row_ids,
+        truth = truth,
+        cif = cif,
+        weights = weights,
+        extra = extra,
+        cause_names = cause_names
+      )
       pdata = discard(pdata, is.null)
       class(pdata) = c("PredictionDataCompRisks", "PredictionData")
 
@@ -115,15 +129,17 @@ PredictionCompRisks = R6Class(
   ),
 
   active = list(
-    #' @field truth (`Surv`)\cr
-    #' True (observed) outcome.
-    truth = function() {
-      self$data$truth
+    #' @field cause_names (`character()`)\cr
+    #' Read-only descriptive names, named by the character representations of the numeric cause codes.
+    cause_names = function(rhs) {
+      assert_ro_binding(rhs)
+      self$data$cause_names
     },
 
     #' @field cif (`list()`)\cr
     #' Access the stored CIFs.
-    cif = function() {
+    cif = function(rhs) {
+      assert_ro_binding(rhs)
       # TODO: convert to `survdistr` object with methods for easier conversion and interpolation
       self$data$cif
     }
@@ -155,5 +171,6 @@ as.data.table.PredictionCompRisks = function(x, ...) {
     tab = cbind(tab, as.data.table(x$data$extra))
   }
 
+  setattr(tab, "cause_names", x$cause_names)
   setcolorder(tab, c("row_ids", "time", "event"))[]
 }
