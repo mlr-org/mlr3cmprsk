@@ -61,29 +61,29 @@ PredictionCompRisks = R6Class(
     #' as the Fine-Gray model.
     #'
     #' @param task ([TaskCompRisks])\cr
-    #'   Task, used to extract defaults for `row_ids`, `truth`, and `cause_names`.
+    #'   Task, used to extract defaults for `row_ids` and `truth`.
     #'
     #' @param row_ids (`integer()`)\cr
     #'   Row ids of the predicted observations, i.e. the row ids of the test set.
     #'
     #' @param truth (`survival::Surv()`)\cr
     #'   True (observed) response.
-    #'   State names must be `"1"`, `"2"`, ..., `"K"`, in that order, matching the CIF list.
+    #'   The `states` attribute contains descriptive cause names, ordered by numeric cause code.
     #'
     #' @param cif (`list()`)\cr
     #'   A required `list` of two or more `matrix` objects.
     #'   Each matrix represents a different competing event (or cause) and stores the
-    #'   **Cumulative Incidence function** for each test observation.
-    #'   In each matrix, rows represent observations and columns time points.
-    #'   The names of the `list` must correspond to the numeric cause codes in the `truth`
-    #'   object, i.e. `"1"`, `"2"`, ..., `"K"`, exactly in that order.
+    #'   **cumulative incidence function (CIF)** for each test observation.
+    #'   For each matrix, rows refer to observations and columns to time points.
+    #'   CIF lists must use numeric cause codes as names, i.e.
+    #'   `"1"`, `"2"`, ..., `"K"`, exactly in that order.
     #'
     #' @param weights (`numeric()`)\cr
     #'   Optional measurement weights for the predicted observations, as supplied by a task with
     #'   column role `"weights_measure"`.
     #'
     #' @param extra (`list()`)\cr
-    #'   Optional named list of additional per-observation data returned by a learner.
+    #'   Optional named list of additional per-observation data.
     #'   Each element must have the same length as `row_ids`.
     #'   Names must not be `row_ids`, `time`, `event`, `CIF`, or `weights`, which are reserved prediction columns.
     #'
@@ -91,7 +91,6 @@ PredictionCompRisks = R6Class(
     #'   If `TRUE`, performs argument checks.
     #'   Use `TRUE` for user-supplied data.
     #'   With `FALSE`, inputs are assumed valid and correct behavior is not guaranteed.
-    #' @template param_cause_names
     initialize = function(
       task = NULL,
       row_ids = task$row_ids,
@@ -99,20 +98,16 @@ PredictionCompRisks = R6Class(
       cif,
       weights = NULL,
       extra = NULL,
-      check = TRUE,
-      cause_names = NULL
+      check = TRUE
     ) {
       assert_flag(check)
-      # take cause names from the attributes
-      cause_names = assert_cause_names(cause_names, causes)
 
       pdata = list(
         row_ids = row_ids,
         truth = truth,
         cif = cif,
         weights = weights,
-        extra = extra,
-        cause_names = cause_names
+        extra = extra
       )
       pdata = discard(pdata, is.null)
       class(pdata) = c("PredictionDataCompRisks", "PredictionData")
@@ -130,10 +125,11 @@ PredictionCompRisks = R6Class(
 
   active = list(
     #' @field cause_names (`character()`)\cr
-    #' Read-only descriptive names, named by the character representations of the numeric cause codes.
+    #' Read-only descriptive cause names, named by the cause codes `"1"`, `"2"`, ..., `"K"`.
     cause_names = function(rhs) {
       assert_ro_binding(rhs)
-      self$data$cause_names
+      cause_names = attr(self$truth, "states")
+      set_names(cause_names, as.character(seq_along(cause_names)))
     },
 
     #' @field cif (`list()`)\cr
