@@ -88,8 +88,8 @@ LearnerCompRisksAalenJohansen = R6Class(
 
     .predict = function(task) {
       survfit_model = self$native_model
-      trans_mat = survfit_model$pstate # columns: (s0),1,2,...,K
-      trans_mat = trans_mat[, -1L, drop = FALSE] # remove state 0 (probability of being censored)
+      trans_mat = survfit_model$pstate # columns: initial state (s0), then causes
+      trans_mat = trans_mat[, -1L, drop = FALSE] # remove initial state (prob. of being censored)
 
       times = survfit_model$time # unique time points from train set
       event_times = self$model$event_times # unique event times from train set
@@ -99,7 +99,11 @@ LearnerCompRisksAalenJohansen = R6Class(
       trans_mat = trans_mat[idx, , drop = FALSE]
 
       n_obs = task$nrow # number of test observations
-      cif_list = stats::setNames(vector("list", ncol(trans_mat)), colnames(trans_mat))
+      n_causes = ncol(trans_mat)
+      cif_list = set_names(
+        vector("list", n_causes),
+        as.character(seq_len(n_causes))
+      )
 
       # the causes are determined from training set (survfit call)
       for (i in seq_along(cif_list)) {
