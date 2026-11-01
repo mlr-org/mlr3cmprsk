@@ -163,6 +163,7 @@ TaskCompRisks = R6Class(
     #' @description
     #' True response for specified `row_ids`. This is the multi-state format
     #' using [Surv][survival::Surv()] with the `event` target column as a `factor`.
+    #' Descriptive cause names are stored in the response's `states` attribute.
     #' Defaults to all active rows with role `"use"`.
     #'
     #' @return [survival::Surv()].
@@ -174,8 +175,12 @@ TaskCompRisks = R6Class(
 
       args = list(
         time = times,
-        # levels is needed, otherwise subsetting `Surv()` doesn't work as it should
-        event = factor(events, levels = as.character(0:self$n_causes))
+        # levels is needed for `Surv()` to preserve all causes
+        event = factor(
+          events,
+          levels = 0:self$n_causes,
+          labels = c("Censored", unname(self$cause_names))
+        )
       )
 
       invoke(Surv, .args = args)
@@ -192,7 +197,14 @@ TaskCompRisks = R6Class(
     formula = function(rhs = NULL) {
       tn = self$target_names
       event_levels = str_collapse(0:self$n_causes, sep = ", ")
-      lhs = sprintf("Surv(`%s`, factor(`%s`, levels = c(%s)))", tn[1L], tn[2L], event_levels)
+      event_labels = paste(deparse(c("Censored", unname(self$cause_names))), collapse = "")
+      lhs = sprintf(
+        "Surv(`%s`, factor(`%s`, levels = c(%s), labels = %s))",
+        tn[1L],
+        tn[2L],
+        event_levels,
+        event_labels
+      )
       formulate(lhs, rhs %??% ".", env = getNamespace("survival"))
     },
 
