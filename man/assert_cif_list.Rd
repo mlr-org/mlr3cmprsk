@@ -17,16 +17,18 @@ Expected number of observations in each matrix.
 If \code{NULL}, no specific row count is required.}
 
 \item{causes}{(\code{character()}|\code{NULL})\cr
-Expected competing event names: \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order.
+Expected competing event codes: \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order.
 If supplied, these must match the list names exactly.
-If \code{NULL}, the expected names are determined from the length of \code{x}.}
+When \code{NULL}, the expected names are determined from the length of \code{x}.}
 }
 \value{
 Returns \code{NULL} invisibly if all checks pass, otherwise raises an error.
 }
 \description{
-Checks the structure, cause names, and probabilities of a list of cumulative incidence function (CIF) matrices.
-This is the format used by \link{PredictionCompRisks} to store predictions for competing events.
+Checks and validates the structure, cause codes, and probabilities in a list
+of cumulative incidence function (CIF) matrices.
+This is the format used by \link{PredictionCompRisks} to store the predictions of
+competing risk models.
 }
 \details{
 Each matrix is checked with \code{\link[survdistr:assert_prob]{survdistr::assert_prob()}} using \code{type = "cif"}:
