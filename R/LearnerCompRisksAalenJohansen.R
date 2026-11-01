@@ -43,7 +43,7 @@ LearnerCompRisksAalenJohansen = R6Class(
     #' All features have a score of `0` for this learner.
     #' This method exists solely for compatibility with the `mlr3` ecosystem,
     #' as this learner is used as a fallback for other survival learners that
-    #' require an `importance()` method.
+    #' may require an `importance()` method.
     #'
     #' @return Named `numeric()`.
     importance = function() {
@@ -88,7 +88,7 @@ LearnerCompRisksAalenJohansen = R6Class(
 
     .predict = function(task) {
       survfit_model = self$native_model
-      trans_mat = survfit_model$pstate
+      trans_mat = survfit_model$pstate # columns: (s0),1,2,...,K
       trans_mat = trans_mat[, -1L, drop = FALSE] # remove state 0 (probability of being censored)
 
       times = survfit_model$time # unique time points from train set
@@ -101,6 +101,7 @@ LearnerCompRisksAalenJohansen = R6Class(
       n_obs = task$nrow # number of test observations
       cif_list = stats::setNames(vector("list", ncol(trans_mat)), colnames(trans_mat))
 
+      # the causes are determined from training set (survfit call)
       for (i in seq_along(cif_list)) {
         cif_list[[i]] = matrix(
           data = rep(trans_mat[, i], times = n_obs),

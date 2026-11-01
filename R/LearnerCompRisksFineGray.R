@@ -10,11 +10,11 @@
 #'
 #' @details
 #'
-#' A separate Fine-Gray subdistribution hazards model is fitted for every cause in `task$cmp_events`.
+#' A separate Fine-Gray subdistribution hazards model is fitted for every cause in `task$causes`.
 #' This follows the [LearnerCompRisks] design: predictions contain CIFs for all available causes.
 #'
-#' The fitted model is an S3 object of class `"fine_gray"` that stores a
-#' cause-specific list of `crr` class models.
+#' The fitted model is an S3 object of class `"fine_gray"` that stores a list of
+#' cause-specific `crr` class models.
 #'
 #' At prediction time, each cause-specific model is evaluated with
 #' [cmprsk::predict.crr()] and the resulting CIF matrices are aligned to a common
@@ -68,12 +68,12 @@ LearnerCompRisksFineGray = R6Class(
       cov1 = as.matrix(task$data(cols = task$feature_names))
       ftime = task$times()
       fstatus = task$event()
-      cmp_events = task$cmp_events
+      causes = as.character(task$causes)
 
       pv = self$param_set$get_values(tags = "train")
 
       # different Fine-Gray model per competing event
-      model_list = lapply(cmp_events, function(cause) {
+      model_list = lapply(causes, function(cause) {
         invoke(
           cmprsk::crr,
           ftime = ftime,
@@ -85,7 +85,7 @@ LearnerCompRisksFineGray = R6Class(
         )
       })
 
-      names(model_list) = cmp_events
+      names(model_list) = causes
       class(model_list) = "fine_gray"
 
       model_list
