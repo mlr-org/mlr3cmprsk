@@ -95,20 +95,3 @@ assert_cif_list = function(x, n_rows = NULL, causes = NULL) {
 
   invisible(NULL)
 }
-
-# Validates cause labels/names and upon successful check, returns them.
-# `causes` must be c(1,2,...,K) and `cause_names` must be a character vector of length K.
-assert_cause_names = function(cause_names, causes) {
-  cause_names = cause_names %??% paste("Cause", causes)
-
-  assert_character(
-    cause_names,
-    any.missing = FALSE,
-    unique = TRUE,
-    len = length(causes),
-    names = "unnamed",
-    pattern = "\\S" # non-empty string
-  )
-
-  invisible(cause_names)
-}
