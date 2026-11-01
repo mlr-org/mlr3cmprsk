@@ -106,6 +106,7 @@ assert_cause_names = function(cause_names, causes) {
     any.missing = FALSE,
     unique = TRUE,
     len = length(causes),
+    names = "unnamed",
     pattern = "\\S" # non-empty string
   )
 
