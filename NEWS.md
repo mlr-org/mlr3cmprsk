@@ -5,7 +5,7 @@
 * feat: `sim_cmprsk()` and `tgen("cmprsk")` simulate competing risks data with cause-specific Weibull hazards, numerical features, and independent censoring, defaulting to constant hazards ([#23](https://github.com/mlr-org/mlr3cmprsk/issues/23)).
 * feat: added 3 new competing risk datasets from `survival` R package via `tsk()`: `hoel`, `mgus2`, and `transplant`, with documented event definitions and preprocessing.
 * fix: The `pbc` task now retains the original follow-up times in days instead of converting them to months.
-* feat: Improvements in `TaskCompRisks` API: `$causes` replaces `$cmp_events`, we added `$n_causes`, `$cause_names`, `$event_counts()` and a better `$print()`. Lots of refactoring.
+* feat: Improvements in `TaskCompRisks` API: `$causes` replaces `$cmp_events`, we added `$n_causes`, `$cause_names`, `$event_counts()` and a better `$print()`. Lots of refactoring as this affects the `PredictionCompRisks`/`PredictionDataCompRisks` interface among others. The descriptive cause names are derived from the native `states` attribute of the task's `Surv` response, preserving them through filtering, combining, and object conversion.
 
 # mlr3cmprsk 0.0.7
 
