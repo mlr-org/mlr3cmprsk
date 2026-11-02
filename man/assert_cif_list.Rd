@@ -9,7 +9,7 @@ assert_cif_list(x, n_rows = NULL, causes = NULL)
 \arguments{
 \item{x}{(\code{list()})\cr
 A list of at least two numeric matrices, one per competing event.
-List names must be exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order, where \code{K} is the number of matrices.
+Names are checked only when \code{causes} is supplied.
 Rows represent observations, and columns represent time points.}
 
 \item{n_rows}{(\code{integer(1)}|\code{NULL})\cr
@@ -17,15 +17,15 @@ Expected number of observations in each matrix.
 If \code{NULL}, no specific row count is required.}
 
 \item{causes}{(\code{character()}|\code{NULL})\cr
-Expected competing event codes: \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order.
-If supplied, these must match the list names exactly.
-When \code{NULL}, the expected names are determined from the length of \code{x}.}
+Expected unique, nonempty competing event names or codes.
+If supplied, these must match the list names exactly, including their order.
+If \code{NULL}, list names are not checked, and unnamed lists are accepted.}
 }
 \value{
 Returns \code{NULL} invisibly if all checks pass, otherwise raises an error.
 }
 \description{
-Checks and validates the structure, cause codes, and probabilities in a list
+Checks and validates the structure, optional cause names, and probabilities in a list
 of cumulative incidence function (CIF) matrices.
 This is the format used by \link{PredictionCompRisks} to store the predictions of
 competing risk models.
@@ -43,14 +43,11 @@ Matrices are checked individually and may use different time grids.
 }
 \examples{
 cif = list(
-  "1" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4), nrow = 2L),
-  "2" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
+  "Death" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.4), nrow = 2L),
+  "Relapse" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
 )
-cif = lapply(cif, function(x) {
-  colnames(x) = c("0", "1", "2")
-  x
-})
+colnames(cif$Death) = 0:3
+colnames(cif$Relapse) = 0:2
 
-assert_cif_list(cif)
-assert_cif_list(cif, n_rows = 2L, causes = c("1", "2"))
+assert_cif_list(cif, n_rows = 2L, causes = c("Death", "Relapse"))
 }

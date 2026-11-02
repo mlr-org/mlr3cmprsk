@@ -1,22 +1,22 @@
 #' @title Assert a List of Cumulative Incidence Matrices
 #'
 #' @description
-#' Checks and validates the structure, cause codes, and probabilities in a list
+#' Checks and validates the structure, optional cause names, and probabilities in a list
 #' of cumulative incidence function (CIF) matrices.
 #' This is the format used by [PredictionCompRisks] to store the predictions of
 #' competing risk models.
 #'
 #' @param x (`list()`)\cr
 #'   A list of at least two numeric matrices, one per competing event.
-#'   List names must be exactly `"1"`, `"2"`, ..., `"K"`, in that order, where `K` is the number of matrices.
+#'   Names are checked only when `causes` is supplied.
 #'   Rows represent observations, and columns represent time points.
 #' @param n_rows (`integer(1)`|`NULL`)\cr
 #'   Expected number of observations in each matrix.
 #'   If `NULL`, no specific row count is required.
 #' @param causes (`character()`|`NULL`)\cr
-#'   Expected competing event codes: `"1"`, `"2"`, ..., `"K"`, in that order.
-#'   If supplied, these must match the list names exactly.
-#'   When `NULL`, the expected names are determined from the length of `x`.
+#'   Expected unique, nonempty competing event names or codes.
+#'   If supplied, these must match the list names exactly, including their order.
+#'   If `NULL`, list names are not checked, and unnamed lists are accepted.
 #'
 #' @details
 #' Each matrix is checked with [survdistr::assert_prob()] using `type = "cif"`:
@@ -30,45 +30,34 @@
 #' @return Returns `NULL` invisibly if all checks pass, otherwise raises an error.
 #' @examples
 #' cif = list(
-#'   "1" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4), nrow = 2L),
-#'   "2" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
+#'   "Death" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.4), nrow = 2L),
+#'   "Relapse" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
 #' )
-#' cif = lapply(cif, function(x) {
-#'   colnames(x) = c("0", "1", "2")
-#'   x
-#' })
+#' colnames(cif$Death) = 0:3
+#' colnames(cif$Relapse) = 0:2
 #'
-#' assert_cif_list(cif)
-#' assert_cif_list(cif, n_rows = 2L, causes = c("1", "2"))
+#' assert_cif_list(cif, n_rows = 2L, causes = c("Death", "Relapse"))
 #' @export
 assert_cif_list = function(x, n_rows = NULL, causes = NULL) {
+  assert_count(n_rows, null.ok = TRUE)
+  assert_character(
+    causes,
+    min.len = 2L,
+    any.missing = FALSE,
+    unique = TRUE,
+    pattern = "\\S",
+    null.ok = TRUE
+  )
   # List of matrices, with at least 2 elements/competing risks
   assert_list(
     x,
     types = "matrix",
     any.missing = FALSE,
-    min.len = 2L,
-    len = if (is.null(causes)) NULL else length(causes),
-    names = "unique"
+    min.len = 2L
   )
 
-  # Competing events must be "1", ..., "K"
-  expected_causes = as.character(seq_along(x))
-
-  if (!is.null(causes) && !identical(causes, expected_causes)) {
-    error_learner_predict(
-      "Expected competing causes to be %s, but got %s.",
-      str_collapse(expected_causes),
-      str_collapse(causes)
-    )
-  }
-
-  if (!identical(names(x), expected_causes)) {
-    error_learner_predict(
-      "CIF list names must be %s, and not %s.",
-      str_collapse(expected_causes),
-      str_collapse(names(x))
-    )
+  if (!is.null(causes)) {
+    assert_names(names(x), identical.to = causes)
   }
 
   for (mat in x) {
