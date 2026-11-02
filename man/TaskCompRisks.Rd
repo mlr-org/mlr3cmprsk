@@ -165,7 +165,7 @@ competing events (or causes).}
       \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
       \item{\code{cause_names}}{(\code{character()}|\code{NULL})\cr
-Unique, nonempty descriptive names, ordered by cause code.
+Unnamed character vector of unique, nonempty descriptive names, ordered by cause code.
 If \code{NULL}, defaults to \code{"Cause 1"}, \code{"Cause 2"}, ..., \code{"Cause K"}.}
     }
     \if{html}{\out{</div>}}
@@ -205,6 +205,7 @@ Additional arguments passed to the parent print method.}
 \subsection{\code{TaskCompRisks$truth()}}{
   True response for specified \code{row_ids}. This is the multi-state format
 using \link[survival:Surv]{Surv} with the \code{event} target column as a \code{factor}.
+Descriptive cause names are stored in the response's \code{states} attribute.
 Defaults to all active rows with role \code{"use"}.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}

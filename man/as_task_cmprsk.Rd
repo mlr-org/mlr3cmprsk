@@ -52,7 +52,7 @@ Id for the new task.
 Defaults to the (deparsed and substituted) name of \code{x}.}
 
 \item{cause_names}{(\code{character()}|\code{NULL})\cr
-Unique, nonempty descriptive names, ordered by cause code.
+Unnamed character vector of unique, nonempty descriptive names, ordered by cause code.
 If \code{NULL}, defaults to \code{"Cause 1"}, \code{"Cause 2"}, ..., \code{"Cause K"}.}
 }
 \value{
