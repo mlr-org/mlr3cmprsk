@@ -17,7 +17,9 @@ test_that("TaskGeneratorCompRisks", {
     expect_setequal(unique(task$event()[task$event() > 0L]), 1:3)
     expect_integer(task$event(), lower = 0L, upper = 3L)
     expect_true(all(is.finite(task$times()) & task$times() > 0))
-    expect_equal(task$cmp_events, as.character(1:3))
+    expect_equal(task$n_causes, 3)
+    expect_equal(task$causes, 1:3)
+    expect_equal(unname(task$cause_names), paste("Cause", 1:3))
   })
 
   # generator rejects invalid parameters
