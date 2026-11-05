@@ -1,9 +1,9 @@
 with_seed(42L, {
   task = tgen("cmprsk", n_causes = 3L)$generate(50L)
   task$set_col_roles(cols = "event", add_to = "stratum")
-  cif_list = gen_cif(n = 50, n_events = 3)
   learner = lrn("cmprsk.aalen")
   pred = learner$train(task)$predict(task)
+  cif_list = gen_cif(n = 50, n_events = 3)
 })
 
 test_that("initialization", {
@@ -20,8 +20,17 @@ test_that("initialization", {
   expect_prediction_cmprsk(pred)
   expect_output(
     expect_invisible(print(pred$data)),
-    "<PredictionDataCompRisks> 50 obs, 3 causes, CIF times: 1=[0-9]+, 2=[0-9]+, 3=[0-9]+$"
+    "<PredictionDataCompRisks> 50 obs, 3 causes, CIF times:",
+    fixed = TRUE
   )
+})
+
+test_that("tasks with specific cause names propagate these to predictions", {
+  task = tsk("hoel")
+  p = lrn("cmprsk.aalen")$train(task)$predict(task, row_ids = 1:3)
+  expect_identical(attr(p$truth, "states"), unname(task$cause_names))
+  expect_identical(p$cause_names, task$cause_names)
+  expect_named(p$cif, as.character(task$causes))
 })
 
 test_that("combining predictions", {
@@ -71,15 +80,19 @@ test_that("combining predictions", {
 test_that("data.table/frame roundtrip", {
   dt = as.data.table(pred)
   expect_data_table(dt, nrows = task$nrow, ncols = 4L, any.missing = FALSE)
+  expect_equal(attr(dt, "cause_names"), task$cause_names)
   p2 = as_prediction_cmprsk(dt)
   expect_prediction_cmprsk(p2)
 
   expect_equal(pred$cif, p2$cif)
   expect_equal(dt[, !("CIF")], as.data.table(p2)[, !("CIF")])
+  expect_equal(p2$cause_names, task$cause_names)
   expect_null(p2$extra)
   expect_null(p2$weights)
 
   dt_df = as.data.frame(dt)
+  expect_data_frame(dt_df, nrows = task$nrow, ncols = 4L, any.missing = FALSE)
+  expect_equal(attr(dt_df, "cause_names"), task$cause_names)
   p3 = as_prediction_cmprsk(dt_df)
   expect_prediction_cmprsk(p3)
 
@@ -114,6 +127,7 @@ test_that("named lists convert to predictions with validation", {
   expect_prediction_cmprsk(pred2)
   expect_identical(pred2$row_ids, pred$row_ids)
   expect_identical(pred2$truth, pred$truth)
+  expect_identical(pred2$cause_names, task$cause_names)
   expect_identical(pred2$cif, pred$cif)
 
   # removing mandatory elements should throw an error
@@ -132,8 +146,8 @@ test_that("filtering", {
   expect_prediction_cmprsk(p)
   expect_equal(p$data$row_ids, c(20, 37, 42))
   expect_length(p$truth, 3)
-  # filtering preserves the cause names in the CIF list and the truth's states
-  expect_identical(attr(p$truth, "states"), c("1", "2", "3"))
+  # filtering preserves CIF list names and cause names
+  expect_identical(attr(p$truth, "states"), unname(task$cause_names))
   expect_named(p$cif, c("1", "2", "3"))
 
   # edge case: filter to 1 observation
@@ -148,8 +162,8 @@ test_that("filtering", {
     fixed = TRUE
   )
 
-  # filter to 0 observations using non-existent (positive) id
-  p$filter(42L)
+  # filter to 0 observations
+  p$filter(integer(0L))
   expect_prediction_cmprsk(p)
   expect_silent(check_prediction_data(p$data))
   expect_output(
@@ -157,6 +171,7 @@ test_that("filtering", {
     "<PredictionDataCompRisks> 0 obs, 3 causes, CIF times:",
     fixed = TRUE
   )
+  expect_identical(attr(p$truth, "states"), unname(task$cause_names))
 })
 
 test_that("empty predictions", {
@@ -164,19 +179,29 @@ test_that("empty predictions", {
   expect_prediction_cmprsk(p)
   expect_identical(p$row_ids, integer())
   expect_length(p$truth, 0L)
-  expect_identical(attr(p$truth, "states"), task$cmp_events)
-  expect_named(p$cif, task$cmp_events)
+  expect_identical(attr(p$truth, "states"), unname(task$cause_names))
+  expect_named(p$cif, as.character(task$causes))
   for (mat in p$cif) {
     expect_matrix(mat, mode = "numeric", nrows = 0L, ncols = 0L)
   }
   expect_data_table(as.data.table(p), nrows = 0L)
 
-  # combining with a nonempty prediction works in both orders
+  # combining with a nonempty prediction works no matter the ordering
   p2 = learner$predict(task, row_ids = 1:3)
-  expect_equal(c(p, p2)$row_ids, 1:3)
-  pc = c(p2, p)
-  expect_equal(pc$row_ids, 1:3)
-  expect_equal(pc$cif, p2$cif)
+  pc1 = c(p, p2)
+  expect_equal(pc1$row_ids, 1:3)
+  expect_equal(pc1$cif, p2$cif)
+  pc2 = c(p2, p)
+  expect_equal(pc2$row_ids, 1:3)
+  expect_equal(pc2$cif, p2$cif)
+
+  # creating empty PredictionDataCompRisks with the constructor works
+  pdata = create_empty_prediction_data(task, learner)
+  expect_class(pdata, c("PredictionDataCompRisks", "PredictionData"))
+  expect_equal(pdata$row_ids, integer())
+  expect_length(pdata$truth, 0L)
+  expect_identical(attr(pdata$truth, "states"), unname(task$cause_names))
+  expect_named(pdata$cif, as.character(task$causes))
 })
 
 test_that("measure weights are supported", {
@@ -332,21 +357,23 @@ test_that("prediction validation rejects invalid CIFs and causes", {
   expect_silent(PredictionCompRisks$new(row_ids = 1:2, truth = truth, cif = invalid))
   # TODO: update to expect_error() when `survdistr` is updated to check for finite times
 
-  # cause names must be consecutive integers starting at 1
-  for (causes in list(c("1", "1"), c("7", "8"), c("2", "1"), c("1", "3"))) {
+  # CIF list names must be consecutive integers starting at 1
+  wrong_names = list(c("1", "1"), c("7", "8"), c("2", "1"), c("1", "3"), c("Death", "Relapse"))
+  for (cause_names in wrong_names) {
     expect_error(
       PredictionCompRisks$new(
         row_ids = 1:2,
         truth = truth,
-        cif = set_names(cif, causes)
+        cif = set_names(cif, cause_names)
       )
     )
   }
 
-  # truth's states must correspond to the cause names in the CIF list
-  invalid_truth = Surv(1:2, factor(c(2L, 3L), levels = c(0L, 2L, 3L)))
-  expect_error(
-    PredictionCompRisks$new(row_ids = 1:2, truth = invalid_truth, cif = cif),
-    "Expected competing causes to be 1, 2, but got 2, 3"
-  )
+  # CIF list names must be integers no matter what!
+  truth = Surv(1:2, factor(1:2, levels = 0:2, labels = c("Censored", "Death", "Relapse")))
+  expect_error(PredictionCompRisks$new(
+    row_ids = 1:2,
+    truth = truth,
+    cif = set_names(cif, c("Death", "Relapse"))
+  ))
 })
