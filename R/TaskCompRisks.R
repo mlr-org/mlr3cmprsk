@@ -266,7 +266,7 @@ TaskCompRisks = R6Class(
       assert_character(strata, any.missing = FALSE, unique = TRUE, null.ok = TRUE)
       assert_subset(strata, self$feature_names)
 
-      f = self$formula(strata %??% 1)
+      f = self$formula(strata %??% "1")
       cols = c(self$target_names, strata)
       data = self$data(rows = rows, cols = cols)
       survival::survfit(f, data = data, ...)
