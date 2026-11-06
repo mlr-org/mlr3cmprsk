@@ -8,6 +8,17 @@ bibentries = c(
     title = "An empirical transition matrix for non-homogeneous Markov chains based on censored observations",
     year = "1978"
   ),
+  beyersmann_2009 = bibentry(
+    "article",
+    author = "Beyersmann, Jan and Latouche, Aurelien and Buchholz, Anika and Schumacher, Martin",
+    title = "Simulating competing risks data in survival analysis",
+    journal = "Statistics in Medicine",
+    year = "2009",
+    volume = "28",
+    number = "6",
+    pages = "956--971",
+    doi = "10.1002/sim.3516"
+  ),
   blanche_2013 = bibentry(
     "article",
     author = "Blanche, Paul and Dartigues, Jean Francois and Jacqmin-Gadda, Helene",

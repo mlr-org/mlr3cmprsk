@@ -24,15 +24,22 @@ export(MeasureCompRisksBrierScore)
 export(MeasureCompRisksIntegratedBrierScore)
 export(PredictionCompRisks)
 export(TaskCompRisks)
+export(TaskGeneratorCompRisks)
 export(as_prediction_cmprsk)
 export(as_task_cmprsk)
 export(assert_cif_list)
+export(sim_cmprsk)
 import(checkmate)
 import(data.table)
 import(mlr3)
 import(mlr3misc)
 import(paradox)
 importFrom(R6,R6Class)
+importFrom(cli,
+  cli_end,
+  cli_li,
+  cli_ul
+)
 importFrom(stats,median)
 importFrom(survival,Surv)
 importFrom(utils,

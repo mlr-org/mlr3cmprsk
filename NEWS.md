@@ -1,3 +1,13 @@
+# mlr3cmprsk 0.0.8
+
+* fix: `assert_cif_list()` was simplified to accepts arbitrary cause names or codes (`causes = NULL` skips list-name validation).
+* test: `as_task_cmprsk()` now has coverage for warnings about infinite feature values ([#3](https://github.com/mlr-org/mlr3cmprsk/issues/3)).
+* test: `default_fallback()` now has coverage for errors on unsupported prediction types ([#3](https://github.com/mlr-org/mlr3cmprsk/issues/3)).
+* feat: `sim_cmprsk()` and `tgen("cmprsk")` simulate competing risks data with cause-specific Weibull hazards, numerical features, and independent censoring, defaulting to constant hazards ([#23](https://github.com/mlr-org/mlr3cmprsk/issues/23)).
+* feat: added 3 new competing risk datasets from `survival` R package via `tsk()`: `hoel`, `mgus2`, and `transplant`, with documented event definitions and preprocessing.
+* fix: The `pbc` task now retains the original follow-up times in days instead of converting them to months.
+* feat: Improvements in `TaskCompRisks` API: `$causes` replaces `$cmp_events`, we added `$n_causes`, `$cause_names`, `$event_counts()` and a better `$print()`. Lots of refactoring as this affects the `PredictionCompRisks`/`PredictionDataCompRisks` interface among others. The descriptive cause names are derived from the native `states` attribute of the task's `Surv` response, preserving them through filtering, combining, and object conversion.
+
 # mlr3cmprsk 0.0.7
 
 * fix: `as_prediction_cmprsk()` now errors when per-observation CIF vectors of the same cause differ in length or time names, instead of silently recycling values.

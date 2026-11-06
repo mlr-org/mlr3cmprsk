@@ -137,7 +137,7 @@ The fitted model.}
   All features have a score of \code{0} for this learner.
 This method exists solely for compatibility with the \code{mlr3} ecosystem,
 as this learner is used as a fallback for other survival learners that
-require an \code{importance()} method.
+may require an \code{importance()} method.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{LearnerCompRisksAalenJohansen$importance()}

@@ -9,11 +9,11 @@ Fine-Gray subdistribution hazards model for competing risks using
 \code{\link[cmprsk:crr]{cmprsk::crr()}}.
 }
 \details{
-A separate Fine-Gray subdistribution hazards model is fitted for every cause in \code{task$cmp_events}.
+A separate Fine-Gray subdistribution hazards model is fitted for every cause in \code{task$causes}.
 This follows the \link{LearnerCompRisks} design: predictions contain CIFs for all available causes.
 
-The fitted model is an S3 object of class \code{"fine_gray"} that stores a
-cause-specific list of \code{crr} class models.
+The fitted model is an S3 object of class \code{"fine_gray"} that stores a list of
+cause-specific \code{crr} class models.
 
 At prediction time, each cause-specific model is evaluated with
 \code{\link[cmprsk:predict.crr]{cmprsk::predict.crr()}} and the resulting CIF matrices are aligned to a common

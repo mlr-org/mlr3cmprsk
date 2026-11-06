@@ -8,8 +8,8 @@ test_that("unloading cleans up registrations and preserves unrelated hooks", {
   load_hooks = getHook(load_event)
   unload_hooks = getHook(unload_event)
 
-  dictionaries = list(mlr_tasks, mlr_learners, mlr_measures)
-  keys = list(names(ns$tasks), names(ns$learners), names(ns$measures))
+  dictionaries = list(mlr_tasks, mlr_learners, mlr_measures, mlr_task_generators)
+  keys = list(names(ns$tasks), names(ns$learners), names(ns$measures), names(ns$task_generators))
   other_keys = Map(function(dictionary, ids) setdiff(dictionary$keys(), ids), dictionaries, keys)
   fields = c(
     "task_col_roles",

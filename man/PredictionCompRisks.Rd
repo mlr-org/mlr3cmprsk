@@ -9,9 +9,9 @@ This object stores the predictions returned by a learner of class \link{LearnerC
 The \code{task_type} is set to \code{"cmprsk"}.
 
 Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
-By design, predictions contain one CIF matrix for every cause in \code{task$cmp_events},
+By design, \strong{predictions contain one CIF matrix for every cause} in \code{task$causes},
 including causes that are not observed among the predicted observations.
-Filtering prediction rows retains all cause levels and CIFs, even for unobserved causes.
+Filtering observations retains all cause levels and CIFs, even for unobserved causes.
 Combining predictions requires the same cause set.
 
 Accessing all-cause survival or cause-specific hazard functions or similar quantities
@@ -26,10 +26,11 @@ p = learner$train(task, part$train)$predict(task, part$test)
 p
 
 # CIF list: 1 matrix (obs x times) per competing event
-names(p$cif) # competing events
-# CIF matrix for competing event 1 (first 5 test observations and 20 time points)
+names(p$cif) # cause codes
+p$cause_names # descriptive names, indexed by numeric cause codes
+# CIF matrix for cause 1 (first 5 test observations and 20 time points)
 p$cif[["1"]][1:5, 1:20]
-# CIF matrix for competing event 2 (first 5 test observations and 20 time points)
+# CIF matrix for cause 2 (first 5 test observations and 20 time points)
 p$cif[["2"]][1:5, 1:20]
 
 # data.table conversion
@@ -44,8 +45,8 @@ tab$CIF[[1]] # for first test observation, list of CIF vectors
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
-    \item{\code{truth}}{(\code{Surv})\cr
-True (observed) outcome.}
+    \item{\code{cause_names}}{(\code{character()})\cr
+Read-only descriptive cause names, named by the cause codes \code{"1"}, \code{"2"}, ..., \code{"K"}.}
 
     \item{\code{cif}}{(\code{list()})\cr
 Access the stored CIFs.}
@@ -96,19 +97,19 @@ Task, used to extract defaults for \code{row_ids} and \code{truth}.}
 Row ids of the predicted observations, i.e. the row ids of the test set.}
       \item{\code{truth}}{(\code{survival::Surv()})\cr
 True (observed) response.
-State names must be \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order, matching the CIF list.}
+The \code{states} attribute contains descriptive cause names, ordered by numeric cause code.}
       \item{\code{cif}}{(\code{list()})\cr
 A required \code{list} of two or more \code{matrix} objects.
 Each matrix represents a different competing event (or cause) and stores the
-\strong{Cumulative Incidence function} for each test observation.
-In each matrix, rows represent observations and columns time points.
-The names of the \code{list} must correspond to the cause names in the \code{truth}
-object, i.e. \code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
+\strong{cumulative incidence function (CIF)} for each test observation.
+For each matrix, rows refer to observations and columns to time points.
+CIF lists must use numeric cause codes as names, i.e.
+\code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
       \item{\code{weights}}{(\code{numeric()})\cr
 Optional measurement weights for the predicted observations, as supplied by a task with
 column role \code{"weights_measure"}.}
       \item{\code{extra}}{(\code{list()})\cr
-Optional named list of additional per-observation data returned by a learner.
+Optional named list of additional per-observation data.
 Each element must have the same length as \code{row_ids}.
 Names must not be \code{row_ids}, \code{time}, \code{event}, \code{CIF}, or \code{weights}, which are reserved prediction columns.}
       \item{\code{check}}{(\code{logical(1)})\cr
@@ -121,7 +122,7 @@ With \code{FALSE}, inputs are assumed valid and correct behavior is not guarante
   \subsection{Details}{
     The \code{cif} input is a list of CIF matrices.
 With \code{check = TRUE}, nonempty predictions are validated using \code{\link[=assert_cif_list]{assert_cif_list()}}.
-This checks the list structure and cause names, the time points used for
+This checks the list structure and cause codes, the time points used for
 prediction, and validates each CIF matrix, including probabilities in [0, 1]
 and non-decreasing probabilities over time.
 

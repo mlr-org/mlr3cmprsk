@@ -43,25 +43,27 @@ Use \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}} to convert the inter
 \details{
 If \code{x} is a named \code{list}, it must contain \code{row_ids}, \code{truth}, and \code{cif}.
 The \code{weights} and \code{extra} elements are optional.
+Descriptive cause names are taken from the \code{states} attribute of \code{truth}.
 These elements are passed to the \link{PredictionCompRisks} constructor and
 validated there (using \code{check = TRUE} by default).
-The \code{cif} element must be a nonempty list of matrices, with one matrix for every task competing cause.
+The \code{cif} element must be a nonempty list of matrices, with one matrix for
+each competing cause.
 This requirement also applies to the internal prediction data of \code{PredictionDataCompRisks} class.
 
 If \code{x} is a \code{data.frame}/\code{data.table} input, the following requirements must be met:
 \itemize{
 \item Columns \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
 \item An optional column \code{weights} may hold measurement weights.
-\item All other columns are stored as \code{extra} data.
-Column names must be unique.
+\item An optional \code{cause_names} attribute may hold descriptive cause names.
+\item All other columns are stored as \code{extra} data. Column names must be unique.
 \item The per-observation \code{CIF} object must be a named list of numeric vectors
 (one per cause), with names exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order
 (where \code{K} is the number of competing risks).
-\item Cause names must be identical across observations and in the same order.
+\item Cause codes must be identical across observations and in the same order.
 \item CIF vectors corresponding to the same cause must have the same length and the same time names
 (the names of the vectors) across all observations.
 \item Values for the \code{event} column must be 0 (censoring) or one of the consecutive
-cause codes 1, 2, ..., K.
+cause codes \code{"1"}, \code{"2"}, ..., \code{"K"}.
 }
 }
 \examples{

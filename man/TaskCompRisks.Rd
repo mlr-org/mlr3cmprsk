@@ -5,7 +5,7 @@
 \title{Competing Risks Task}
 \description{
 This task extends \link[mlr3:Task]{mlr3::Task} and \link[mlr3:TaskSupervised]{mlr3::TaskSupervised} for competing risks survival analysis.
-The target consists of a survival time and an event indicator.
+The target outcome consists of a survival time and an event indicator.
 Event codes must be non-negative integers in \eqn{(0, 1, 2, ..., K)}.
 \eqn{0} denotes censoring, and positive integers denote distinct event causes.
 Each row represents one observation.
@@ -32,6 +32,9 @@ is reduced but remains >= 2, and an error if fewer than two causes remain.
 library(mlr3)
 task = tsk("pbc")
 
+# General info
+task
+
 # Time and event target columns
 task$target_names
 # Feature names
@@ -39,25 +42,32 @@ task$feature_names
 # Censoring type
 task$cens_type
 
-# survival data
+# Survival data
 task$formula(c("age", "sex")) # formula with survival::Surv() on LHS
 task$truth() # survival::Surv() object
 task$times() # (unsorted) times
 task$event() # event indicators (0 = censored, >0 = different causes)
 task$unique_times() # sorted unique times
 task$unique_event_times() # sorted unique event times (from any cause)
+task$unique_event_times(cause = 1L) # times for cause 1 only
 task$cens_prop() # proportion of censored observations
+task$event_counts() # observed counts and proportions, including censoring
 
 # Aalen-Johansen estimator
 task$aalen_johansen(strata = "sex")
 
 # Causes
-task$cmp_events
+task$n_causes
+task$causes
+task$cause_names
 
 }
 \seealso{
 Other Task:
-\code{\link{mlr_tasks_pbc}}
+\code{\link{mlr_tasks_hoel}},
+\code{\link{mlr_tasks_mgus2}},
+\code{\link{mlr_tasks_pbc}},
+\code{\link{mlr_tasks_transplant}}
 }
 \concept{Task}
 \section{Super classes}{
@@ -68,12 +78,18 @@ Other Task:
   \describe{
     \item{\code{cens_type}}{(\code{character(1)})\cr
 Returns the type of censoring.
+Currently, only \code{"right"} censoring type is supported.}
 
-Currently, only \code{"right"} censoring type is supported.
-The API might change in the future to support left and interval censoring.}
+    \item{\code{causes}}{(\code{integer()})\cr
+Read-only cause codes \verb{1, 2, ..., K}, including causes absent from the active rows.}
 
-    \item{\code{cmp_events}}{(\code{character()})\cr
-Returns the competing event names: \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order.}
+    \item{\code{n_causes}}{(\code{integer(1)})\cr
+Read-only number of defined causes, excluding censoring.}
+
+    \item{\code{cause_names}}{(\code{character()})\cr
+Named vector with read-only descriptive names of the competing events.
+Names are the codes \verb{1, 2, ..., K}. All causes are included, even those
+absent from the task's active rows.}
   }
   \if{html}{\out{</div>}}
 }
@@ -81,6 +97,7 @@ Returns the competing event names: \code{"1"}, \code{"2"}, ..., \code{"K"}, in t
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-TaskCompRisks-initialize}{\code{TaskCompRisks$new()}}
+    \item \href{#method-TaskCompRisks-print}{\code{TaskCompRisks$print()}}
     \item \href{#method-TaskCompRisks-truth}{\code{TaskCompRisks$truth()}}
     \item \href{#method-TaskCompRisks-formula}{\code{TaskCompRisks$formula()}}
     \item \href{#method-TaskCompRisks-times}{\code{TaskCompRisks$times()}}
@@ -88,6 +105,7 @@ Returns the competing event names: \code{"1"}, \code{"2"}, ..., \code{"K"}, in t
     \item \href{#method-TaskCompRisks-unique_times}{\code{TaskCompRisks$unique_times()}}
     \item \href{#method-TaskCompRisks-unique_event_times}{\code{TaskCompRisks$unique_event_times()}}
     \item \href{#method-TaskCompRisks-aalen_johansen}{\code{TaskCompRisks$aalen_johansen()}}
+    \item \href{#method-TaskCompRisks-event_counts}{\code{TaskCompRisks$event_counts()}}
     \item \href{#method-TaskCompRisks-cens_prop}{\code{TaskCompRisks$cens_prop()}}
     \item \href{#method-TaskCompRisks-filter}{\code{TaskCompRisks$filter()}}
     \item \href{#method-TaskCompRisks-clone}{\code{TaskCompRisks$clone()}}
@@ -105,7 +123,6 @@ Returns the competing event names: \code{"1"}, \code{"2"}, ..., \code{"K"}, in t
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="levels"><a href='../../mlr3/html/Task.html#method-Task-levels'><code>mlr3::Task$levels()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="materialize_view"><a href='../../mlr3/html/Task.html#method-Task-materialize_view'><code>mlr3::Task$materialize_view()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="missings"><a href='../../mlr3/html/Task.html#method-Task-missings'><code>mlr3::Task$missings()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="print"><a href='../../mlr3/html/Task.html#method-Task-print'><code>mlr3::Task$print()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="rbind"><a href='../../mlr3/html/Task.html#method-Task-rbind'><code>mlr3::Task$rbind()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="rename"><a href='../../mlr3/html/Task.html#method-Task-rename'><code>mlr3::Task$rename()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="select"><a href='../../mlr3/html/Task.html#method-Task-select'><code>mlr3::Task$select()</code></a></span></li>
@@ -126,7 +143,8 @@ Returns the competing event names: \code{"1"}, \code{"2"}, ..., \code{"K"}, in t
   backend,
   time = "time",
   event = "event",
-  label = NA_character_
+  label = NA_character_,
+  cause_names = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -146,6 +164,9 @@ Name of column that holds the event indicator.
 competing events (or causes).}
       \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
+      \item{\code{cause_names}}{(\code{character()}|\code{NULL})\cr
+Unnamed character vector of unique, nonempty descriptive names, ordered by cause code.
+If \code{NULL}, defaults to \code{"Cause 1"}, \code{"Cause 2"}, ..., \code{"Cause K"}.}
     }
     \if{html}{\out{</div>}}
   }
@@ -155,12 +176,37 @@ Label for the new instance.}
 }
 
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TaskCompRisks-print"></a>}}
+\if{latex}{\out{\hypertarget{method-TaskCompRisks-print}{}}}
+\subsection{\code{TaskCompRisks$print()}}{
+  Prints the task information, including cause names, event counts,
+proportions, and censoring frequency.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{(any)\cr
+Additional arguments passed to the parent print method.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The task object, invisibly.
+  }
+}
+
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TaskCompRisks-truth"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-truth}{}}}
 \subsection{\code{TaskCompRisks$truth()}}{
   True response for specified \code{row_ids}. This is the multi-state format
 using \link[survival:Surv]{Surv} with the \code{event} target column as a \code{factor}.
-Defaults to all rows with role \code{"use"}.
+Descriptive cause names are stored in the response's \code{states} attribute.
+Defaults to all active rows with role \code{"use"}.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TaskCompRisks$truth(rows = NULL)}
@@ -230,7 +276,7 @@ Row indices.}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-event}{}}}
 \subsection{\code{TaskCompRisks$event()}}{
   Returns the event indicators.
-\eqn{0} denotes censoring, and positive integers denote distinct event causes.
+\code{0} denotes censoring, and positive integers denote distinct event causes.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TaskCompRisks$event(rows = NULL)}
@@ -276,10 +322,11 @@ Row indices.}
 \if{html}{\out{<a id="method-TaskCompRisks-unique_event_times"></a>}}
 \if{latex}{\out{\hypertarget{method-TaskCompRisks-unique_event_times}{}}}
 \subsection{\code{TaskCompRisks$unique_event_times()}}{
-  Returns the sorted unique event outcome times (by any cause).
+  Returns the sorted unique event outcome times, optionally restricted to
+a specific cause.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{TaskCompRisks$unique_event_times(rows = NULL)}
+    \preformatted{TaskCompRisks$unique_event_times(rows = NULL, cause = NULL)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -287,6 +334,8 @@ Row indices.}
     \describe{
       \item{\code{rows}}{(\code{integer()})\cr
 Row indices.}
+      \item{\code{cause}}{(\code{integer(1)}|\code{NULL})\cr
+Cause code from \verb{$causes}, or \code{NULL} to include events of every cause.}
     }
     \if{html}{\out{</div>}}
   }
@@ -309,7 +358,7 @@ Row indices.}
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{strata}}{(\code{character()})\cr
-Stratification variables to use.}
+Vector of features to use for stratification.}
       \item{\code{rows}}{(\code{integer()})\cr
 Subset of row indices.}
       \item{\code{...}}{(any)\cr
@@ -319,6 +368,37 @@ Additional arguments passed down to \code{\link[survival:survfit.formula]{surviv
   }
   \subsection{Returns}{
     \link[survival:survfit.object]{survival::survfit.object}.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TaskCompRisks-event_counts"></a>}}
+\if{latex}{\out{\hypertarget{method-TaskCompRisks-event_counts}{}}}
+\subsection{\code{TaskCompRisks$event_counts()}}{
+  Returns the counts and relative frequencies of observed outcomes,
+including censoring (\code{0}) and all competing causes (\code{1}, ..., \code{K}).
+Frequencies are calculated over the specified rows (all active rows by default).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TaskCompRisks$event_counts(rows = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
+Row indices.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \code{\link[data.table:data.table]{data.table::data.table()}} with columns:
+\itemize{
+\item \code{cause}: Integer cause code (\code{0} denotes censoring).
+\item \code{name}: Descriptive cause name.
+\item \code{n}: Number of observations.
+\item \code{prop}: Proportion of observations.
+}
   }
 }
 

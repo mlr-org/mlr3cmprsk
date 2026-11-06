@@ -3,15 +3,18 @@
 #' @export
 print.PredictionDataCompRisks = function(x, ...) {
   n_times = map_int(x$cif, function(mat) ncol(mat) %??% 0L)
+  cause_names = attr(x$truth, "states")
   cif_times = if (length(n_times)) {
-    str_collapse(sprintf("%s=%i", names(x$cif), n_times))
+    str_collapse(sprintf("%s (%s) = %i", names(x$cif), cause_names, n_times))
   } else {
     "none"
   }
 
   catf(
     "<PredictionDataCompRisks> %i obs, %i causes, CIF times: %s",
-    length(x$row_ids), length(attr(x$truth, "states")), cif_times
+    length(x$row_ids),
+    length(attr(x$truth, "states")),
+    cif_times
   )
   invisible(x)
 }
@@ -19,11 +22,14 @@ print.PredictionDataCompRisks = function(x, ...) {
 #' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   n_obs = length(assert_row_ids(pdata$row_ids))
-  if (n_obs > 0) {
-    assert_class(pdata$truth, "Surv")
-    assert_true(length(pdata$truth) == n_obs)
 
-    causes = attr(pdata$truth, "states")
+  assert_class(pdata$truth, "Surv")
+  cause_names = attr(pdata$truth, "states")
+  assert_character(cause_names, min.len = 2L, any.missing = FALSE, unique = TRUE, pattern = "\\S")
+
+  causes = as.character(seq_along(cause_names))
+  if (n_obs > 0) {
+    assert_true(length(pdata$truth) == n_obs)
     assert_cif_list(pdata$cif, n_rows = n_obs, causes = causes)
 
     # Joint coherence between CIFs is desirable but not required
@@ -45,7 +51,7 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
   }
 
   if (!is.null(pdata$weights)) {
-    pdata$weights = assert_numeric(unname(pdata$weights), any.missing = FALSE)
+    assert_numeric(pdata$weights, any.missing = FALSE)
     if (length(pdata$weights) != n_obs) {
       error_learner_predict("Weights must have the same length as the number of predictions")
     }
@@ -53,7 +59,11 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
 
   if (!is.null(pdata$extra)) {
     assert_list(pdata$extra, names = "unique")
-    assert_names(names(pdata$extra), disjunct.from = c("row_ids", "time", "event", "CIF", "weights"))
+    assert_names(
+      names(pdata$extra),
+      disjunct.from = c("row_ids", "time", "event", "CIF", "weights")
+    )
+
     if (any(lengths(pdata$extra) != n_obs)) {
       error_learner_predict("Extra data must have the same length as the number of predictions")
     }
@@ -65,11 +75,11 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
 #' @export
 create_empty_prediction_data.TaskCompRisks = function(task, learner) {
   predict_types = mlr_reflections$learner_predict_types[["cmprsk"]][[learner$predict_type]]
-  causes = task$cmp_events
+  causes = as.character(task$causes)
 
   pdata = list(
     row_ids = integer(),
-    truth = Surv(numeric(), factor(integer(), levels = c("0", causes)))
+    truth = task$truth(integer()) # this still keeps the "Surv" class and attributes
   )
 
   if ("cif" %in% predict_types) {
@@ -102,6 +112,11 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
   assert_flag(keep_duplicates)
   if (length(dots) == 1L) {
     return(dots[[1L]])
+  }
+
+  cause_names = attr(dots[[1L]]$truth, "states")
+  if (!every(dots[-1L], function(x) identical(attr(x$truth, "states"), cause_names))) {
+    error_input("Cannot combine predictions: Different cause names")
   }
 
   predict_types = names(mlr_reflections$learner_predict_types$cmprsk)

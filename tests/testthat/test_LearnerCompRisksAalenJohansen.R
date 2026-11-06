@@ -9,7 +9,7 @@ test_that("autotest", {
 
 test_that("cmprsk.aalen returns aligned CIF time grids", {
   with_seed(42L, {
-    task = gen_cmprsk_task(n = 240, n_events = 3)
+    task = tgen("cmprsk", n_causes = 3L)$generate(240L)
     task$set_col_roles(cols = "event", add_to = "stratum")
     part = partition(task)
 
@@ -24,7 +24,7 @@ test_that("cmprsk.aalen returns aligned CIF time grids", {
 
     p = learner$predict(task, part$test)
     cif_list = p$cif
-    expect_equal(names(cif_list), task$cmp_events)
+    expect_equal(names(cif_list), as.character(task$causes))
 
     # CIF grids should match the training event-time grid for every cause (within tolerance)
     time_grids = lapply(cif_list, function(x) as.numeric(colnames(x)))

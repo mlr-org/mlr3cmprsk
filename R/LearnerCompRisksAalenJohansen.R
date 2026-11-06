@@ -43,7 +43,7 @@ LearnerCompRisksAalenJohansen = R6Class(
     #' All features have a score of `0` for this learner.
     #' This method exists solely for compatibility with the `mlr3` ecosystem,
     #' as this learner is used as a fallback for other survival learners that
-    #' require an `importance()` method.
+    #' may require an `importance()` method.
     #'
     #' @return Named `numeric()`.
     importance = function() {
@@ -74,7 +74,7 @@ LearnerCompRisksAalenJohansen = R6Class(
     .train = function(task) {
       survfit_obj = invoke(
         survival::survfit,
-        formula = task$formula(1),
+        formula = task$formula("1"),
         data = task$data(cols = task$target_names),
         .args = list(weights = private$.get_weights(task))
       )
@@ -88,8 +88,8 @@ LearnerCompRisksAalenJohansen = R6Class(
 
     .predict = function(task) {
       survfit_model = self$native_model
-      trans_mat = survfit_model$pstate
-      trans_mat = trans_mat[, -1L, drop = FALSE] # remove state 0 (probability of being censored)
+      trans_mat = survfit_model$pstate # columns: initial state (s0), then causes
+      trans_mat = trans_mat[, -1L, drop = FALSE] # remove initial state (prob. of being censored)
 
       times = survfit_model$time # unique time points from train set
       event_times = self$model$event_times # unique event times from train set
@@ -99,8 +99,13 @@ LearnerCompRisksAalenJohansen = R6Class(
       trans_mat = trans_mat[idx, , drop = FALSE]
 
       n_obs = task$nrow # number of test observations
-      cif_list = stats::setNames(vector("list", ncol(trans_mat)), colnames(trans_mat))
+      n_causes = ncol(trans_mat)
+      cif_list = set_names(
+        vector("list", n_causes),
+        as.character(seq_len(n_causes))
+      )
 
+      # the causes are determined from training set (survfit call)
       for (i in seq_along(cif_list)) {
         cif_list[[i]] = matrix(
           data = rep(trans_mat[, i], times = n_obs),

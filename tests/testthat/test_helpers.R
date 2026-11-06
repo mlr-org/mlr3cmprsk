@@ -1,4 +1,4 @@
-test_that("aggregate_cause_causes works", {
+test_that("aggregate_cause_causes", {
   # check that it identifies causes with non-finite scores
   scores = c("1" = 0.5, "2" = NaN, "3" = 0.7)
   expect_warning(
@@ -23,7 +23,7 @@ test_that("aggregate_cause_causes works", {
   )
 })
 
-test_that("resolve_cause_weights works", {
+test_that("resolve_cause_weights", {
   # no event 2 gives warning and zero weight for cause 2
   causes = c("1", "2", "3")
   expect_warning(

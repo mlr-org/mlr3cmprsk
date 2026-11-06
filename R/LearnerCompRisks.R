@@ -10,10 +10,11 @@
 #' in the test set.
 #'
 #' @details
-#' By design, competing risks learners fit all available causes in `task$cmp_events`
-#' and return a CIF for every cause and observation in [PredictionCompRisks].
-#' For example, [LearnerCompRisksFineGray] fits a separate subdistribution hazards model
-#' for each available cause and returns the CIFs from all of these models.
+#' Competing risks learners train models for all causes defined in the training task
+#' and, during prediction, return cumulative incidence function (CIF) predictions
+#' for every cause and observation in [PredictionCompRisks].
+#' For example, [LearnerCompRisksFineGray] trains one subdistribution hazards model
+#' per cause and uses these models to predict the corresponding cause-specific CIFs.
 #'
 #' @template param_id
 #' @template param_set

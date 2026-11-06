@@ -108,6 +108,31 @@ warn_cif_extrapolation = function(cif_list, times, causes) {
   invisible(NULL)
 }
 
+#' Validates cause labels/names and upon successful check, returns them.
+#'
+#' @param cause_names (`character()`)\cr
+#'   Cause names to validate.
+#' @param causes (`character()`)\cr
+#'   Expected cause codes: `"1"`, `"2"`, ..., `"K"`.
+#'
+#' @return The validated `cause_names` (invisible).
+#' @keywords internal
+#' @noRd
+assert_cause_names = function(cause_names, causes) {
+  cause_names = cause_names %??% paste("Cause", causes)
+
+  assert_character(
+    cause_names,
+    any.missing = FALSE,
+    unique = TRUE,
+    len = length(causes),
+    names = "unnamed",
+    pattern = "\\S" # non-empty string
+  )
+
+  invisible(cause_names)
+}
+
 #' Validates the `cause` parameter (against the `causes` from the prediction object)
 #' @keywords internal
 #' @noRd
