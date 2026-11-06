@@ -37,6 +37,15 @@ the associated sugar function
   “chol”, “copper”, “edema”, “hepato”, “platelet”, “protime”, “sex”,
   “spiders”, “stage”, “trig”, “trt”
 
+## Competing risks scenario
+
+Patients with primary biliary cholangitis are followed until liver
+transplantation (cause 1), death without prior transplantation (cause
+2), or censoring (0). Transplantation and death before transplantation
+are mutually exclusive first events. This analysis reduces a potentially
+more complex multi-state process to its first event: patients may die
+after transplantation, but subsequent deaths are not considered.
+
 ## Pre-processing
 
 - Removed column `id`.
@@ -53,8 +62,6 @@ the associated sugar function
 
 - Column `status` has 0 for censored, 1 for transplant and 2 for death.
 
-- Column `time` as been converted from days to months.
-
 ## See also
 
 - Chapter in the [mlr3book](https://mlr3book.mlr-org.com/):
@@ -69,4 +76,7 @@ the associated sugar function
   session
 
 Other Task:
-[`TaskCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/TaskCompRisks.md)
+[`TaskCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/TaskCompRisks.md),
+[`mlr_tasks_hoel`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_hoel.md),
+[`mlr_tasks_mgus2`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_mgus2.md),
+[`mlr_tasks_transplant`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_transplant.md)

@@ -17,6 +17,7 @@ as_task_cmprsk(
   time = "time",
   event = "event",
   id = deparse1(substitute(x)),
+  cause_names = NULL,
   ...
 )
 
@@ -26,6 +27,7 @@ as_task_cmprsk(
   time = "time",
   event = "event",
   id = deparse1(substitute(x)),
+  cause_names = NULL,
   ...
 )
 ```
@@ -66,3 +68,14 @@ as_task_cmprsk(
   (`character(1)`)  
   Id for the new task. Defaults to the (deparsed and substituted) name
   of `x`.
+
+- cause_names:
+
+  ([`character()`](https://rdrr.io/r/base/character.html)\|`NULL`)  
+  Unnamed character vector of unique, nonempty descriptive names,
+  ordered by cause code. If `NULL`, defaults to `"Cause 1"`,
+  `"Cause 2"`, ..., `"Cause K"`.
+
+## Value
+
+[TaskCompRisks](https://mlr3cmprsk.mlr-org.com/reference/TaskCompRisks.md).

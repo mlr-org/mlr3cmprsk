@@ -1,9 +1,10 @@
 # Assert a List of Cumulative Incidence Matrices
 
-Checks the structure, cause names, and probabilities of a list of
-cumulative incidence function (CIF) matrices. This is the format used by
+Checks and validates the structure, optional cause names, and
+probabilities in a list of cumulative incidence function (CIF) matrices.
+This is the format used by
 [PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md)
-to store predictions for competing events.
+to store the predictions of competing risk models.
 
 ## Usage
 
@@ -16,10 +17,9 @@ assert_cif_list(x, n_rows = NULL, causes = NULL)
 - x:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
-  A list of at least two numeric matrices, one per competing event. List
-  names must be exactly `"1"`, `"2"`, ..., `"K"`, in that order, where
-  `K` is the number of matrices. Rows represent observations, and
-  columns represent time points.
+  A list of at least two numeric matrices, one per competing event.
+  Names are checked only when `causes` is supplied. Rows represent
+  observations, and columns represent time points.
 
 - n_rows:
 
@@ -30,9 +30,9 @@ assert_cif_list(x, n_rows = NULL, causes = NULL)
 - causes:
 
   ([`character()`](https://rdrr.io/r/base/character.html)\|`NULL`)  
-  Expected competing event names: `"1"`, `"2"`, ..., `"K"`, in that
-  order. If supplied, these must match the list names exactly. If
-  `NULL`, the expected names are determined from the length of `x`.
+  Expected unique, nonempty competing event names or codes. If supplied,
+  these must match the list names exactly, including their order. If
+  `NULL`, list names are not checked, and unnamed lists are accepted.
 
 ## Value
 
@@ -61,14 +61,11 @@ Matrices are checked individually and may use different time grids.
 
 ``` r
 cif = list(
-  "1" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4), nrow = 2L),
-  "2" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
+  "Death" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.4), nrow = 2L),
+  "Relapse" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
 )
-cif = lapply(cif, function(x) {
-  colnames(x) = c("0", "1", "2")
-  x
-})
+colnames(cif$Death) = 0:3
+colnames(cif$Relapse) = 0:2
 
-assert_cif_list(cif)
-assert_cif_list(cif, n_rows = 2L, causes = c("1", "2"))
+assert_cif_list(cif, n_rows = 2L, causes = c("Death", "Relapse"))
 ```

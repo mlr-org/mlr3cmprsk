@@ -236,13 +236,17 @@ task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 task$set_col_roles(cols = "status", add_to = "stratum")
 task
 #> 
-#> ── <TaskCompRisks> (276x8): Primary Biliary Cholangitis ────────────────────────
+#> ── <TaskCompRisks> (276x8): Mayo Clinic Primary Biliary Cholangitis Data ───────
 #> • Target: time and status
 #> • Properties: strata
 #> • Features (6):
 #>   • dbl (4): albumin, ast, bili, protime
 #>   • int (2): age, chol
 #> • Strata: status
+#> • Causes (2):
+#>   • 1 (Liver transplantation): 18 (6.5%)
+#>   • 2 (Death without transplantation): 111 (40.2%)
+#> • Censored: 147 (53.3%)
 
 # Create training and test sets
 set.seed(42L)
@@ -258,23 +262,23 @@ learner$native_model
 #> convergence:  TRUE 
 #> coefficients:
 #>        age    albumin        ast       bili       chol    protime 
-#> -0.0977200 -0.3992000 -0.0019480  0.0006162  0.0009104 -0.2221000 
+#> -0.0980000 -0.4300000 -0.0020780 -0.0006369  0.0009530 -0.2304000 
 #> standard errors:
-#> [1] 0.027980 0.924300 0.003838 0.076710 0.001232 0.393500
+#> [1] 0.028100 0.954300 0.003896 0.078480 0.001298 0.398700
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 0.00048 0.67000 0.61000 0.99000 0.46000 0.57000 
+#> 0.00049 0.65000 0.59000 0.99000 0.46000 0.56000 
 #> 
 #> $`2`
 #> convergence:  TRUE 
 #> coefficients:
 #>        age    albumin        ast       bili       chol    protime 
-#>  4.543e-02 -1.020e+00  3.061e-03  1.200e-01  6.019e-05  2.155e-01 
+#>  4.616e-02 -1.043e+00  3.302e-03  1.210e-01  2.155e-05  2.181e-01 
 #> standard errors:
-#> [1] 0.0132100 0.2377000 0.0019090 0.0173200 0.0003912 0.1083000
+#> [1] 0.0134800 0.2482000 0.0019800 0.0175100 0.0004066 0.1088000
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 5.8e-04 1.8e-05 1.1e-01 4.3e-12 8.8e-01 4.7e-02 
+#> 6.2e-04 2.6e-05 9.5e-02 4.9e-12 9.6e-01 4.5e-02 
 #> 
 #> attr(,"class")
 #> [1] "fine_gray"
@@ -285,60 +289,60 @@ predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>       10  123     2 <list[2]>
-#>       16    4     2 <list[2]>
+#>        1  400     2 <list[2]>
+#>       10 3762     2 <list[2]>
+#>       16  131     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      157   73     1 <list[2]>
-#>      208   27     1 <list[2]>
-#>      213   47     1 <list[2]>
+#>      157 2241     1 <list[2]>
+#>      208  837     1 <list[2]>
+#>      213 1435     1 <list[2]>
 
 # IBS over 100 equally spaced points from 0 to the 90th test-set follow-up percentile,
 # weighted by event frequencies
 predictions$score(msr("cmprsk.ibs"))
 #> cmprsk.ibs 
-#>  0.1116802 
+#>  0.1107625 
 
 # IBS with an upper integration horizon of 100 months
 predictions$score(msr("cmprsk.ibs", t_max = 100))
-#> cmprsk.ibs 
-#>  0.1036116 
+#>  cmprsk.ibs 
+#> 0.004635376 
 
 # IBS up to the 85th percentile of test-set follow-up times
 predictions$score(msr("cmprsk.ibs", t_quantile = 0.85))
 #> cmprsk.ibs 
-#>  0.1076083 
+#>  0.1065698 
 
 # IBS over 20 equally spaced points up to the default 90th percentile
 predictions$score(msr("cmprsk.ibs", ntimes = 20L))
 #> cmprsk.ibs 
-#>  0.1078449 
+#>  0.1067466 
 
 # Define the integration grid in months
 times = seq(0, 100, by = 5)
 
 # IBS from 0 to 100 months on a 5-month grid, weighted by event frequencies
 predictions$score(msr("cmprsk.ibs", times = times))
-#> cmprsk.ibs 
-#>  0.1002826 
+#>  cmprsk.ibs 
+#> 0.004142072 
 
 # IBS from 0 to 100 months on a 5-month grid, with equal weights for both causes
 predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.5, 0.5)))
 #> cmprsk.ibs 
-#> 0.06754883 
+#> 0.00240688 
 
 # IBS from 0 to 100 months on a 5-month grid, with custom weights for transplant and death
 predictions$score(msr("cmprsk.ibs", times = times, cause_weights = c(0.2, 0.8)))
-#> cmprsk.ibs 
-#> 0.09479177 
+#>  cmprsk.ibs 
+#> 0.003851008 
 
 # IBS from 0 to 100 months on a 5-month grid, for transplant only
 predictions$score(msr("cmprsk.ibs", times = times, cause = 1))
 #> cmprsk.ibs 
-#> 0.02214392 
+#>          0 
 
 # IBS from 0 to 100 months on a 5-month grid, for death only
 predictions$score(msr("cmprsk.ibs", times = times, cause = 2))
 #> cmprsk.ibs 
-#>  0.1129537 
+#> 0.00481376 
 ```

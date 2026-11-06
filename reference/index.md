@@ -19,8 +19,22 @@
 
 ## Competing Risks Tasks
 
+- [`mlr_tasks_hoel`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_hoel.md)
+  : Mouse Cancer Competing Risks Task
+- [`mlr_tasks_mgus2`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_mgus2.md)
+  : Monoclonal Gammopathy Competing Risks Task
 - [`mlr_tasks_pbc`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_pbc.md)
   : Primary Biliary Cholangitis Competing Risks Task
+- [`mlr_tasks_transplant`](https://mlr3cmprsk.mlr-org.com/reference/mlr_tasks_transplant.md)
+  : Liver Transplant Waiting List Competing Risks Task
+
+## Competing Risks Simulation
+
+- [`mlr_task_generators_cmprsk`](https://mlr3cmprsk.mlr-org.com/reference/mlr_task_generators_cmprsk.md)
+  [`TaskGeneratorCompRisks`](https://mlr3cmprsk.mlr-org.com/reference/mlr_task_generators_cmprsk.md)
+  : Competing Risks Task Generator
+- [`sim_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/sim_cmprsk.md)
+  : Simulate competing risks data
 
 ## Competing Risks Learners
 

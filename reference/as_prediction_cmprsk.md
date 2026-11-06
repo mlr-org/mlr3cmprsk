@@ -60,13 +60,14 @@ as_prediction(x, check = FALSE, ...)
 ## Details
 
 If `x` is a named `list`, it must contain `row_ids`, `truth`, and `cif`.
-The `weights` and `extra` elements are optional. These elements are
+The `weights` and `extra` elements are optional. Descriptive cause names
+are taken from the `states` attribute of `truth`. These elements are
 passed to the
 [PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md)
 constructor and validated there (using `check = TRUE` by default). The
 `cif` element must be a nonempty list of matrices, with one matrix for
-every task competing cause. This requirement also applies to the
-internal prediction data of `PredictionDataCompRisks` class.
+each competing cause. This requirement also applies to the internal
+prediction data of `PredictionDataCompRisks` class.
 
 If `x` is a `data.frame`/`data.table` input, the following requirements
 must be met:
@@ -76,6 +77,8 @@ must be met:
 
 - An optional column `weights` may hold measurement weights.
 
+- An optional `cause_names` attribute may hold descriptive cause names.
+
 - All other columns are stored as `extra` data. Column names must be
   unique.
 
@@ -83,7 +86,7 @@ must be met:
   vectors (one per cause), with names exactly `"1"`, `"2"`, ..., `"K"`,
   in that order (where `K` is the number of competing risks).
 
-- Cause names must be identical across observations and in the same
+- Cause codes must be identical across observations and in the same
   order.
 
 - CIF vectors corresponding to the same cause must have the same length
@@ -91,7 +94,7 @@ must be met:
   observations.
 
 - Values for the `event` column must be 0 (censoring) or one of the
-  consecutive cause codes 1, 2, ..., K.
+  consecutive cause codes `"1"`, `"2"`, ..., `"K"`.
 
 ## Examples
 
@@ -107,13 +110,13 @@ as_prediction_cmprsk(p)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>        2  147     0 <list[2]>
-#>        3   33     2 <list[2]>
+#>        1  400     2 <list[2]>
+#>        2 4500     0 <list[2]>
+#>        3 1012     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      274   30     0 <list[2]>
-#>      275   27     0 <list[2]>
-#>      276   25     0 <list[2]>
+#>      274  939     0 <list[2]>
+#>      275  839     0 <list[2]>
+#>      276  788     0 <list[2]>
 
 # Convert a named list to a PredictionCompRisks object
 # The list must contain `row_ids`, `truth`, and `cif` elements
@@ -126,13 +129,13 @@ as_prediction_cmprsk(p_list)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>        2  147     0 <list[2]>
-#>        3   33     2 <list[2]>
+#>        1  400     2 <list[2]>
+#>        2 4500     0 <list[2]>
+#>        3 1012     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      274   30     0 <list[2]>
-#>      275   27     0 <list[2]>
-#>      276   25     0 <list[2]>
+#>      274  939     0 <list[2]>
+#>      275  839     0 <list[2]>
+#>      276  788     0 <list[2]>
 
 # Convert a data.frame to a PredictionCompRisks object
 # The data.frame must contain the required columns: row_ids, time, event, and CIF
@@ -141,26 +144,26 @@ as_prediction_cmprsk(tab)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>        2  147     0 <list[2]>
-#>        3   33     2 <list[2]>
+#>        1  400     2 <list[2]>
+#>        2 4500     0 <list[2]>
+#>        3 1012     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      274   30     0 <list[2]>
-#>      275   27     0 <list[2]>
-#>      276   25     0 <list[2]>
+#>      274  939     0 <list[2]>
+#>      275  839     0 <list[2]>
+#>      276  788     0 <list[2]>
 
 # Convert internal prediction data using as_prediction()
 p$data
-#> <PredictionDataCompRisks> 276 obs, 2 causes, CIF times: 1=80, 2=80
+#> <PredictionDataCompRisks> 276 obs, 2 causes, CIF times: 1 (Liver transplantation) = 127, 2 (Death without transplantation) = 127
 as_prediction(p$data)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>        2  147     0 <list[2]>
-#>        3   33     2 <list[2]>
+#>        1  400     2 <list[2]>
+#>        2 4500     0 <list[2]>
+#>        3 1012     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      274   30     0 <list[2]>
-#>      275   27     0 <list[2]>
-#>      276   25     0 <list[2]>
+#>      274  939     0 <list[2]>
+#>      275  839     0 <list[2]>
+#>      276  788     0 <list[2]>
 ```

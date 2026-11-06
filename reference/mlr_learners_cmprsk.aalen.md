@@ -120,7 +120,7 @@ Creates a new instance of this
 
 All features have a score of `0` for this learner. This method exists
 solely for compatibility with the `mlr3` ecosystem, as this learner is
-used as a fallback for other survival learners that require an
+used as a fallback for other survival learners that may require an
 `importance()` method.
 
 #### Usage
@@ -174,13 +174,17 @@ task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 task$set_col_roles(cols = "status", add_to = "stratum")
 task
 #> 
-#> ── <TaskCompRisks> (276x8): Primary Biliary Cholangitis ────────────────────────
+#> ── <TaskCompRisks> (276x8): Mayo Clinic Primary Biliary Cholangitis Data ───────
 #> • Target: time and status
 #> • Properties: strata
 #> • Features (6):
 #>   • dbl (4): albumin, ast, bili, protime
 #>   • int (2): age, chol
 #> • Strata: status
+#> • Causes (2):
+#>   • 1 (Liver transplantation): 18 (6.5%)
+#>   • 2 (Death without transplantation): 111 (40.2%)
+#> • Censored: 147 (53.3%)
 
 # Create training and test sets
 set.seed(42L)
@@ -192,14 +196,14 @@ learner = lrn("cmprsk.aalen")
 # Train on the training set
 learner$train(task, row_ids = part$train)
 learner$native_model
-#> Call: survfit(formula = task$formula(1), data = task$data(cols = task$target_names), 
+#> Call: survfit(formula = task$formula("1"), data = task$data(cols = task$target_names), 
 #>     weights = NULL)
 #> 
-#>        n nevent     rmean se(rmean)*
-#> (s0) 184      0 90.653492   4.062322
-#> 1    184     12  7.979854   2.225116
-#> 2    184     74 50.366654   4.044563
-#>    *restricted mean time in state (max time = 149 )
+#>                                 n nevent     rmean se(rmean)*
+#> (s0)                          184      0 2769.9515  123.93141
+#> Liver transplantation         184     12  243.9978   68.02923
+#> Death without transplantation 184     74 1542.0507  123.46668
+#>    *restricted mean time in state (max time = 4556 )
 
 # Predict CIFs for the test set
 predictions = learner$predict(task, row_ids = part$test)
@@ -207,16 +211,16 @@ predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>       10  123     2 <list[2]>
-#>       16    4     2 <list[2]>
+#>        1  400     2 <list[2]>
+#>       10 3762     2 <list[2]>
+#>       16  131     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      157   73     1 <list[2]>
-#>      208   27     1 <list[2]>
-#>      213   47     1 <list[2]>
+#>      157 2241     1 <list[2]>
+#>      208  837     1 <list[2]>
+#>      213 1435     1 <list[2]>
 
 # Score predictions
 predictions$score()
 #> cmprsk.ibs 
-#>  0.1780101 
+#>  0.1775434 
 ```

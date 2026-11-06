@@ -17,13 +17,14 @@ risks problems:
 
 ## Details
 
-By design, competing risks learners fit all available causes in
-`task$cmp_events` and return a CIF for every cause and observation in
+Competing risks learners train models for all causes defined in the
+training task and, during prediction, return cumulative incidence
+function (CIF) predictions for every cause and observation in
 [PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md).
 For example,
 [LearnerCompRisksFineGray](https://mlr3cmprsk.mlr-org.com/reference/mlr_learners_cmprsk.fg.md)
-fits a separate subdistribution hazards model for each available cause
-and returns the CIFs from all of these models.
+trains one subdistribution hazards model per cause and uses these models
+to predict the corresponding cause-specific CIFs.
 
 ## Super class
 

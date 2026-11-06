@@ -195,13 +195,17 @@ task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
 task$set_col_roles(cols = "status", add_to = "stratum")
 task
 #> 
-#> ── <TaskCompRisks> (276x8): Primary Biliary Cholangitis ────────────────────────
+#> ── <TaskCompRisks> (276x8): Mayo Clinic Primary Biliary Cholangitis Data ───────
 #> • Target: time and status
 #> • Properties: strata
 #> • Features (6):
 #>   • dbl (4): albumin, ast, bili, protime
 #>   • int (2): age, chol
 #> • Strata: status
+#> • Causes (2):
+#>   • 1 (Liver transplantation): 18 (6.5%)
+#>   • 2 (Death without transplantation): 111 (40.2%)
+#> • Censored: 147 (53.3%)
 
 # Create training and test sets
 set.seed(42L)
@@ -217,23 +221,23 @@ learner$native_model
 #> convergence:  TRUE 
 #> coefficients:
 #>        age    albumin        ast       bili       chol    protime 
-#> -0.0977200 -0.3992000 -0.0019480  0.0006162  0.0009104 -0.2221000 
+#> -0.0980000 -0.4300000 -0.0020780 -0.0006369  0.0009530 -0.2304000 
 #> standard errors:
-#> [1] 0.027980 0.924300 0.003838 0.076710 0.001232 0.393500
+#> [1] 0.028100 0.954300 0.003896 0.078480 0.001298 0.398700
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 0.00048 0.67000 0.61000 0.99000 0.46000 0.57000 
+#> 0.00049 0.65000 0.59000 0.99000 0.46000 0.56000 
 #> 
 #> $`2`
 #> convergence:  TRUE 
 #> coefficients:
 #>        age    albumin        ast       bili       chol    protime 
-#>  4.543e-02 -1.020e+00  3.061e-03  1.200e-01  6.019e-05  2.155e-01 
+#>  4.616e-02 -1.043e+00  3.302e-03  1.210e-01  2.155e-05  2.181e-01 
 #> standard errors:
-#> [1] 0.0132100 0.2377000 0.0019090 0.0173200 0.0003912 0.1083000
+#> [1] 0.0134800 0.2482000 0.0019800 0.0175100 0.0004066 0.1088000
 #> two-sided p-values:
 #>     age albumin     ast    bili    chol protime 
-#> 5.8e-04 1.8e-05 1.1e-01 4.3e-12 8.8e-01 4.7e-02 
+#> 6.2e-04 2.6e-05 9.5e-02 4.9e-12 9.6e-01 4.5e-02 
 #> 
 #> attr(,"class")
 #> [1] "fine_gray"
@@ -244,42 +248,51 @@ predictions
 #> 
 #> ── <PredictionCompRisks> for 92 observations: ──────────────────────────────────
 #>  row_ids time event       CIF
-#>        1   13     2 <list[2]>
-#>       10  123     2 <list[2]>
-#>       16    4     2 <list[2]>
+#>        1  400     2 <list[2]>
+#>       10 3762     2 <list[2]>
+#>       16  131     2 <list[2]>
 #>      ---  ---   ---       ---
-#>      157   73     1 <list[2]>
-#>      208   27     1 <list[2]>
-#>      213   47     1 <list[2]>
+#>      157 2241     1 <list[2]>
+#>      208  837     1 <list[2]>
+#>      213 1435     1 <list[2]>
 
 # AUC at the median observed test-set time,
 # weighted by event frequencies
 predictions$score(msr("cmprsk.auc"))
 #> cmprsk.auc 
-#>  0.8691053 
+#>  0.8676099 
 
 # AUC at 100 months, weighted by event frequencies
 predictions$score(msr("cmprsk.auc", time = 100))
+#> Warning: 
+#> ✖ Non-finite score (NaN, NA, or Inf) for cause(s): 1.
+#> → Class: RiskRegressionScoreNotFinite
 #> cmprsk.auc 
-#>  0.8279221 
+#>        NaN 
 
 # AUC at 100 months, with equal weights for both causes
 predictions$score(msr("cmprsk.auc", time = 100, cause_weights = c(0.5, 0.5)))
+#> Warning: 
+#> ✖ Non-finite score (NaN, NA, or Inf) for cause(s): 1.
+#> → Class: RiskRegressionScoreNotFinite
 #> cmprsk.auc 
-#>  0.8219801 
+#>        NaN 
 
 # AUC at 100 months, with custom weights for transplant and death
 predictions$score(msr("cmprsk.auc", time = 100, cause_weights = c(0.2, 0.8)))
+#> Warning: 
+#> ✖ Non-finite score (NaN, NA, or Inf) for cause(s): 1.
+#> → Class: RiskRegressionScoreNotFinite
 #> cmprsk.auc 
-#>  0.8269254 
+#>        NaN 
 
 # AUC at 100 months, for transplant only
 predictions$score(msr("cmprsk.auc", time = 100, cause = 1))
 #> cmprsk.auc 
-#>   0.813738 
+#>        NaN 
 
 # AUC at 100 months, for death only
 predictions$score(msr("cmprsk.auc", time = 100, cause = 2))
 #> cmprsk.auc 
-#>  0.8302222 
+#>  0.9444444 
 ```
