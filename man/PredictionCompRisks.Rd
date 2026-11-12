@@ -4,38 +4,44 @@
 \alias{PredictionCompRisks}
 \title{Prediction Object for Competing Risks}
 \description{
-This object stores the predictions returned by a learner of class \link{LearnerCompRisks}.
-
-The \code{task_type} is set to \code{"cmprsk"}.
-
-Causes use consecutive codes 1, 2, ..., K, matching the task used for prediction.
-By design, \strong{predictions contain one CIF matrix for every cause} in \code{task$causes},
-including causes that are not observed among the predicted observations.
-Filtering observations retains all cause levels and CIFs, even for unobserved causes.
-Combining predictions requires the same cause set.
+Stores competing risks predictions returned by a learner of class \link{LearnerCompRisks}.
+\itemize{
+\item The \verb{$cif} field provides \strong{cumulative incidence function (CIF) predictions},
+with one matrix (observations x times) per cause.
+\item The \verb{$times} field provides the corresponding numeric time grids (can be different per cause).
+\item The \verb{$cause_names} field provides the descriptive cause names.
+\item The \code{task_type} is set to \code{"cmprsk"}.
+}
 
 Accessing all-cause survival or cause-specific hazard functions or similar quantities
-from a \link{LearnerCompRisks} object is not possible at the moment.
+from the CIF prediction object is not possible at the moment.
 }
 \examples{
 library(mlr3)
 task = tsk("pbc")
-learner = lrn("cmprsk.aalen")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
+learner = lrn("cmprsk.fg")
 part = partition(task)
 p = learner$train(task, part$train)$predict(task, part$test)
 p
 
-# CIF list: 1 matrix (obs x times) per competing event
-names(p$cif) # cause codes
-p$cause_names # descriptive names, indexed by numeric cause codes
-# CIF matrix for cause 1 (first 5 test observations and 20 time points)
-p$cif[["1"]][1:5, 1:20]
-# CIF matrix for cause 2 (first 5 test observations and 20 time points)
-p$cif[["2"]][1:5, 1:20]
+# CIF list: one matrix (obs x times) per competing event
+str(p$cif)
+# numeric time points for each cause
+p$times
+# descriptive names, indexed by numeric cause codes
+p$cause_names
+# CIF matrix for cause 1 (first 5 test observations and 5 time points)
+p$cif[["1"]][1:5, 1:5]
+# CIF matrix for cause 2 (first 5 test observations and 5 time points)
+p$cif[["2"]][1:5, 1:5]
 
 # data.table conversion
 tab = as.data.table(p)
-tab$CIF[[1]] # for first test observation, list of CIF vectors
+# CIF for first test observation (2 causes)
+tab$CIF[[1]]
+# time points are available in the data.table attributes
+attr(tab, "times")
 
 }
 \concept{Prediction}
@@ -45,11 +51,15 @@ tab$CIF[[1]] # for first test observation, list of CIF vectors
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
+    \item{\code{times}}{(\code{list()})\cr
+Read-only numeric time grids, named by cause code and stored as an attribute of \verb{$data}.}
+
     \item{\code{cause_names}}{(\code{character()})\cr
-Read-only descriptive cause names, named by the cause codes \code{"1"}, \code{"2"}, ..., \code{"K"}.}
+Read-only descriptive cause names, named by cause code and stored in the
+attribute \code{states} of \verb{$truth}.}
 
     \item{\code{cif}}{(\code{list()})\cr
-Access the stored CIFs.}
+Read-only list of CIF matrices with column names derived from the corresponding \verb{$times} vectors.}
   }
   \if{html}{\out{</div>}}
 }
@@ -82,6 +92,7 @@ Access the stored CIFs.}
   row_ids = task$row_ids,
   truth = task$truth(),
   cif,
+  times,
   weights = NULL,
   extra = NULL,
   check = TRUE
@@ -96,8 +107,9 @@ Task, used to extract defaults for \code{row_ids} and \code{truth}.}
       \item{\code{row_ids}}{(\code{integer()})\cr
 Row ids of the predicted observations, i.e. the row ids of the test set.}
       \item{\code{truth}}{(\code{survival::Surv()})\cr
-True (observed) response.
-The \code{states} attribute contains descriptive cause names, ordered by numeric cause code.}
+True observed response.
+Descriptive cause names are derived from the \code{states} attribute, ordered
+by numeric cause code.}
       \item{\code{cif}}{(\code{list()})\cr
 A required \code{list} of two or more \code{matrix} objects.
 Each matrix represents a different competing event (or cause) and stores the
@@ -105,6 +117,11 @@ Each matrix represents a different competing event (or cause) and stores the
 For each matrix, rows refer to observations and columns to time points.
 CIF lists must use numeric cause codes as names, i.e.
 \code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
+      \item{\code{times}}{(\code{list()})\cr
+Required named list of numeric time vectors, with the same names and order as \code{cif}.
+Each vector must be finite, non-negative, strictly increasing, and have
+one entry per corresponding CIF matrix column.
+Different causes may use different time grids.}
       \item{\code{weights}}{(\code{numeric()})\cr
 Optional measurement weights for the predicted observations, as supplied by a task with
 column role \code{"weights_measure"}.}
@@ -113,18 +130,26 @@ Optional named list of additional per-observation data.
 Each element must have the same length as \code{row_ids}.
 Names must not be \code{row_ids}, \code{time}, \code{event}, \code{CIF}, or \code{weights}, which are reserved prediction columns.}
       \item{\code{check}}{(\code{logical(1)})\cr
-If \code{TRUE}, performs argument checks.
-Use \code{TRUE} for user-supplied data.
+If \code{TRUE} (default), performs argument checks which is encouraged for user-supplied data.
 With \code{FALSE}, inputs are assumed valid and correct behavior is not guaranteed.}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Details}{
-    The \code{cif} input is a list of CIF matrices.
+    The \code{cif} input is a named list of numeric CIF matrices, with rows = observations
+and columns = time points.
+The list names are consecutive cause codes (\code{"1"}, \code{"2"}, ..., \code{"K"}) matching
+the task's competing causes.
+Predictions contain a matrix for every task cause, including causes absent
+from the observed response of the predicted observations.
+Filtering observations retains all causes and their CIF matrices.
+Combining predictions requires matching cause codes and descriptive names,
+and aligns each cause's matrices on the union of its time grids.
+
 With \code{check = TRUE}, nonempty predictions are validated using \code{\link[=assert_cif_list]{assert_cif_list()}}.
 This checks the list structure and cause codes, the time points used for
-prediction, and validates each CIF matrix, including probabilities in [0, 1]
-and non-decreasing probabilities over time.
+prediction, and validates that each CIF matrix includes probabilities in [0, 1]
+which are non-decreasing over time.
 
 With \code{options(mlr3cmprsk.warn_cif_sum = TRUE)}, joint coherence is checked separately
 by aligning the CIF matrices on a common time grid
@@ -132,9 +157,10 @@ and summing their probabilities across causes for each observation and time poin
 A sum greater than 1, allowing a numerical tolerance of \code{sqrt(.Machine$double.eps)},
 triggers a warning of class \code{Mlr3WarningCIFSumExceedsOne}.
 This diagnostic is disabled by default; see the Package Options section in \link{mlr3cmprsk-package}.
-The prediction is retained without modifying its probabilities.
-Such sums can occur with independently fitted cause-specific models, such
-as the Fine-Gray model.
+Predictions are retained without modification.
+Such violations can arise when cause-specific CIFs are estimated
+independently, as with separately fitted Fine-Gray subdistribution
+hazards models.
   }
 }
 
