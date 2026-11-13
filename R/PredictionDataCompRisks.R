@@ -21,22 +21,43 @@ print.PredictionDataCompRisks = function(x, ...) {
 
 #' @export
 check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
-  n_obs = length(assert_row_ids(pdata$row_ids))
+  # get elements stored
+  row_ids = pdata$row_ids
+  truth = pdata$truth
+  cause_names = attr(truth, "states")
+  cif_list = pdata$cif
+  times = attr(pdata, "times", exact = TRUE)
+  weights = pdata$weights
+  extra = pdata$extra
 
-  assert_class(pdata$truth, "Surv")
-  cause_names = attr(pdata$truth, "states")
-  assert_character(cause_names, min.len = 2L, any.missing = FALSE, unique = TRUE, pattern = "\\S")
+  # check row_ids and truth
+  assert_row_ids(row_ids)
+  n_obs = length(row_ids)
+  assert_class(truth, "Surv")
+  assert_true(length(truth) == n_obs)
 
+  # check cause names
+  assert_character(
+    cause_names,
+    min.len = 2L,
+    any.missing = FALSE,
+    unique = TRUE,
+    pattern = "\\S"
+  )
+
+  # cause codes => "1","2",...,"K"
   causes = as.character(seq_along(cause_names))
+
+  # check the CIF matrices + time grids, and the cause codes
   if (n_obs > 0) {
-    assert_true(length(pdata$truth) == n_obs)
-    assert_cif_list(pdata$cif, n_rows = n_obs, causes = causes)
+    assert_list(times, len = length(causes))
+    assert_cif_list(cif_list, times, n_rows = n_obs, causes = causes)
 
     # Joint coherence between CIFs is desirable but not required
     # Independently fitted cause-specific models (e.g. Fine-Gray)
     # can produce CIFs whose sum exceeds 1.
     if (getOption("mlr3cmprsk.warn_cif_sum", FALSE)) {
-      aligned_cifs = align_cifs(pdata$cif, bind_rows = FALSE)
+      aligned_cifs = align_cifs(cif_list, times, bind_rows = FALSE)
       cif_sum = Reduce(`+`, aligned_cifs)
       tol = sqrt(.Machine$double.eps)
 
@@ -48,6 +69,11 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
         )
       }
     }
+  } else {
+    assert_list(times, len = 0L)
+    assert_list(cif_list, types = "matrix", len = length(causes))
+    assert_names(names(cif_list), identical.to = causes)
+    walk(cif_list, function(mat) assert_matrix(mat, mode = "numeric", nrows = 0L, ncols = 0L))
   }
 
   if (!is.null(pdata$weights)) {
