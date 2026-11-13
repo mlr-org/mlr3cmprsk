@@ -151,7 +151,7 @@ PredictionCompRisks = R6Class(
     #' Read-only numeric time grids, named by cause code and stored as an attribute of `$data`.
     times = function(rhs) {
       assert_ro_binding(rhs)
-      attr(self$data, "times", exact = TRUE)
+      attr(self$data, "times")
     },
 
     #' @field cause_names (`character()`)\cr
