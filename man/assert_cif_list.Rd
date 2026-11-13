@@ -4,13 +4,18 @@
 \alias{assert_cif_list}
 \title{Assert a List of Cumulative Incidence Matrices}
 \usage{
-assert_cif_list(x, n_rows = NULL, causes = NULL)
+assert_cif_list(x, times = NULL, n_rows = NULL, causes = NULL)
 }
 \arguments{
 \item{x}{(\code{list()})\cr
 A list of at least two numeric matrices, one per competing event.
 Names are checked only when \code{causes} is supplied.
 Rows represent observations, and columns represent time points.}
+
+\item{times}{(\code{list()}|\code{NULL})\cr
+List of numeric time vectors, matched to \code{x} by position.
+Names are checked only when \code{causes} is supplied.
+If \code{NULL}, time points are taken from each matrix's column names.}
 
 \item{n_rows}{(\code{integer(1)}|\code{NULL})\cr
 Expected number of observations in each matrix.
@@ -25,29 +30,30 @@ If \code{NULL}, list names are not checked, and unnamed lists are accepted.}
 Returns \code{NULL} invisibly if all checks pass, otherwise raises an error.
 }
 \description{
-Checks and validates the structure, optional cause names, and probabilities in a list
-of cumulative incidence function (CIF) matrices.
+Validates the structure, optional cause names, time points, and probabilities
+in a list of cumulative incidence function (CIF) matrices.
 This is the format used by \link{PredictionCompRisks} to store the predictions of
 competing risk models.
+
+Uses \code{\link[survdistr:assert_prob]{survdistr::assert_prob()}} with \code{type = "cif"}.
 }
 \details{
-Each matrix is checked with \code{\link[survdistr:assert_prob]{survdistr::assert_prob()}} using \code{type = "cif"}:
-\itemize{
-\item At least one row and one column are required, and missing values are not allowed.
-\item Column names must represent unique, increasing, non-negative numeric time points.
-\item Probabilities must be between 0 and 1 and non-decreasing over time within each row.
-\item If time 0 is included, its probabilities must all be 0.
-}
-
-Matrices are checked individually and may use different time grids.
+CIF matrices may use different time grids.
+See \code{\link[survdistr:assert_prob]{survdistr::assert_prob()}} for the probability and time validation rules
+for \code{type = "cif"}.
 }
 \examples{
 cif = list(
   "Death" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.4), nrow = 2L),
   "Relapse" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
 )
-colnames(cif$Death) = 0:3
-colnames(cif$Relapse) = 0:2
+times = list(Death = 0:3, Relapse = 0:2)
 
-assert_cif_list(cif, n_rows = 2L, causes = c("Death", "Relapse"))
+assert_cif_list(cif, times, n_rows = 2L, causes = c("Death", "Relapse"))
+
+# Alternatively, supply time points through column names
+colnames(cif$Death) = times$Death
+colnames(cif$Relapse) = times$Relapse
+cif
+assert_cif_list(cif)
 }
