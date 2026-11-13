@@ -2,7 +2,7 @@
 
 #' @export
 print.PredictionDataCompRisks = function(x, ...) {
-  n_times = map_int(x$cif, function(mat) ncol(mat) %??% 0L)
+  n_times = lengths(attr(x, "times")[names(x$cif)])
   cause_names = attr(x$truth, "states")
   cif_times = if (length(n_times)) {
     str_collapse(sprintf("%s (%s) = %i", names(x$cif), cause_names, n_times))
