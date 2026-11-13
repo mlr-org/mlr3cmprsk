@@ -74,6 +74,7 @@ reference:
   - title: Converters
     contents:
       - starts_with("as_")
-  - title: Assertions
+  - title: Helpers
     contents:
+      - align_cifs
       - assert_cif_list
