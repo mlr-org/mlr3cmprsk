@@ -78,29 +78,30 @@ validate_times = function(times, t_max_test, integrated = FALSE) {
   times
 }
 
-#' Warns if scoring times exceed the final CIF prediction anchor (time point)
+#' Warns if scoring `times` exceed the final CIF prediction anchor time point
+#' for any cause.
 #' @keywords internal
 #' @noRd
-warn_cif_extrapolation = function(cif_list, times, causes) {
+warn_cif_extrapolation = function(cif_times, times, causes) {
   if (!getOption("mlr3cmprsk.warn_cif_extrapolation", FALSE)) {
     return(invisible(NULL))
   }
 
-  affected = causes[vapply(
-    cif_list[causes],
-    function(mat) {
-      any(times > max(as.numeric(colnames(mat))))
+  affected_causes = causes[vapply(
+    cif_times[causes], # CIF anchor times for each cause
+    function(cause_cif_times) {
+      any(times > max(cause_cif_times))
     },
     logical(1L)
   )]
 
-  if (length(affected)) {
+  if (length(affected_causes)) {
     warning_mlr3(
       paste0(
         "Scoring times exceed the final CIF prediction anchor for cause(s): %s. ",
         "We apply constant CIF extrapolation after the final prediction time point."
       ),
-      str_collapse(affected),
+      str_collapse(affected_causes),
       class = "Mlr3WarningCIFExtrapolation"
     )
   }
@@ -133,7 +134,7 @@ assert_cause_names = function(cause_names, causes) {
   invisible(cause_names)
 }
 
-#' Validates the `cause` parameter (against the `causes` from the prediction object)
+#' Validates the `cause` code parameter (against the `causes` from the prediction object, i.e. 1,2,...,K)
 #' @keywords internal
 #' @noRd
 assert_cause = function(cause, causes) {
@@ -147,7 +148,7 @@ assert_cause = function(cause, causes) {
   cause
 }
 
-#' Resolves custom or event-frequency weights into named `weights` aligned with `causes`.
+#' Resolves custom or event-frequency weights into named `weights` aligned with `causes` codes (1,2,...,K).
 #' Warns for (automatically-derived) zero weights.
 #' Returns `NA` weights + a warning when no events are observed.
 #' @keywords internal
