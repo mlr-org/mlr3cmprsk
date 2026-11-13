@@ -100,26 +100,27 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
 
 #' @export
 create_empty_prediction_data.TaskCompRisks = function(task, learner) {
-  predict_types = mlr_reflections$learner_predict_types[["cmprsk"]][[learner$predict_type]]
+  # Use the below line only in case another predict_type is added to the package in the future
+  # predict_types = mlr_reflections$learner_predict_types[["cmprsk"]][[learner$predict_type]]
   causes = as.character(task$causes)
 
   pdata = list(
     row_ids = integer(),
-    truth = task$truth(integer()) # this still keeps the "Surv" class and attributes
+    # amazingly, the below still keeps the "Surv" class and attributes!
+    truth = task$truth(integer())
   )
 
-  if ("cif" %in% predict_types) {
-    # one empty (0 x 0) matrix per cause
-    pdata$cif = set_names(
-      replicate(length(causes), matrix(numeric(), nrow = 0L, ncol = 0L), simplify = FALSE),
-      causes
-    )
-  }
+  # one empty (0 x 0) matrix per cause
+  pdata$cif = set_names(
+    replicate(length(causes), matrix(numeric(), nrow = 0L, ncol = 0L), simplify = FALSE),
+    causes
+  )
 
   if ("weights_measure" %in% task$properties) {
     pdata$weights = numeric()
   }
 
+  attr(pdata, "times") = list()
   set_class(pdata, c("PredictionDataCompRisks", "PredictionData"))
 }
 
