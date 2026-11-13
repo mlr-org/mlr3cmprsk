@@ -126,10 +126,8 @@ create_empty_prediction_data.TaskCompRisks = function(task, learner) {
 
 #' @export
 is_missing_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
-  miss = logical(length(pdata$row_ids))
-
-  # no missing values allowed in CIF list of matrices, see `assert_cif_list()`
-  pdata$row_ids[miss]
+  # Validated CIF matrices cannot contain missing values
+  pdata$row_ids[FALSE]
 }
 
 #' @export
