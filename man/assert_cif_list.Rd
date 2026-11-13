@@ -23,7 +23,8 @@ If \code{NULL}, no specific row count is required.}
 
 \item{causes}{(\code{character()}|\code{NULL})\cr
 Expected unique, nonempty competing event names or codes.
-If supplied, these must match the list names exactly, including their order.
+If supplied, these must match the list names exactly (both in \code{x} and
+\code{times}), including their order.
 If \code{NULL}, list names are not checked, and unnamed lists are accepted.}
 }
 \value{

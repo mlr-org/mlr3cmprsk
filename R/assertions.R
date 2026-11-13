@@ -21,7 +21,8 @@
 #'   If `NULL`, no specific row count is required.
 #' @param causes (`character()`|`NULL`)\cr
 #'   Expected unique, nonempty competing event names or codes.
-#'   If supplied, these must match the list names exactly, including their order.
+#'   If supplied, these must match the list names exactly (both in `x` and
+#'   `times`), including their order.
 #'   If `NULL`, list names are not checked, and unnamed lists are accepted.
 #'
 #' @details
