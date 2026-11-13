@@ -27,7 +27,7 @@ expect_prediction_cmprsk = function(p) {
   expect_r6(
     p,
     classes = c("Prediction", "PredictionCompRisks"),
-    public = c("row_ids", "truth", "predict_types", "cif")
+    public = c("row_ids", "truth", "predict_types", "cif", "times")
   )
   expect_class(
     p$data,
@@ -42,4 +42,5 @@ expect_prediction_cmprsk = function(p) {
   expect_equal(names(p$cif), as.character(seq_along(cause_names)))
   expect_named(p$cause_names, names(p$cif))
   expect_identical(unname(p$cause_names), cause_names)
+  expect_identical(p$times, attr(p$data, "times"))
 }
