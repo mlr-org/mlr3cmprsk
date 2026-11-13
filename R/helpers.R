@@ -211,46 +211,76 @@ aggregate_cause_causes = function(scores, weights) {
 #' @title Align CIF matrices on a common time grid
 #'
 #' @description
-#' Given a list of CIF matrices, this function aligns all matrices to a common
-#' time grid using step-wise constant interpolation.
-#' Optionally, aligned matrices can be concatenated row-wise.
+#' Aligns a list of cumulative incidence function (CIF) matrices to a common time grid
+#' using stepwise constant interpolation.
+#' Optionally, the aligned matrices can be concatenated by rows.
 #'
-#' @param cif_list (`list` of `matrix`)
-#'  List of CIF matrices. Each matrix can have different time points.
-#' @param bind_rows (`logical(1)`)
-#'  If `TRUE` (default), return one row-bound matrix.
-#'  If `FALSE`, return a list of aligned matrices.
+#' @param x (`list()`)\cr
+#'   List of CIF matrices, with observations in rows and time points in columns.
+#'   Matrices may have different time grids and numbers of rows.
+#' @param times (`list()`)\cr
+#'   List of numeric time vectors, matched to the matrices in `x` by position.
+#'   Each vector must have one entry per corresponding CIF matrix column.
+#' @param eval_times (`numeric()`)\cr
+#'   Non-negative, strictly increasing time points at which to evaluate all CIFs.
+#'   Defaults to the sorted union of the time grids in `times`.
+#' @param bind_rows (`logical(1)`)\cr
+#'   If `FALSE` (default), return a list of aligned matrices.
+#'   If `TRUE`, return one matrix by concatenating the aligned matrices by rows.
+#' @param add_times (`logical(1)`)\cr
+#'   If `TRUE`, set the output matrices' column names to `eval_times`.
+#'   If `FALSE` (default), no time column names are added.
 #'
-#' @return
-#' If `bind_rows = TRUE`, a single matrix with all rows from `cif_list`
-#' aligned on a common time grid.
-#' If `bind_rows = FALSE`, a list of aligned matrices (same columns/time grid).
+#' @details
+#' The input matrices and their time grids are assumed to be valid and already
+#' validated with [assert_cif_list()].
+#' Interpolation uses [survdistr::interp_cif()] with `check = FALSE`.
 #'
-#' @noRd
-#' @keywords internal
-align_cifs = function(cif_list, bind_rows = TRUE) {
-  assert_list(cif_list, types = "matrix")
+#' @return By default, a list of time-aligned matrices in the same order as `x`.
+#'   If `bind_rows = TRUE`, a single matrix containing all input rows on the common time grid.
+#'   Each output matrix has one column per evaluation time point.
+#' @seealso [assert_cif_list()], [survdistr::interp_cif()]
+#' @examples
+#' cif = list(
+#'   Death = matrix(c(0, 0, 0.2, 0.3, 0.4, 0.5), nrow = 2L),
+#'   Relapse = matrix(c(0, 0, 0.1, 0.2), nrow = 2L)
+#' )
+#' times = list(Death = c(0, 2, 4), Relapse = c(1, 3))
+#'
+#' # Keep one matrix per cause on the union of the time grids
+#' align_cifs(cif, times, add_times = TRUE)
+#'
+#' # Combine rows on the union of the time grids
+#' align_cifs(cif, times, bind_rows = TRUE, add_times = TRUE)
+#'
+#' # Combine rows on an explicit evaluation grid
+#' align_cifs(cif, times, eval_times = c(1.5, 2, 3.5), bind_rows = TRUE, add_times = TRUE)
+#' @export
+align_cifs = function(
+  x,
+  times,
+  eval_times = sort(unique(unlist(times, use.names = FALSE))),
+  bind_rows = FALSE,
+  add_times = FALSE
+) {
+  assert_list(x, types = "matrix")
+  assert_list(times, types = "numeric", len = length(x))
   assert_flag(bind_rows)
+  assert_flag(add_times)
 
-  # Extract time points from each matrix (we assume: colnames => time points)
-  times_list = lapply(cif_list, function(mat) as.numeric(colnames(mat)))
-  common_times = sort(unique(unlist(times_list)))
-
-  # Interpolate each CIF matrix to the common time grid
+  # Interpolate each CIF matrix to the common or specified time grid
   aligned_cifs = mapply(
-    function(mat, times) {
-      out = survdistr::interp_cif(
-        x = mat,
-        times = times,
-        eval_times = common_times,
-        add_times = FALSE,
+    function(cif_mat, cif_times) {
+      survdistr::interp_cif(
+        x = cif_mat,
+        times = cif_times,
+        eval_times = eval_times,
+        add_times = add_times,
         check = FALSE
       )
-      colnames(out) = common_times
-      out
     },
-    cif_list,
-    times_list,
+    x,
+    times,
     SIMPLIFY = FALSE
   )
 
