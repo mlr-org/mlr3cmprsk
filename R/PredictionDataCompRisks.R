@@ -132,71 +132,79 @@ is_missing_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
 
 #' @export
 c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
-  dots = list(...)
-  assert_list(dots, types = "PredictionDataCompRisks")
+  pdata_list = list(...)
+  assert_list(pdata_list, types = "PredictionDataCompRisks")
   assert_flag(keep_duplicates)
-  if (length(dots) == 1L) {
-    return(dots[[1L]])
+  if (length(pdata_list) == 1L) {
+    return(pdata_list[[1L]])
   }
 
-  cause_names = attr(dots[[1L]]$truth, "states")
-  if (!every(dots[-1L], function(x) identical(attr(x$truth, "states"), cause_names))) {
+  cause_names = attr(pdata_list[[1L]]$truth, "states")
+  if (!every(pdata_list[-1L], function(x) identical(attr(x$truth, "states"), cause_names))) {
     error_input("Cannot combine predictions: Different cause names")
   }
 
-  predict_types = names(mlr_reflections$learner_predict_types$cmprsk)
-  predict_types = map(dots, function(x) intersect(names(x), predict_types))
-  if (!every(predict_types[-1L], setequal, y = predict_types[[1L]])) {
-    error_input("Cannot combine predictions: Different prediction types")
-  }
-
-  if (length(unique(map_lgl(dots, function(x) is.null(x$weights)))) > 1L) {
+  if (length(unique(map_lgl(pdata_list, function(x) is.null(x$weights)))) > 1L) {
     error_input("Cannot combine predictions: Some predictions have weights, others do not")
   }
 
-  if (length(unique(map_lgl(dots, function(x) is.null(x$extra)))) > 1L) {
+  if (length(unique(map_lgl(pdata_list, function(x) is.null(x$extra)))) > 1L) {
     error_input("Cannot combine predictions: Some predictions have extra data, others do not")
   }
 
-  predict_types = predict_types[[1L]]
-  row_ids = do.call(c, map(dots, "row_ids"))
+  row_ids = do.call(c, map(pdata_list, "row_ids"))
   # row ids to keep (default => all)
-  ii = if (keep_duplicates) seq_along(row_ids) else which(!duplicated(row_ids, fromLast = TRUE))
+  keep = if (keep_duplicates) seq_along(row_ids) else which(!duplicated(row_ids, fromLast = TRUE))
 
-  # combine `row_ids`, `truth`, and `weights` (easy to combine via `c`)
-  elems = c("row_ids", "truth", if ("weights" %in% names(dots[[1L]])) "weights")
-  result = named_list(elems)
-  for (elem in elems) {
-    result[[elem]] = do.call(c, map(dots, elem))[ii]
+  # combine `row_ids`, `truth`, and `weights` vectors (easy to combine via `c`)
+  fields = c("row_ids", "truth", if ("weights" %in% names(pdata_list[[1L]])) "weights")
+  pdata = named_list(fields)
+  for (field in fields) {
+    pdata[[field]] = do.call(c, map(pdata_list, field))[keep]
   }
 
   # combine `extra` (list of named lists) by row-binding
-  if ("extra" %in% names(dots[[1L]])) {
-    extra = rbindlist(map(dots, "extra"), fill = TRUE, use.names = TRUE)
-    result$extra = as.list(extra[ii])
+  if ("extra" %in% names(pdata_list[[1L]])) {
+    extra = rbindlist(map(pdata_list, "extra"), fill = TRUE, use.names = TRUE)
+    pdata$extra = as.list(extra[keep])
   }
 
   # combine CIFs (list of matrices) for each cause
-  if ("cif" %in% predict_types) {
-    # Extract list of CIF lists
-    cif_lists = map(dots, "cif")
+  cif_lists = map(pdata_list, "cif")
 
-    # Check that all CIF lists have the same causes (names)
-    causes = as.character(seq_along(cif_lists[[1L]]))
-    for (cif_list in cif_lists) {
-      assert_names(names(cif_list), identical.to = causes)
-    }
-
-    # Combine CIFs for each cause and align them on a common time grid
-    merged_cifs = named_list(causes)
-    for (cause in causes) {
-      cs_cifs = map(cif_lists, function(cif_list) cif_list[[cause]])
-      merged_cifs[[cause]] = align_cifs(cs_cifs, bind_rows = TRUE)[ii, , drop = FALSE]
-    }
-    result$cif = merged_cifs
+  # Check that all CIF lists have the same cause codes
+  causes = as.character(seq_along(cause_names)) # "1","2",...,"K"
+  for (cif_list in cif_lists) {
+    assert_names(names(cif_list), identical.to = causes)
   }
 
-  set_class(result, c("PredictionDataCompRisks", "PredictionData"))
+  # Empty prediction data contribute neither rows nor time points
+  nonempty = lengths(map(pdata_list, "row_ids")) > 0L
+  cif_lists = cif_lists[nonempty]
+  times_lists = map(pdata_list[nonempty], function(x) attr(x, "times"))
+
+  # Combine each cause on its own union of time points across predictions
+  merged_cifs = named_list(causes)
+  merged_times = list()
+  for (cause in causes) {
+    if (any(nonempty)) {
+      cs_cifs = map(cif_lists, function(cif_list) cif_list[[cause]])
+      cs_times = map(times_lists, function(cif_times) cif_times[[cause]])
+      merged_times[[cause]] = sort(unique(unlist(cs_times, use.names = FALSE)))
+      merged_cifs[[cause]] = align_cifs(
+        cs_cifs,
+        cs_times,
+        eval_times = merged_times[[cause]],
+        bind_rows = TRUE
+      )[keep, , drop = FALSE]
+    } else {
+      merged_cifs[[cause]] = matrix(numeric(), nrow = 0L, ncol = 0L)
+    }
+  }
+  pdata$cif = merged_cifs
+
+  attr(pdata, "times") = merged_times
+  set_class(pdata, c("PredictionDataCompRisks", "PredictionData"))
 }
 
 #' @export
@@ -206,9 +214,20 @@ filter_prediction_data.PredictionDataCompRisks = function(pdata, row_ids, ...) {
   pdata$truth = pdata$truth[keep]
 
   if (!is.null(pdata$cif)) {
-    # simply keep the observations (rows) in each CIF matrix
-    pdata$cif = lapply(pdata$cif, function(mat) mat[keep, , drop = FALSE])
+    pdata$cif = lapply(pdata$cif, function(mat) {
+      if (any(keep)) {
+        # keep the observations (rows) in each cause-specific CIF matrix
+        mat[keep, , drop = FALSE]
+      } else {
+        # no observations to keep
+        matrix(numeric(), nrow = 0L, ncol = 0L)
+      }
+    })
   }
+
+  if (!any(keep)) {
+    attr(pdata, "times") = list()
+  } # else we keep the original time grids in the attribute
 
   if (!is.null(pdata$weights)) {
     pdata$weights = pdata$weights[keep]
