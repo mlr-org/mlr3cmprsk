@@ -27,7 +27,7 @@ expect_prediction_cmprsk = function(p) {
   expect_r6(
     p,
     classes = c("Prediction", "PredictionCompRisks"),
-    public = c("row_ids", "truth", "predict_types", "cif")
+    public = c("row_ids", "truth", "predict_types", "cif", "times")
   )
   expect_class(
     p$data,
@@ -35,11 +35,12 @@ expect_prediction_cmprsk = function(p) {
   )
   testthat::expect_output(print(p), "Prediction")
   expect_data_table(data.table::as.data.table(p), nrows = length(p$row_ids))
-  assert_class(p$truth, "Surv")
+  expect_class(p$truth, "Surv")
   expect_equal(length(p$truth), length(p$row_ids))
   cause_names = attr(p$truth, "states")
-  assert_list(p$cif, types = "matrix", len = length(cause_names))
+  expect_list(p$cif, types = "matrix", len = length(cause_names))
   expect_equal(names(p$cif), as.character(seq_along(cause_names)))
   expect_named(p$cause_names, names(p$cif))
   expect_identical(unname(p$cause_names), cause_names)
+  expect_identical(p$times, attr(p$data, "times"))
 }

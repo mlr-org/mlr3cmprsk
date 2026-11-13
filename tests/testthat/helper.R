@@ -20,41 +20,44 @@ lapply(
 )
 
 # Generate a list of CIF matrices
-gen_cif = function(n = 20, n_events = 2, n_times = 20, max_time = 5) {
-  # Common evaluation grid
-  times = seq(0, max_time, length.out = n_times)
+# - n => number of observations
+# - times => list with time points for each CIF matrix, length defines number of causes
+gen_cif = function(n = 20, times = list("1" = 0:5, "2" = 0:3)) {
+  n_causes = length(times)
 
-  # Random cause-specific hazards for each subject & cause =>
-  # h_j => CONSTANT for j cause (and per observation)
-  # shape: [n x n_events]
-  hazards = matrix(runif(n * n_events, min = 0.1, max = 0.5), nrow = n, ncol = n_events)
+  # Random cause-specific hazards for each subject & cause:
+  # h_ik => CONSTANT for i obs and k cause
+  # shape: [n x n_causes]
+  hazards = matrix(
+    runif(n * n_causes, min = 0.1, max = 0.5),
+    nrow = n,
+    ncol = n_causes
+  )
 
-  # Total hazard per subject
+  # (All-cause) total hazard per subject
+  # h_i = \sum_k h_ik
   h_total = rowSums(hazards)
 
-  # assume exponential survival with rate h_total: S(t) = exp(-h_total * t)
-  # Compute CIF for each cause:
-  # CIF_j(t) = \int_0^t S(u)*h_j du = (h_j / h_tot) * (1 - exp(-h_tot * t))
-  # this guarantees: \sum CIF_j(t) = 1 - S(t)
-  cif_list = lapply(seq_len(n_events), function(j) {
-    mat = outer(times, seq_len(n), function(t, i) {
-      (hazards[i, j] / h_total[i]) * (1 - exp(-h_total[i] * t))
+  # All-cause survival: S_i(t) = exp(-H_i(t)) = exp(-h_i * t)
+  # Cause-specific CIF: F_ik(t) = \int_0^t S_i(u)*h_ik du = (h_ik / h_i) * (1 - exp(-h_i * t))
+  # This guarantees: \sum F_ik(t) = 1 - S_i(t)
+  cif_list = lapply(seq_len(n_causes), function(k) {
+    mat = outer(times[[k]], seq_len(n), function(t, i) {
+      (hazards[i, k] / h_total[i]) * (1 - exp(-h_total[i] * t))
     })
     t(mat) # rows = subjects, cols = times
   })
 
-  # Assign colnames as times for convenience
-  cif_list = lapply(cif_list, function(mat) {
-    colnames(mat) = times
-    mat
-  })
-
-  names(cif_list) = as.character(seq_len(n_events))
+  names(cif_list) = names(times)
   cif_list
 }
 
-# default: 3 causes, but no data for event 2
-# 3rd cause starts from t = 3, 1st cause starts from t = 1
+# Generate PredictionCompRisks object with 3 causes
+# - By default, no observations with event 2
+# - length of `event` defines the number of observations (n)
+# - times are simply 1,2,...,n
+# - all 3 causes have the same time grid
+# - 3rd cause starts from t = 3, 1st cause starts from t = 1
 gen_PredictionCompRisks = function(event = c(1, 0, 3, 0, 3, 1, 3, 0)) {
   n = length(event)
 
@@ -64,8 +67,7 @@ gen_PredictionCompRisks = function(event = c(1, 0, 3, 0, 3, 1, 3, 0)) {
       risk = ((seq_len(n) + cause - 2L) %% n + 1L) / n
       matrix(
         rep(c(0.03, 0.07, 0.12) * cause, each = n) * risk,
-        nrow = n,
-        dimnames = list(NULL, c("1", "4", "8"))
+        nrow = n
       )
     }),
     as.character(1:3)
@@ -73,7 +75,11 @@ gen_PredictionCompRisks = function(event = c(1, 0, 3, 0, 3, 1, 3, 0)) {
 
   PredictionCompRisks$new(
     row_ids = seq_len(n),
-    truth = Surv(seq_len(n), factor(event, levels = 0:3)),
-    cif = cif
+    truth = Surv(
+      seq_len(n),
+      factor(event, levels = 0:3, labels = c("Censored", paste("Cause", 1:3)))
+    ),
+    cif = cif,
+    times = set_names(rep(list(c(1, 4, 8)), 3L), as.character(1:3))
   )
 }

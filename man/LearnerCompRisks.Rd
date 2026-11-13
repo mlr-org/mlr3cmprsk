@@ -6,11 +6,11 @@
 \description{
 This Learner specializes \link[mlr3:Learner]{Learner} for competing risks problems:
 \itemize{
-\item \code{task_type} is set to \code{"cmprsk"}
+\item The \code{task_type} is set to \code{"cmprsk"}
 \item Creates \link[mlr3:Prediction]{Prediction}s of class \link{PredictionCompRisks}.
 \item The only currently available option for \code{predict_types} is \code{"cif"}, which
-represents the predicted \strong{cumulative incidence function} for each observation
-in the test set.
+represents the \strong{predicted cumulative incidence function} for each cause and
+each observation in the test set.
 }
 }
 \details{

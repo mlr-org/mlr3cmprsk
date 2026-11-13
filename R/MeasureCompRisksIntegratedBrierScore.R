@@ -167,12 +167,13 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
 
       # Preserve absent causes for RiskRegression
       data$event = factor(data$event, levels = c("0", causes))
-      warn_cif_extrapolation(cif_list, times, active_causes)
+      warn_cif_extrapolation(prediction$times, times, active_causes)
 
       ibs = function(cause) {
         # get CIF on the times grid
         mat = survdistr::interp_cif(
           x = cif_list[[cause]], # cause-specific CIF
+          times = prediction$times[[cause]], # cause-specific time grid
           eval_times = times,
           add_times = FALSE,
           check = FALSE
