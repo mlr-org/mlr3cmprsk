@@ -9,11 +9,12 @@
 #' Uses [survdistr::assert_prob()] with `type = "cif"`.
 #'
 #' @param x (`list()`)\cr
-#'   A list of at least two numeric matrices, one per competing event.
+#'   List of numeric matrices (at least two), one per competing event.
 #'   Names are checked only when `causes` is supplied.
-#'   Rows represent observations, and columns represent time points.
+#'   CIF matrix rows represent observations, and columns represent time points.
 #' @param times (`list()`|`NULL`)\cr
-#'   List of numeric time vectors, matched to `x` by position.
+#'   List of numeric time vectors, one per competing event.
+#'   Each vector must have one entry (i.e. time point) per corresponding CIF matrix column.
 #'   Names are checked only when `causes` is supplied.
 #'   If `NULL`, time points are taken from each matrix's column names.
 #' @param n_rows (`integer(1)`|`NULL`)\cr
@@ -27,8 +28,8 @@
 #'
 #' @details
 #' CIF matrices may use different time grids.
-#' See [survdistr::assert_prob()] for the probability and time validation rules
-#' for `type = "cif"`.
+#' See [survdistr::assert_prob()] for the probability and time point validation
+#' rules for `type = "cif"`.
 #'
 #' @return Returns `NULL` invisibly if all checks pass, otherwise raises an error.
 #' @examples

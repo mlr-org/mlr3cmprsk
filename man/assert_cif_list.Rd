@@ -8,12 +8,13 @@ assert_cif_list(x, times = NULL, n_rows = NULL, causes = NULL)
 }
 \arguments{
 \item{x}{(\code{list()})\cr
-A list of at least two numeric matrices, one per competing event.
+List of numeric matrices (at least two), one per competing event.
 Names are checked only when \code{causes} is supplied.
-Rows represent observations, and columns represent time points.}
+CIF matrix rows represent observations, and columns represent time points.}
 
 \item{times}{(\code{list()}|\code{NULL})\cr
-List of numeric time vectors, matched to \code{x} by position.
+List of numeric time vectors, one per competing event.
+Each vector must have one entry (i.e. time point) per corresponding CIF matrix column.
 Names are checked only when \code{causes} is supplied.
 If \code{NULL}, time points are taken from each matrix's column names.}
 
@@ -40,8 +41,8 @@ Uses \code{\link[survdistr:assert_prob]{survdistr::assert_prob()}} with \code{ty
 }
 \details{
 CIF matrices may use different time grids.
-See \code{\link[survdistr:assert_prob]{survdistr::assert_prob()}} for the probability and time validation rules
-for \code{type = "cif"}.
+See \code{\link[survdistr:assert_prob]{survdistr::assert_prob()}} for the probability and time point validation
+rules for \code{type = "cif"}.
 }
 \examples{
 cif = list(
