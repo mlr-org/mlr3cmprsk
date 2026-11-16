@@ -4,7 +4,6 @@
 \alias{as_prediction_cmprsk}
 \alias{as_prediction_cmprsk.PredictionCompRisks}
 \alias{as_prediction_cmprsk.list}
-\alias{as_prediction_cmprsk.data.frame}
 \alias{as_prediction.PredictionDataCompRisks}
 \title{Convert to a Competing Risk Prediction}
 \usage{
@@ -13,8 +12,6 @@ as_prediction_cmprsk(x, ...)
 \method{as_prediction_cmprsk}{PredictionCompRisks}(x, ...)
 
 \method{as_prediction_cmprsk}{list}(x, ...)
-
-\method{as_prediction_cmprsk}{data.frame}(x, ...)
 
 \method{as_prediction}{PredictionDataCompRisks}(x, check = FALSE, ...)
 }
@@ -36,7 +33,7 @@ With \code{FALSE}, correct behavior is not guaranteed if the input is invalid.}
 \description{
 Convert object to a \link{PredictionCompRisks}.
 An existing \link{PredictionCompRisks} is returned unchanged.
-See Details for requirements on \code{list} and \code{data.frame} inputs.
+See Details for requirements on named \code{list} inputs.
 
 Use \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}} to convert the internal \code{PredictionDataCompRisks} data to a \link{PredictionCompRisks} object.
 }
@@ -52,24 +49,6 @@ For each cause, its time vector must contain one time point per column of the
 corresponding CIF matrix.
 Different causes may have different time grids.
 }
-
-If \code{x} is a \code{data.frame}/\code{data.table} input, the following requirements must be met:
-\itemize{
-\item Columns \code{row_ids}, \code{time}, \code{event}, and a list-column \code{CIF} must be present.
-\item The \code{event} column can take values \code{0} (censoring) or one of the consecutive
-cause codes \code{1}, \code{2}, ..., \code{K}.
-\item An optional column \code{weights} may hold measurement weights.
-\item An optional \code{cause_names} attribute may hold descriptive cause names.
-\item A \code{times} attribute must hold a named list of numeric time grids, one per cause,
-as described in \link{PredictionCompRisks}.
-\item All other columns are stored as \code{extra} data. Column names must be unique.
-\item The per-observation \code{CIF} object must be a named list of numeric vectors
-(one per cause), with names exactly \code{"1"}, \code{"2"}, ..., \code{"K"}, in that order
-(where \code{K} is the number of competing risks).
-These cause codes must be identical across observations and in the same order.
-CIF vectors corresponding to the same cause must match the length of that cause's time grid.
-\item Empty tables must retain the \code{cause_names} attribute and have a \code{times} attribute equal to \code{list()}.
-}
 }
 \examples{
 library(mlr3)
@@ -78,26 +57,19 @@ learner = lrn("cmprsk.aalen")
 learner$train(task)
 p = learner$predict(task)
 
-# from an existing PredictionCompRisks object (no change)
+# PredictionCompRisks => PredictionCompRisks (no change)
 as_prediction_cmprsk(p)
 
-# Convert a named list to a PredictionCompRisks object
-# Supply the numeric time grids explicitly
+# list => PredictionCompRisks
 p_list = list(
   row_ids = p$row_ids,
   truth = p$truth,
   cif = p$cif,
-  times = p$times
+  times = p$times # supply the time grids per cause
 )
 as_prediction_cmprsk(p_list)
 
-# Convert a data.frame to a PredictionCompRisks object
-# The data.frame must contain the required columns: row_ids, time, event, and CIF
-tab = as.data.frame(as.data.table(p))
-attr(tab, "times")
-as_prediction_cmprsk(tab)
-
-# Convert internal prediction data using as_prediction()
+# PredictionDataCompRisks => PredictionCompRisks (using as_prediction())
 p$data
 as_prediction(p$data)
 }

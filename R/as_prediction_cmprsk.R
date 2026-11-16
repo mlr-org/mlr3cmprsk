@@ -3,7 +3,7 @@
 #' @description
 #' Convert object to a [PredictionCompRisks].
 #' An existing [PredictionCompRisks] is returned unchanged.
-#' See Details for requirements on `list` and `data.frame` inputs.
+#' See Details for requirements on named `list` inputs.
 #'
 #' Use [mlr3::as_prediction()] to convert the internal `PredictionDataCompRisks` data to a [PredictionCompRisks] object.
 #'
@@ -18,22 +18,6 @@
 #'   corresponding CIF matrix.
 #'   Different causes may have different time grids.
 #'
-#' If `x` is a `data.frame`/`data.table` input, the following requirements must be met:
-#' - Columns `row_ids`, `time`, `event`, and a list-column `CIF` must be present.
-#' - The `event` column can take values `0` (censoring) or one of the consecutive
-#' cause codes `1`, `2`, ..., `K`.
-#' - An optional column `weights` may hold measurement weights.
-#' - An optional `cause_names` attribute may hold descriptive cause names.
-#' - A `times` attribute must hold a named list of numeric time grids, one per cause,
-#' as described in [PredictionCompRisks].
-#' - All other columns are stored as `extra` data. Column names must be unique.
-#' - The per-observation `CIF` object must be a named list of numeric vectors
-#' (one per cause), with names exactly `"1"`, `"2"`, ..., `"K"`, in that order
-#' (where `K` is the number of competing risks).
-#' These cause codes must be identical across observations and in the same order.
-#' CIF vectors corresponding to the same cause must match the length of that cause's time grid.
-#' - Empty tables must retain the `cause_names` attribute and have a `times` attribute equal to `list()`.
-#'
 #' @inheritParams mlr3::as_prediction
 #'
 #' @return [PredictionCompRisks].
@@ -45,26 +29,19 @@
 #' learner$train(task)
 #' p = learner$predict(task)
 #'
-#' # from an existing PredictionCompRisks object (no change)
+#' # PredictionCompRisks => PredictionCompRisks (no change)
 #' as_prediction_cmprsk(p)
 #'
-#' # Convert a named list to a PredictionCompRisks object
-#' # Supply the numeric time grids explicitly
+#' # list => PredictionCompRisks
 #' p_list = list(
 #'   row_ids = p$row_ids,
 #'   truth = p$truth,
 #'   cif = p$cif,
-#'   times = p$times
+#'   times = p$times # supply the time grids per cause
 #' )
 #' as_prediction_cmprsk(p_list)
 #'
-#' # Convert a data.frame to a PredictionCompRisks object
-#' # The data.frame must contain the required columns: row_ids, time, event, and CIF
-#' tab = as.data.frame(as.data.table(p))
-#' attr(tab, "times")
-#' as_prediction_cmprsk(tab)
-#'
-#' # Convert internal prediction data using as_prediction()
+#' # PredictionDataCompRisks => PredictionCompRisks (using as_prediction())
 #' p$data
 #' as_prediction(p$data)
 as_prediction_cmprsk = function(x, ...) {
@@ -89,81 +66,6 @@ as_prediction_cmprsk.list = function(x, ...) {
   invoke(
     PredictionCompRisks$new,
     .args = x
-  )
-}
-
-#' @rdname as_prediction_cmprsk
-#' @export
-as_prediction_cmprsk.data.frame = function(x, ...) {
-  times = attr(x, "times", exact = TRUE)
-  cause_names = attr(x, "cause_names", exact = TRUE)
-  mandatory = c("row_ids", "time", "event", "CIF")
-  reserved = c(mandatory, "weights")
-  assert_names(names(x), type = "unique", must.include = mandatory)
-  assert_list(x$CIF)
-
-  causes = if (nrow(x)) {
-    unique(unlist(lapply(x$CIF, names)))
-  } else {
-    as.character(seq_along(cause_names))
-  }
-  # Check that the cause codes are exactly "1", "2", ..., "K" in that order
-  assert_names(causes, identical.to = as.character(seq_along(causes)))
-  assert_list(times, types = "numeric", len = if (nrow(x)) length(causes) else 0L)
-  if (nrow(x)) {
-    assert_names(names(times), identical.to = causes)
-  }
-  # Check that each observation's CIF list has the same cause codes
-  for (obs_cif in x$CIF) {
-    assert_list(obs_cif, min.len = 2L)
-    assert_names(names(obs_cif), identical.to = causes)
-  }
-  # Check that the event column contains only 0 (censoring) or one of the cause codes
-  assert_integerish(x$event, lower = 0L, upper = length(causes), any.missing = FALSE)
-
-  # Reconstruct the list of CIF matrices (one per cause)
-  mat_list = lapply(causes, function(cause) {
-    if (!nrow(x)) {
-      return(matrix(numeric(), nrow = 0L, ncol = 0L))
-    }
-    cif_vectors = lapply(x$CIF, function(obs_cif) obs_cif[[cause]])
-    # `rbind()` silently recycles shorter vectors, so check against the grid first.
-    for (cif_vector in cif_vectors) {
-      assert_numeric(cif_vector)
-      if (length(cif_vector) != length(times[[cause]])) {
-        error_input(
-          "CIF vectors for cause '%s' must have the same length as its time grid",
-          cause
-        )
-      }
-    }
-    unname(do.call(rbind, cif_vectors))
-  })
-  cif = set_names(mat_list, causes)
-
-  # convert a copy, so that a data.frame passed by the caller is not modified by reference
-  x = as.data.table(x)
-  extra_cols = setdiff(names(x), reserved)
-  extra = if (length(extra_cols)) {
-    set_names(map(extra_cols, function(col) x[[col]]), extra_cols)
-  } else {
-    NULL
-  }
-  x_subset = x[, intersect(names(x), c("row_ids", "weights")), with = FALSE]
-
-  cause_names = assert_cause_names(unname(cause_names), causes)
-  truth = Surv(
-    x$time,
-    factor(x$event, levels = c("0", causes), labels = c("Censored", cause_names))
-  )
-
-  invoke(
-    PredictionCompRisks$new,
-    truth = truth,
-    cif = cif,
-    times = times,
-    extra = extra,
-    .args = x_subset
   )
 }
 
