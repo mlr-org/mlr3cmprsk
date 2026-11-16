@@ -118,9 +118,9 @@ For each matrix, rows refer to observations and columns to time points.
 CIF lists must use numeric cause codes as names, i.e.
 \code{"1"}, \code{"2"}, ..., \code{"K"}, exactly in that order.}
       \item{\code{times}}{(\code{list()})\cr
-Required named list of numeric time vectors, with the same names and order as \code{cif}.
-Each vector must be finite, non-negative, strictly increasing, and have
-one entry per corresponding CIF matrix column.
+Named list of numeric time vectors, with the same names and order as the CIF list.
+Time points must be finite, unique, non-negative, strictly increasing numbers,
+and have one entry per corresponding CIF matrix column.
 Different causes may use different time grids.}
       \item{\code{weights}}{(\code{numeric()})\cr
 Optional measurement weights for the predicted observations, as supplied by a task with
@@ -139,7 +139,8 @@ With \code{FALSE}, inputs are assumed valid and correct behavior is not guarante
     The \code{cif} input is a named list of numeric CIF matrices, with rows = observations
 and columns = time points.
 The list names are consecutive cause codes (\code{"1"}, \code{"2"}, ..., \code{"K"}) matching
-the task's competing causes.
+the task's competing events/causes.
+The \code{times} argument is required and supplies the corresponding time grid for each cause.
 Predictions contain a matrix for every task cause, including causes absent
 from the observed response of the predicted observations.
 Filtering observations retains all causes and their CIF matrices.

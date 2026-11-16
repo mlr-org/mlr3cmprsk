@@ -52,7 +52,8 @@ PredictionCompRisks = R6Class(
     #' The `cif` input is a named list of numeric CIF matrices, with rows = observations
     #' and columns = time points.
     #' The list names are consecutive cause codes (`"1"`, `"2"`, ..., `"K"`) matching
-    #' the task's competing causes.
+    #' the task's competing events/causes.
+    #' The `times` argument is required and supplies the corresponding time grid for each cause.
     #' Predictions contain a matrix for every task cause, including causes absent
     #' from the observed response of the predicted observations.
     #' Filtering observations retains all causes and their CIF matrices.
@@ -95,9 +96,9 @@ PredictionCompRisks = R6Class(
     #'   `"1"`, `"2"`, ..., `"K"`, exactly in that order.
     #'
     #' @param times (`list()`)\cr
-    #'   Required named list of numeric time vectors, with the same names and order as `cif`.
-    #'   Each vector must be finite, non-negative, strictly increasing, and have
-    #'   one entry per corresponding CIF matrix column.
+    #'   Named list of numeric time vectors, with the same names and order as the CIF list.
+    #'   Time points must be finite, unique, non-negative, strictly increasing numbers,
+    #'   and have one entry per corresponding CIF matrix column.
     #'   Different causes may use different time grids.
     #'
     #' @param weights (`numeric()`)\cr
