@@ -39,6 +39,8 @@
 #' tab$CIF[[1]]
 #' # time points are available in the data.table attributes
 #' attr(tab, "times")
+#' # descriptive cause names as well
+#' attr(tab, "cause_names")
 #'
 #' @export
 PredictionCompRisks = R6Class(
