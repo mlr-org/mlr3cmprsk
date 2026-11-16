@@ -59,7 +59,7 @@ Collate:
     'as_task_cmprsk.R'
     'bibentries.R'
     'default_fallback.R'
-    'helper_cif.R'
     'helpers.R'
+    'helpers_cif.R'
     'sim_cmprsk.R'
     'zzz.R'
