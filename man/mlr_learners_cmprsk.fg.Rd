@@ -17,7 +17,7 @@ cause-specific \code{crr} class models.
 
 At prediction time, each cause-specific model is evaluated with
 \code{\link[cmprsk:predict.crr]{cmprsk::predict.crr()}}, retaining its native cause-specific event-time grid.
-Each grid contains the unique training event times for that cause and is stored
+Each grid contains the \strong{unique training event times for that cause} and is stored
 in the prediction's \verb{$times} field.
 
 Independently fitted cause-specific models can produce CIFs whose sum exceeds 1.

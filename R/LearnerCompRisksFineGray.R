@@ -18,7 +18,7 @@
 #'
 #' At prediction time, each cause-specific model is evaluated with
 #' [cmprsk::predict.crr()], retaining its native cause-specific event-time grid.
-#' Each grid contains the unique training event times for that cause and is stored
+#' Each grid contains the **unique training event times for that cause** and is stored
 #' in the prediction's `$times` field.
 #'
 #' Independently fitted cause-specific models can produce CIFs whose sum exceeds 1.
