@@ -1,3 +1,11 @@
+# mlr3cmprsk 0.0.9
+
+* feat: `PredictionCompRisks` now requires a named `times` list upon initialization, exposed as `$times` and stored as an attribute of prediction data and exported tables; `$cif` adds time points as column names without changing the stored CIF matrices, and filtering/combining predictions, conversions, and scoring, use each cause's specific numeric grid.
+* feat: `assert_cif_list()` accepts a `times` list argument now.
+* BREAKING CHANGE: `as_prediction_cmprsk()` no longer accepts `data.frame` or `data.table` inputs. Supply a named list containing `row_ids`, `truth`, `cif`, and `times`, or construct a `PredictionCompRisks` directly.
+* feat: `align_cifs()` is now exported to align validated CIF matrices on a common time grid (for use outside this package).
+* feat: `cmprsk.aalen` and `cmprsk.fg` now return CIF matrices on separate event-time grids for each cause. Both learners use a zero-CIF anchor at time 0 for causes without training events.
+
 # mlr3cmprsk 0.0.8
 
 * fix: `assert_cif_list()` was simplified to accepts arbitrary cause names or codes (`causes = NULL` skips list-name validation).
