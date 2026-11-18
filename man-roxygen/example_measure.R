@@ -24,6 +24,9 @@ time_label = if (is_ibs) "from 0 to 100 months on a 5-month grid" else "at 100 m
 #' # IBS over 20 equally spaced points up to the default 90th percentile
 #' predictions$score(msr("<%= measure_id %>", ntimes = 20L))
 #'
+#' # Inspect the integration grid for the test predictions
+#' msr("<%= measure_id %>", ntimes = 20L)$eval_times(predictions)
+#'
 #' # Define the integration grid in months
 #' times = seq(0, 100, by = 5)
 #'

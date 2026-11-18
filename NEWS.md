@@ -5,6 +5,7 @@
 * BREAKING CHANGE: `as_prediction_cmprsk()` no longer accepts `data.frame` or `data.table` inputs. Supply a named list containing `row_ids`, `truth`, `cif`, and `times`, or construct a `PredictionCompRisks` directly.
 * feat: `align_cifs()` is now exported to align validated CIF matrices on a common time grid (for use outside this package).
 * feat: `cmprsk.aalen` and `cmprsk.fg` now return CIF matrices on separate event-time grids for each cause. Both learners use a zero-CIF anchor at time 0 for causes without training events.
+* `cmprsk.ibs` now exposes its effective integration grid through `$eval_times(prediction)` (see [#20](https://github.com/mlr-org/mlr3cmprsk/issues/20)).
 
 # mlr3cmprsk 0.0.8
 

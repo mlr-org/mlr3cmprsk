@@ -596,7 +596,12 @@ test_that("cmprsk.ibs", {
     backend$calls[["1"]]$times
   }
 
-  grid = get_grid(p)
+  # check eval_times() returns the correct grid
+  m = msr("cmprsk.ibs", cause = 1L)
+  p$score(m)
+  grid = backend$calls[["1"]]$times
+  expect_identical(m$eval_times(p), grid)
+  expect_error(m$eval_times(list()), "PredictionCompRisks")
   # check default grid is from 0 to 90th percentile of observed times
   q90 = quantile(c(40, 120), 0.9, names = FALSE)
   expect_equal(grid, seq(0, q90, length.out = 100L))

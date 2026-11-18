@@ -129,24 +129,26 @@ The integration grid contains the time points at which Brier scores are evaluate
 Its largest time point is the \strong{upper integration horizon}.
 All causes use the same grid, with their predicted CIFs constantly interpolated
 to these times.
+The observed follow-up times come from the supplied prediction.
+By default, resampling supplies predictions for the test set.
 
 If the user explicitly provides \code{times}, the supplied grid is used directly.
-Points beyond the maximum test-set follow-up are removed with a warning due to
+Points beyond the maximum observed follow-up are removed with a warning due to
 the limitations of \code{riskRegression::Score()}.
 At least two distinct evaluation times must remain.
 
 When \code{times = NULL}, the upper integration horizon is determined first.
-By default, it is the \strong{90th percentile} of observed test-set follow-up times,
+By default, it is the \strong{90th percentile} of observed follow-up times,
 including both events and censored observations.
 Set \code{t_quantile} to change the quantile probability (e.g., \code{0.8} for the 80th
 percentile), or supply \code{t_max} to specify the time horizon directly.
-If \code{t_max} exceeds the maximum test-set follow-up, it is reduced to that maximum
+If \code{t_max} exceeds the maximum observed follow-up, it is reduced to that maximum
 before constructing the grid, and a warning reports the effective horizon.
 
 The automatic grid is then generated and contains exactly \code{ntimes} equally
 spaced points from time 0 to the horizon, including both endpoints.
 Thus, the default grid consists of 100 points from 0 to the 90th percentile
-of test-set follow-up times.
+of observed follow-up times.
 Note that the generated grid is completely independent of the time grids of
 the predicted CIFs.
 
@@ -192,6 +194,9 @@ predictions$score(msr("cmprsk.ibs", t_quantile = 0.85))
 # IBS over 20 equally spaced points up to the default 90th percentile
 predictions$score(msr("cmprsk.ibs", ntimes = 20L))
 
+# Inspect the integration grid for the test predictions
+msr("cmprsk.ibs", ntimes = 20L)$eval_times(predictions)
+
 # Define the integration grid in months
 times = seq(0, 100, by = 5)
 
@@ -228,6 +233,7 @@ ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-MeasureCompRisksIntegratedBrierScore-initialize}{\code{MeasureCompRisksIntegratedBrierScore$new()}}
+    \item \href{#method-MeasureCompRisksIntegratedBrierScore-eval_times}{\code{MeasureCompRisksIntegratedBrierScore$eval_times()}}
     \item \href{#method-MeasureCompRisksIntegratedBrierScore-clone}{\code{MeasureCompRisksIntegratedBrierScore$clone()}}
   }
 }
@@ -249,6 +255,28 @@ ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{MeasureCompRisksIntegratedBrierScore$new()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-MeasureCompRisksIntegratedBrierScore-eval_times"></a>}}
+\if{latex}{\out{\hypertarget{method-MeasureCompRisksIntegratedBrierScore-eval_times}{}}}
+\subsection{\code{MeasureCompRisksIntegratedBrierScore$eval_times()}}{
+  Returns the time points used to integrate the Brier score for a prediction.
+The grid follows the validation and truncation rules described in the
+\strong{Integration grid} section.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MeasureCompRisksIntegratedBrierScore$eval_times(prediction)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{prediction}}{(\link{PredictionCompRisks})\cr
+A prediction object, usually containing the test set observations to be scored.}
+    }
     \if{html}{\out{</div>}}
   }
 }
