@@ -38,7 +38,7 @@ test_that("predict params of cmprsk.fg", {
   expect_true(res, info = res$error)
 })
 
-test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
+test_that("cmprsk.fg returns one model per cause and cause-specific CIF time grids", {
   with_seed(42L, {
     task = tgen("cmprsk", n_causes = 3L)$generate(240L)
     task$set_col_roles(cols = "event", add_to = "stratum")
@@ -56,14 +56,12 @@ test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
     cif_list = p$cif
     expect_equal(names(cif_list), as.character(task$causes))
 
-    # CIF grids should match the training event-time grid for every cause (within tolerance)
-    time_grids = lapply(cif_list, function(x) as.numeric(colnames(x)))
-    uevents = task$unique_event_times(rows = part$train)
-
-    # there is some loss of precision in the time grid, so we check that they
-    # are equal within a tolerance
     for (cause in names(cif_list)) {
-      expect_equal(time_grids[[cause]], uevents, tolerance = 1e-8)
+      uevents = task$unique_event_times(rows = part$train, cause = as.integer(cause))
+      expect_identical(p$times[[cause]], uevents)
+      expect_equal(ncol(cif_list[[cause]]), length(uevents))
+      expect_identical(colnames(cif_list[[cause]]), as.character(uevents))
+      expect_null(colnames(p$data$cif[[cause]]))
     }
   })
 })
@@ -97,4 +95,5 @@ test_that("cmprsk.fg CIF sum warnings are opt-in", {
     class = "Mlr3WarningCIFSumExceedsOne"
   )
   expect_equal(p_warn$cif, p$cif)
+  expect_identical(p_warn$times, p$times)
 })

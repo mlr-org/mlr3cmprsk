@@ -16,9 +16,9 @@ The fitted model is an S3 object of class \code{"fine_gray"} that stores a list 
 cause-specific \code{crr} class models.
 
 At prediction time, each cause-specific model is evaluated with
-\code{\link[cmprsk:predict.crr]{cmprsk::predict.crr()}} and the resulting CIF matrices are aligned to a common
-time grid across causes using constant CIF interpolation.
-The time grid is the \strong{unique event times (across all causes)} observed in the training set.
+\code{\link[cmprsk:predict.crr]{cmprsk::predict.crr()}}, retaining its native cause-specific event-time grid.
+Each grid contains the unique training event times for that cause and is stored
+in the prediction's \verb{$times} field.
 
 Independently fitted cause-specific models can produce CIFs whose sum exceeds 1.
 The corresponding warning is disabled package-wide by default, as it can recur on every prediction call.
