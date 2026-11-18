@@ -85,12 +85,17 @@ check_prediction_data.PredictionDataCompRisks = function(pdata, ...) {
 
   if (!is.null(pdata$extra)) {
     assert_list(pdata$extra, names = "unique")
-    assert_names(
-      names(pdata$extra),
-      disjunct.from = c("row_ids", "time", "event", "CIF", "weights")
-    )
+    extra_names = names(pdata$extra)
+    reserved = extra_names[extra_names %chin% c("row_ids", "time", "event", "CIF", "weights")]
+    if (length(reserved)) {
+      error_input(
+        "Extra data may not use reserved prediction column names: %s",
+        str_collapse(reserved)
+      )
+    }
 
-    if (any(lengths(pdata$extra) != n_obs)) {
+    len = lengths(pdata$extra)
+    if (any(len != n_obs)) {
       error_learner_predict("Extra data must have the same length as the number of predictions")
     }
   }
