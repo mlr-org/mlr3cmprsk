@@ -33,7 +33,7 @@ lrn("cmprsk.aalen")
 \itemize{
 \item Task type: \dQuote{cmprsk}
 \item Predict Types: \dQuote{cif}
-\item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}
+\item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{character}, \dQuote{factor}, \dQuote{ordered}, \dQuote{POSIXct}, \dQuote{Date}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3cmprsk}, \CRANpkg{survival}
 }
 }

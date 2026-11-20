@@ -36,8 +36,8 @@ LearnerCompRisksAalenJohansen = R6Class(
       super$initialize(
         id = "cmprsk.aalen",
         predict_types = "cif",
-        feature_types = c("logical", "integer", "numeric", "factor"),
-        properties = c("missings", "weights", "importance", "selected_features"),
+        feature_types = unname(mlr_reflections$task_feature_types),
+        properties = c("featureless", "missings", "weights", "importance", "selected_features"),
         packages = "survival",
         label = "Aalen-Johansen Estimator",
         man = "mlr3cmprsk::mlr_learners_cmprsk.aalen"
