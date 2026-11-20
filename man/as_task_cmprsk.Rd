@@ -40,7 +40,8 @@ Additional arguments.}
 If \code{TRUE}, ensures that the returned object is not the same as the input \code{x}.}
 
 \item{time}{(\code{character(1)})\cr
-Name of the column for outcome time.}
+Name of the column for outcome time.
+Times must be non-negative, finite numbers without missing values.}
 
 \item{event}{(\code{character(1)})\cr
 Name of column that holds the event indicator.

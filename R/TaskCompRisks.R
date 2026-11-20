@@ -89,6 +89,11 @@ TaskCompRisks = R6Class(
       private$.cens_type = "right"
       backend = as_data_backend(backend)
 
+      # check time is a non-negative finite number
+      assert_choice(time, backend$colnames)
+      time_vals = backend$data(rows = backend$rownames, cols = time)[[1L]]
+      assert_numeric(time_vals, lower = 0, finite = TRUE, any.missing = FALSE, .var.name = time)
+
       # check event is an integer starting from 0
       assert_choice(event, backend$colnames)
       event_vals = backend$data(rows = backend$rownames, cols = event)[[1L]]
