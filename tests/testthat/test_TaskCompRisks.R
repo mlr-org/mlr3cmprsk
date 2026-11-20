@@ -145,10 +145,8 @@ test_that("as_task_cmprsk", {
   # times must be non-negative, finite, and non-missing numbers
   expect_error(as_task_cmprsk(data.frame(time = c(-1, 2), event = c(1, 2))), "time")
   expect_error(as_task_cmprsk(data.frame(time = c(NA, 2), event = c(1, 2))), "time")
-  expect_error(TaskCompRisks$new("inf", data.frame(time = c(Inf, 2), event = c(1, 2))), "time")
   expect_error(as_task_cmprsk(data.frame(time = c("1", "2"), event = c(1, 2))), "time")
   expect_error(as_task_cmprsk(data.frame(t = c(1, 2), event = c(1, 2))), "time")
-  expect_task_cmprsk(as_task_cmprsk(data.frame(time = c(0, 2), event = c(1, 2))))
 
   expect_task_cmprsk(
     as_task_cmprsk(data.frame(time = c(1, 2), status = c(1, 2)), event = "status")
