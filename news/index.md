@@ -28,6 +28,9 @@
 - feat: `cmprsk.aalen` and `cmprsk.fg` now return CIF matrices on
   separate event-time grids for each cause. Both learners use a zero-CIF
   anchor at time 0 for causes without training events.
+- fix: `TaskCompRisks` now checks upon construction that the time column
+  is numeric, non-negative, finite, and free of missing values, instead
+  of failing later during training or scoring.
 - `cmprsk.ibs` now exposes its effective integration grid through
   `$eval_times(prediction)`.
 

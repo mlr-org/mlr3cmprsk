@@ -54,7 +54,8 @@ as_task_cmprsk(
 - time:
 
   (`character(1)`)  
-  Name of the column for outcome time.
+  Name of the column for outcome time. Times must be non-negative,
+  finite numbers without missing values.
 
 - event:
 

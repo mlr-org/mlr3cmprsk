@@ -56,6 +56,7 @@
 <li>feat: <code><a href="../reference/align_cifs.html">align_cifs()</a></code> is now exported to align validated CIF matrices on a common time grid (for use outside this package).</li>
 <li>fix: <code>cmprsk.aalen</code> now supports all feature types and has the <code>"featureless"</code> property, so it no longer fails as a fallback learner on tasks with <code>character</code>, <code>ordered</code>, <code>POSIXct</code>, or <code>Date</code> features.</li>
 <li>feat: <code>cmprsk.aalen</code> and <code>cmprsk.fg</code> now return CIF matrices on separate event-time grids for each cause. Both learners use a zero-CIF anchor at time 0 for causes without training events.</li>
+<li>fix: <code>TaskCompRisks</code> now checks upon construction that the time column is numeric, non-negative, finite, and free of missing values, instead of failing later during training or scoring.</li>
 <li>
 <code>cmprsk.ibs</code> now exposes its effective integration grid through <code>$eval_times(prediction)</code>.</li>
 </ul></div>
