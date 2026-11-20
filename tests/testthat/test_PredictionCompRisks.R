@@ -436,3 +436,47 @@ test_that("extra data is supported", {
   # mixing extra and non-extra predictions errors
   expect_error(c(pe, pred), "others do not", class = "Mlr3ErrorInput")
 })
+
+test_that("raw predictions are supported", {
+  raw = list(
+    cs_hazard = lapply(pred$times, function(times) {
+      matrix(0.01, nrow = length(pred$row_ids), ncol = length(times))
+    })
+  )
+  p = PredictionCompRisks$new(
+    task = task,
+    cif = pred$data$cif,
+    times = pred$times,
+    raw = raw
+  )
+  expect_identical(p$raw, raw)
+  expect_identical(as_prediction(p$data, check = TRUE)$raw, raw)
+  # similar to original prediction (except the `raw` part)
+  expect_identical(p$predict_types, pred$predict_types)
+  expect_equal(as.data.table(p), as.data.table(pred))
+  expect_null(pred$raw)
+
+  # raw metadata is kept
+  metadata = c(iterations = 10L, status = 0L)
+  p_metadata = as_prediction_cmprsk(
+    list(
+      row_ids = pred$row_ids,
+      truth = pred$truth,
+      cif = pred$data$cif,
+      times = pred$times,
+      raw = metadata
+    )
+  )
+  expect_identical(p_metadata$raw, metadata)
+  expect_identical(as_prediction(p_metadata$data)$raw, metadata)
+
+  # raw predictions don't change when filtering
+  row_ids = pred$row_ids[1:2]
+  p$filter(row_ids)
+  expect_identical(p$raw, raw)
+
+  # raw predictions are collected in a list when combined
+  combined = c(p, pred, p_metadata)
+  expect_identical(combined$raw, list(raw, metadata))
+  expect_identical(c(pred, p)$raw, list(raw))
+})

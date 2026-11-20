@@ -40,7 +40,8 @@ Use \code{\link[mlr3:as_prediction]{mlr3::as_prediction()}} to convert the inter
 \details{
 If \code{x} is a named \code{list}, it must meet the following requirements:
 \itemize{
-\item Include \code{row_ids}, \code{truth}, \code{cif}, and \code{times} elements; \code{weights} and \code{extra} are optional.
+\item Include \code{row_ids}, \code{truth}, \code{cif}, and \code{times} elements.
+\code{weights}, \code{extra}, and \code{raw} are optional.
 \item Provide \code{truth} as a \code{\link[survival:Surv]{survival::Surv()}} object; descriptive cause names are taken from its \code{states} attribute.
 \item Provide \code{cif} as a list of CIF matrices, one per cause, named with consecutive cause codes (\code{"1"}, \code{"2"}, ..., \code{"K"}).
 \item Provide \code{times} as a list of time point vectors, one per cause.

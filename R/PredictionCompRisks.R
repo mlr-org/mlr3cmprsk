@@ -7,10 +7,25 @@
 #' with one matrix (observations x times) per cause.
 #' - The `$times` field provides the corresponding numeric time grids (can be different per cause).
 #' - The `$cause_names` field provides the descriptive cause names.
+#' - The `$raw` field provides optional upstream predictions, such as cause-specific
+#' hazard matrices.
 #' - The `task_type` is set to `"cmprsk"`.
 #'
-#' Accessing all-cause survival or cause-specific hazard functions or similar quantities
-#' from the CIF prediction object is not possible at the moment.
+#' @section Raw predictions:
+#'
+#' A learner can provide alternative upstream predictions, such as all-cause
+#' survival estimates or cause-specific hazard matrices, in the `raw` element of
+#' the list returned by its `.predict()` method.
+#' Set `learner$predict_raw = TRUE` to request these values from a learner that
+#' supports them.
+#' Keep in mind that:
+#'
+#' - Filtering prediction rows via `$filter()` retains the entire raw object.
+#' - Combining multiple predictions via `c()` collects the non-`NULL` raw objects
+#'   into a list in input order and each object is kept intact.
+#'   The combined `$raw` is `NULL` if none of the inputs supplies a raw object.
+#' - `as.data.table()` omits raw predictions completely.
+#'   Access them directly through `$raw`.
 #'
 #' @family Prediction
 #' @examples
@@ -41,6 +56,22 @@
 #' attr(tab, "times")
 #' # descriptive cause names as well
 #' attr(tab, "cause_names")
+#'
+#' # example raw predictions
+#' # attach random cause-specific hazard matrices
+#' n_obs = length(p$row_ids)
+#' cs_hazard = lapply(p$times, function(cause_times) {
+#'   matrix(runif(n_obs * length(cause_times)), nrow = n_obs)
+#' })
+#'
+#' p_raw = PredictionCompRisks$new(
+#'   row_ids = p$row_ids,
+#'   truth = p$truth,
+#'   cif = p$cif,
+#'   times = p$times,
+#'   raw = list(cs_hazard = cs_hazard)
+#' )
+#' str(p_raw$raw$cs_hazard)
 #'
 #' @export
 PredictionCompRisks = R6Class(
@@ -107,14 +138,18 @@ PredictionCompRisks = R6Class(
     #'   Optional measurement weights for the predicted observations, as supplied by a task with
     #'   column role `"weights_measure"`.
     #'
+    #' @param check (`logical(1)`)\cr
+    #'   If `TRUE` (default), performs argument checks which is encouraged for user-supplied data.
+    #'   With `FALSE`, inputs are assumed valid and correct behavior is not guaranteed.
+    #'
     #' @param extra (`list()`)\cr
     #'   Optional named list of additional per-observation data.
     #'   Each element must have the same length as `row_ids`.
     #'   Names must not be `row_ids`, `time`, `event`, `CIF`, or `weights`, which are reserved prediction columns.
     #'
-    #' @param check (`logical(1)`)\cr
-    #'   If `TRUE` (default), performs argument checks which is encouraged for user-supplied data.
-    #'   With `FALSE`, inputs are assumed valid and correct behavior is not guaranteed.
+    #' @param raw (`any`)\cr
+    #'   Optional upstream predictions or metadata, such as a vector, matrix, or list.
+    #'   The constructor stores the object as-is without validation.
     initialize = function(
       task = NULL,
       row_ids = task$row_ids,
@@ -122,8 +157,9 @@ PredictionCompRisks = R6Class(
       cif,
       times,
       weights = NULL,
+      check = TRUE,
       extra = NULL,
-      check = TRUE
+      raw = NULL
     ) {
       assert_flag(check)
 
@@ -132,7 +168,8 @@ PredictionCompRisks = R6Class(
         truth = truth,
         cif = cif,
         weights = weights,
-        extra = extra
+        extra = extra,
+        raw = raw
       )
       pdata = discard(pdata, is.null)
       attr(pdata, "times") = times

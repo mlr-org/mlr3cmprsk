@@ -10,12 +10,30 @@ Stores competing risks predictions returned by a learner of class \link{LearnerC
 with one matrix (observations x times) per cause.
 \item The \verb{$times} field provides the corresponding numeric time grids (can be different per cause).
 \item The \verb{$cause_names} field provides the descriptive cause names.
+\item The \verb{$raw} field provides optional upstream predictions, such as cause-specific
+hazard matrices.
 \item The \code{task_type} is set to \code{"cmprsk"}.
 }
-
-Accessing all-cause survival or cause-specific hazard functions or similar quantities
-from the CIF prediction object is not possible at the moment.
 }
+\section{Raw predictions}{
+
+
+A learner can provide alternative upstream predictions, such as all-cause
+survival estimates or cause-specific hazard matrices, in the \code{raw} element of
+the list returned by its \code{.predict()} method.
+Set \code{learner$predict_raw = TRUE} to request these values from a learner that
+supports them.
+Keep in mind that:
+\itemize{
+\item Filtering prediction rows via \verb{$filter()} retains the entire raw object.
+\item Combining multiple predictions via \code{c()} collects the non-\code{NULL} raw objects
+into a list in input order and each object is kept intact.
+The combined \verb{$raw} is \code{NULL} if none of the inputs supplies a raw object.
+\item \code{as.data.table()} omits raw predictions completely.
+Access them directly through \verb{$raw}.
+}
+}
+
 \examples{
 library(mlr3)
 task = tsk("pbc")
@@ -44,6 +62,22 @@ tab$CIF[[1]]
 attr(tab, "times")
 # descriptive cause names as well
 attr(tab, "cause_names")
+
+# example raw predictions
+# attach random cause-specific hazard matrices
+n_obs = length(p$row_ids)
+cs_hazard = lapply(p$times, function(cause_times) {
+  matrix(runif(n_obs * length(cause_times)), nrow = n_obs)
+})
+
+p_raw = PredictionCompRisks$new(
+  row_ids = p$row_ids,
+  truth = p$truth,
+  cif = p$cif,
+  times = p$times,
+  raw = list(cs_hazard = cs_hazard)
+)
+str(p_raw$raw$cs_hazard)
 
 }
 \concept{Prediction}
@@ -96,8 +130,9 @@ Read-only list of CIF matrices with column names derived from the corresponding 
   cif,
   times,
   weights = NULL,
+  check = TRUE,
   extra = NULL,
-  check = TRUE
+  raw = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -127,13 +162,16 @@ Different causes may use different time grids.}
       \item{\code{weights}}{(\code{numeric()})\cr
 Optional measurement weights for the predicted observations, as supplied by a task with
 column role \code{"weights_measure"}.}
+      \item{\code{check}}{(\code{logical(1)})\cr
+If \code{TRUE} (default), performs argument checks which is encouraged for user-supplied data.
+With \code{FALSE}, inputs are assumed valid and correct behavior is not guaranteed.}
       \item{\code{extra}}{(\code{list()})\cr
 Optional named list of additional per-observation data.
 Each element must have the same length as \code{row_ids}.
 Names must not be \code{row_ids}, \code{time}, \code{event}, \code{CIF}, or \code{weights}, which are reserved prediction columns.}
-      \item{\code{check}}{(\code{logical(1)})\cr
-If \code{TRUE} (default), performs argument checks which is encouraged for user-supplied data.
-With \code{FALSE}, inputs are assumed valid and correct behavior is not guaranteed.}
+      \item{\code{raw}}{(\code{any})\cr
+Optional upstream predictions or metadata, such as a vector, matrix, or list.
+The constructor stores the object as-is without validation.}
     }
     \if{html}{\out{</div>}}
   }

@@ -177,18 +177,18 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
   # combine CIFs (list of matrices) for each cause
   cif_lists = map(pdata_list, "cif")
 
-  # Check that all CIF lists have the same cause codes
+  # check that all CIF lists have the same cause codes
   causes = as.character(seq_along(cause_names)) # "1","2",...,"K"
   for (cif_list in cif_lists) {
     assert_names(names(cif_list), identical.to = causes)
   }
 
-  # Empty prediction data contribute neither rows nor time points
+  # empty prediction data contribute neither rows nor time points
   nonempty = lengths(map(pdata_list, "row_ids")) > 0L
   cif_lists = cif_lists[nonempty]
   times_lists = map(pdata_list[nonempty], function(x) attr(x, "times"))
 
-  # Combine each cause on its own union of time points across predictions
+  # combine each cause on its own union of time points across predictions
   merged_cifs = named_list(causes)
   merged_times = list()
   for (cause in causes) {
@@ -207,6 +207,12 @@ c.PredictionDataCompRisks = function(..., keep_duplicates = TRUE) {
     }
   }
   pdata$cif = merged_cifs
+
+  # combine non-NULL raw predictions into a list
+  raw = discard(map(pdata_list, "raw"), is.null)
+  if (length(raw)) {
+    pdata$raw = raw
+  }
 
   attr(pdata, "times") = merged_times
   set_class(pdata, c("PredictionDataCompRisks", "PredictionData"))

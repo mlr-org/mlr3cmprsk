@@ -9,7 +9,8 @@
 #'
 #' @details
 #' If `x` is a named `list`, it must meet the following requirements:
-#' - Include `row_ids`, `truth`, `cif`, and `times` elements; `weights` and `extra` are optional.
+#' - Include `row_ids`, `truth`, `cif`, and `times` elements.
+#'   `weights`, `extra`, and `raw` are optional.
 #' - Provide `truth` as a [survival::Surv()] object; descriptive cause names are taken from its `states` attribute.
 #' - Provide `cif` as a list of CIF matrices, one per cause, named with consecutive cause codes (`"1"`, `"2"`, ..., `"K"`).
 #' - Provide `times` as a list of time point vectors, one per cause.
@@ -60,7 +61,7 @@ as_prediction_cmprsk.list = function(x, ...) {
   assert_names(
     names(x),
     must.include = c("row_ids", "truth", "cif", "times"),
-    subset.of = c("row_ids", "truth", "cif", "times", "weights", "extra")
+    subset.of = c("row_ids", "truth", "cif", "times", "weights", "extra", "raw")
   )
 
   invoke(
