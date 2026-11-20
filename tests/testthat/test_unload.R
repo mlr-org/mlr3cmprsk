@@ -33,14 +33,28 @@ test_that("unloading cleans up registrations and preserves unrelated hooks", {
       unrelated_hook = local(function(...) NULL)
       setHook(load_event, unrelated_hook, action = "append")
       setHook(unload_event, unrelated_hook, action = "append")
+
+      # Run user hooks before .onUnload, as namespace unloading does, while keeping
+      # the test runner's namespace loaded. This tests cleanup, not DLL or S3 unloading.
+      unload = function() {
+        for (hook in rev(getHook(unload_event))) {
+          hook("mlr3cmprsk", NULL)
+        }
+        ns$.onUnload(NULL)
+      }
+
+      # The first cleanup removes the hooks of the real package load.
+      unload()
       expected_load_hooks = getHook(load_event)
       expected_unload_hooks = getHook(unload_event)
+      expect_true(some(expected_load_hooks, identical, unrelated_hook))
+      expect_true(some(expected_unload_hooks, identical, unrelated_hook))
 
       # Repeated cycles catch duplicate registrations and hooks left behind by test() reloads.
       for (i in seq_len(2L)) {
         on_load(NULL, "mlr3cmprsk")
-        expect_identical(getHook(load_event), expected_load_hooks)
-        expect_identical(getHook(unload_event), expected_unload_hooks)
+        expect_length(getHook(load_event), length(expected_load_hooks) + 1L)
+        expect_length(getHook(unload_event), length(expected_unload_hooks) + 1L)
         for (j in seq_along(dictionaries)) {
           expect_true(all(dictionaries[[j]]$has(keys[[j]])))
         }
@@ -57,14 +71,7 @@ test_that("unloading cleans up registrations and preserves unrelated hooks", {
           }
         }
 
-        # Run user hooks before .onUnload, as namespace unloading does, while keeping
-        # the test runner's namespace loaded. This tests cleanup, not DLL or S3 unloading.
-        expect_silent({
-          for (hook in rev(getHook(unload_event))) {
-            hook("mlr3cmprsk", NULL)
-          }
-          ns$.onUnload(NULL)
-        })
+        expect_silent(unload())
         expect_silent(ns$.onUnload(NULL))
 
         expect_identical(getHook(load_event), expected_load_hooks)
