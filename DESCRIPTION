@@ -16,7 +16,7 @@ URL: https://mlr3cmprsk.mlr-org.com, https://github.com/mlr-org/mlr3cmprsk
 BugReports: https://github.com/mlr-org/mlr3cmprsk/issues
 Depends:
     mlr3 (>= 1.8.0),
-    R (>= 3.6.0)
+    R (>= 4.0.0)
 Imports:
     checkmate (>= 2.3.2),
     cli,
