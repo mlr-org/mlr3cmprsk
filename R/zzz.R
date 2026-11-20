@@ -24,30 +24,12 @@
 #' @importFrom stats median
 "_PACKAGE"
 
-# add tasks, task generators, learners, and measures to mlr3 dictionaries
-register_mlr3cmprsk = function() {
-  x = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
-  iwalk(tasks, function(obj, nm) x$add(nm, obj))
-
-  x = utils::getFromNamespace("mlr_task_generators", ns = "mlr3")
-  iwalk(task_generators, function(obj, nm) x$add(nm, obj))
-
-  x = utils::getFromNamespace("mlr_learners", ns = "mlr3")
-  iwalk(learners, function(obj, nm) x$add(nm, obj))
-
-  x = utils::getFromNamespace("mlr_measures", ns = "mlr3")
-  iwalk(measures, function(obj, nm) x$add(nm, obj))
-}
-
-.onLoad = function(libname, pkgname) {
-  # logger
-  lg = lgr::get_logger("mlr3/core")
-  assign("lg", lg, envir = parent.env(environment()))
-
+# add the task type to the mlr3 reflections and the objects to the mlr3 dictionaries
+register_mlr3 = function() {
   # reflections
   ## tasks
   x = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
-  x$task_types = x$task_types[!"cmprsk"] # to ensure we don't have multiple row entries of 'surv'
+  x$task_types = x$task_types[!"cmprsk"] # to ensure we don't have multiple row entries of 'cmprsk'
   x$task_types = setkeyv(
     rbind(
       x$task_types,
@@ -84,9 +66,27 @@ register_mlr3cmprsk = function() {
   ## parallel workers load the packages listed here
   x$loaded_packages = union(x$loaded_packages, "mlr3cmprsk")
 
-  # mlr3 is an imported dependency, so its dictionaries are already available
-  # Direct registration avoids unloading callbacks that inspect unrelated IDE or package hooks
-  register_mlr3cmprsk()
+  # dictionaries
+  x = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
+  iwalk(tasks, function(obj, nm) x$add(nm, obj))
+
+  x = utils::getFromNamespace("mlr_task_generators", ns = "mlr3")
+  iwalk(task_generators, function(obj, nm) x$add(nm, obj))
+
+  x = utils::getFromNamespace("mlr_learners", ns = "mlr3")
+  iwalk(learners, function(obj, nm) x$add(nm, obj))
+
+  x = utils::getFromNamespace("mlr_measures", ns = "mlr3")
+  iwalk(measures, function(obj, nm) x$add(nm, obj))
+}
+
+.onLoad = function(libname, pkgname) {
+  # logger
+  lg = lgr::get_logger("mlr3/core")
+  assign("lg", lg, envir = parent.env(environment()))
+
+  # registers now and again whenever mlr3 is reloaded
+  register_namespace_callback(pkgname, "mlr3", register_mlr3)
 }
 
 .onUnload = function(libpath) {
