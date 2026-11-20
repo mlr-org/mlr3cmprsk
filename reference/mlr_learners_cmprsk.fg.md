@@ -11,13 +11,15 @@ cause in `task$causes`. This follows the
 design: predictions contain CIFs for all available causes.
 
 The fitted model is an S3 object of class `"fine_gray"` that stores a
-list of cause-specific `crr` class models.
+list of cause-specific `crr` class models, with `NULL` entries for
+causes without training events.
 
 At prediction time, each cause-specific model is evaluated with
-[`cmprsk::predict.crr()`](https://rdrr.io/pkg/cmprsk/man/predict.crr.html)
-and the resulting CIF matrices are aligned to a common time grid across
-causes using constant CIF interpolation. The time grid is the **unique
-event times (across all causes)** observed in the training set.
+[`cmprsk::predict.crr()`](https://rdrr.io/pkg/cmprsk/man/predict.crr.html),
+retaining its native cause-specific event-time grid. Each grid contains
+the **unique training event times for that cause** and is stored in the
+prediction's `$times` field. Causes without training events have a zero
+CIF anchored at time 0.
 
 Independently fitted cause-specific models can produce CIFs whose sum
 exceeds 1. The corresponding warning is disabled package-wide by

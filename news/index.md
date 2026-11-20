@@ -1,5 +1,33 @@
 # Changelog
 
+## mlr3cmprsk 0.0.9
+
+- feat: `PredictionCompRisks` now requires a named `times` list upon
+  initialization, exposed as `$times` and stored as an attribute of
+  prediction data and exported tables; `$cif` adds time points as column
+  names without changing the stored CIF matrices, and
+  filtering/combining predictions, conversions, and scoring, use each
+  cause’s specific numeric grid.
+- feat:
+  [`assert_cif_list()`](https://mlr3cmprsk.mlr-org.com/reference/assert_cif_list.md)
+  accepts a `times` list argument now.
+- BREAKING CHANGE:
+  [`as_prediction_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_prediction_cmprsk.md)
+  no longer accepts `data.frame` or `data.table` inputs. Supply a named
+  list containing `row_ids`, `truth`, `cif`, and `times`, or construct a
+  `PredictionCompRisks` directly.
+- feat: `PredictionCompRisks` now supports optional upstream predictions
+  through the inherited `$raw` field.
+- feat:
+  [`align_cifs()`](https://mlr3cmprsk.mlr-org.com/reference/align_cifs.md)
+  is now exported to align validated CIF matrices on a common time grid
+  (for use outside this package).
+- feat: `cmprsk.aalen` and `cmprsk.fg` now return CIF matrices on
+  separate event-time grids for each cause. Both learners use a zero-CIF
+  anchor at time 0 for causes without training events.
+- `cmprsk.ibs` now exposes its effective integration grid through
+  `$eval_times(prediction)`.
+
 ## mlr3cmprsk 0.0.8
 
 - fix:
@@ -132,7 +160,8 @@
 ## mlr3cmprsk 0.0.4
 
 - Added `LearnerCompRisksFineGray` via `cmprsk` R package
-- Refactor `merge_cifs()` to `align_cifs()`
+- Refactor `merge_cifs()` to
+  [`align_cifs()`](https://mlr3cmprsk.mlr-org.com/reference/align_cifs.md)
 - Added test coverage report + badge
 - Added example in `README`
 

@@ -5,13 +5,15 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Assert a List of Cumulative Incidence Matrices — assert_cif_list"><meta name="description" content="Checks and validates the structure, optional cause names, and probabilities in a list
-of cumulative incidence function (CIF) matrices.
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Assert a List of Cumulative Incidence Matrices — assert_cif_list"><meta name="description" content="Validates the structure, optional cause names, time points, and probabilities
+in a list of cumulative incidence function (CIF) matrices.
 This is the format used by PredictionCompRisks to store the predictions of
-competing risk models."><meta property="og:description" content="Checks and validates the structure, optional cause names, and probabilities in a list
-of cumulative incidence function (CIF) matrices.
+competing risk models.
+Uses survdistr::assert_prob() with type = &quot;cif&quot;."><meta property="og:description" content="Validates the structure, optional cause names, time points, and probabilities
+in a list of cumulative incidence function (CIF) matrices.
 This is the format used by PredictionCompRisks to store the predictions of
-competing risk models."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.com/logo.png"></head><body>
+competing risk models.
+Uses survdistr::assert_prob() with type = &quot;cif&quot;."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.com/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +21,7 @@ competing risk models."><meta property="og:image" content="https://mlr3cmprsk.ml
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.8</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,20 +52,21 @@ competing risk models."><meta property="og:image" content="https://mlr3cmprsk.ml
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Assert a List of Cumulative Incidence Matrices</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/main/R/assertions.R" class="external-link"><code>R/assertions.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3cmprsk/blob/main/R/helpers_cif.R" class="external-link"><code>R/helpers_cif.R</code></a></small>
       <div class="d-none name"><code>assert_cif_list.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
-    <p>Checks and validates the structure, optional cause names, and probabilities in a list
-of cumulative incidence function (CIF) matrices.
+    <p>Validates the structure, optional cause names, time points, and probabilities
+in a list of cumulative incidence function (CIF) matrices.
 This is the format used by <a href="PredictionCompRisks.html">PredictionCompRisks</a> to store the predictions of
 competing risk models.</p>
+<p>Uses <code><a href="https://survdistr.mlr-org.com/reference/assert_prob.html" class="external-link">survdistr::assert_prob()</a></code> with <code>type = "cif"</code>.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">assert_cif_list</span><span class="op">(</span><span class="va">x</span>, n_rows <span class="op">=</span> <span class="cn">NULL</span>, causes <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">assert_cif_list</span><span class="op">(</span><span class="va">x</span>, times <span class="op">=</span> <span class="cn">NULL</span>, n_rows <span class="op">=</span> <span class="cn">NULL</span>, causes <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -72,9 +75,17 @@ competing risk models.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
-A list of at least two numeric matrices, one per competing event.
+List of numeric matrices (at least two), one per competing event.
 Names are checked only when <code>causes</code> is supplied.
-Rows represent observations, and columns represent time points.</p></dd>
+CIF matrix rows represent observations, and columns represent time points.</p></dd>
+
+
+<dt id="arg-times">times<a class="anchor" aria-label="anchor" href="#arg-times"></a></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>|<code>NULL</code>)<br>
+List of numeric time vectors, one per competing event.
+Each vector must have one entry (i.e. time point) per corresponding CIF matrix column.
+Names are checked only when <code>causes</code> is supplied.
+If <code>NULL</code>, time points are taken from each matrix's column names.</p></dd>
 
 
 <dt id="arg-n-rows">n_rows<a class="anchor" aria-label="anchor" href="#arg-n-rows"></a></dt>
@@ -86,7 +97,8 @@ If <code>NULL</code>, no specific row count is required.</p></dd>
 <dt id="arg-causes">causes<a class="anchor" aria-label="anchor" href="#arg-causes"></a></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>|<code>NULL</code>)<br>
 Expected unique, nonempty competing event names or codes.
-If supplied, these must match the list names exactly, including their order.
+If supplied, these must match the list names exactly (both in <code>x</code> and
+<code>times</code>), including their order.
 If <code>NULL</code>, list names are not checked, and unnamed lists are accepted.</p></dd>
 
 </dl></div>
@@ -96,11 +108,9 @@ If <code>NULL</code>, list names are not checked, and unnamed lists are accepted
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Each matrix is checked with <code><a href="https://survdistr.mlr-org.com/reference/assert_prob.html" class="external-link">survdistr::assert_prob()</a></code> using <code>type = "cif"</code>:</p><ul><li><p>At least one row and one column are required, and missing values are not allowed.</p></li>
-<li><p>Column names must represent unique, increasing, non-negative numeric time points.</p></li>
-<li><p>Probabilities must be between 0 and 1 and non-decreasing over time within each row.</p></li>
-<li><p>If time 0 is included, its probabilities must all be 0.</p></li>
-</ul><p>Matrices are checked individually and may use different time grids.</p>
+    <p>CIF matrices may use different time grids.
+See <code><a href="https://survdistr.mlr-org.com/reference/assert_prob.html" class="external-link">survdistr::assert_prob()</a></code> for the probability and time point validation
+rules for <code>type = "cif"</code>.</p>
     </div>
 
     <div class="section level2">
@@ -109,10 +119,25 @@ If <code>NULL</code>, list names are not checked, and unnamed lists are accepted
 <span class="r-in"><span>  <span class="st">"Death"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.4</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"Relapse"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cif</span><span class="op">$</span><span class="va">Death</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">3</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cif</span><span class="op">$</span><span class="va">Relapse</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">times</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Death <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">3</span>, Relapse <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">assert_cif_list</span><span class="op">(</span><span class="va">cif</span>, n_rows <span class="op">=</span> <span class="fl">2L</span>, causes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Death"</span>, <span class="st">"Relapse"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">assert_cif_list</span><span class="op">(</span><span class="va">cif</span>, <span class="va">times</span>, n_rows <span class="op">=</span> <span class="fl">2L</span>, causes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Death"</span>, <span class="st">"Relapse"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Alternatively, supply time points through column names</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cif</span><span class="op">$</span><span class="va">Death</span><span class="op">)</span> <span class="op">=</span> <span class="va">times</span><span class="op">$</span><span class="va">Death</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cif</span><span class="op">$</span><span class="va">Relapse</span><span class="op">)</span> <span class="op">=</span> <span class="va">times</span><span class="op">$</span><span class="va">Relapse</span></span></span>
+<span class="r-in"><span><span class="va">cif</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $Death</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0   1   2   3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0 0.1 0.3 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0 0.2 0.4 0.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $Relapse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0   1   2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0 0.2 0.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0 0.1 0.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu">assert_cif_list</span><span class="op">(</span><span class="va">cif</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

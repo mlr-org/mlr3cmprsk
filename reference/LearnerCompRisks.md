@@ -4,7 +4,7 @@ This Learner specializes
 [Learner](https://mlr3.mlr-org.com/reference/Learner.html) for competing
 risks problems:
 
-- `task_type` is set to `"cmprsk"`
+- The `task_type` is set to `"cmprsk"`
 
 - Creates
   [Prediction](https://mlr3.mlr-org.com/reference/Prediction.html)s of
@@ -12,8 +12,8 @@ risks problems:
   [PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md).
 
 - The only currently available option for `predict_types` is `"cif"`,
-  which represents the predicted **cumulative incidence function** for
-  each observation in the test set.
+  which represents the **predicted cumulative incidence function** for
+  each cause and each observation in the test set.
 
 ## Details
 

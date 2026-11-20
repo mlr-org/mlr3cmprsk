@@ -4,8 +4,8 @@ Convert object to a
 [PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md).
 An existing
 [PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md)
-is returned unchanged. See Details for requirements on `list` and
-`data.frame` inputs.
+is returned unchanged. See Details for requirements on named `list`
+inputs.
 
 Use
 [`mlr3::as_prediction()`](https://mlr3.mlr-org.com/reference/as_prediction.html)
@@ -22,9 +22,6 @@ as_prediction_cmprsk(x, ...)
 as_prediction_cmprsk(x, ...)
 
 # S3 method for class 'list'
-as_prediction_cmprsk(x, ...)
-
-# S3 method for class 'data.frame'
 as_prediction_cmprsk(x, ...)
 
 # S3 method for class 'PredictionDataCompRisks'
@@ -59,42 +56,24 @@ as_prediction(x, check = FALSE, ...)
 
 ## Details
 
-If `x` is a named `list`, it must contain `row_ids`, `truth`, and `cif`.
-The `weights` and `extra` elements are optional. Descriptive cause names
-are taken from the `states` attribute of `truth`. These elements are
-passed to the
-[PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md)
-constructor and validated there (using `check = TRUE` by default). The
-`cif` element must be a nonempty list of matrices, with one matrix for
-each competing cause. This requirement also applies to the internal
-prediction data of `PredictionDataCompRisks` class.
+If `x` is a named `list`, it must meet the following requirements:
 
-If `x` is a `data.frame`/`data.table` input, the following requirements
-must be met:
+- Include `row_ids`, `truth`, `cif`, and `times` elements. `weights`,
+  `extra`, and `raw` are optional.
 
-- Columns `row_ids`, `time`, `event`, and a list-column `CIF` must be
-  present.
+- Provide `truth` as a
+  [`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html)
+  object; descriptive cause names are taken from its `states` attribute.
 
-- An optional column `weights` may hold measurement weights.
+- Provide `cif` as a list of CIF matrices, one per cause, named with
+  consecutive cause codes (`"1"`, `"2"`, ..., `"K"`).
 
-- An optional `cause_names` attribute may hold descriptive cause names.
+- Provide `times` as a list of time point vectors, one per cause.
 
-- All other columns are stored as `extra` data. Column names must be
-  unique.
-
-- The per-observation `CIF` object must be a named list of numeric
-  vectors (one per cause), with names exactly `"1"`, `"2"`, ..., `"K"`,
-  in that order (where `K` is the number of competing risks).
-
-- Cause codes must be identical across observations and in the same
-  order.
-
-- CIF vectors corresponding to the same cause must have the same length
-  and the same time names (the names of the vectors) across all
-  observations.
-
-- Values for the `event` column must be 0 (censoring) or one of the
-  consecutive cause codes `"1"`, `"2"`, ..., `"K"`.
+- Ensure the cause names and order in `times` match those in `cif`. For
+  each cause, its time vector must contain one time point per column of
+  the corresponding CIF matrix. Different causes may have different time
+  grids.
 
 ## Examples
 
@@ -105,7 +84,7 @@ learner = lrn("cmprsk.aalen")
 learner$train(task)
 p = learner$predict(task)
 
-# from an existing PredictionCompRisks object (no change)
+# PredictionCompRisks => PredictionCompRisks (no change)
 as_prediction_cmprsk(p)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
@@ -118,12 +97,12 @@ as_prediction_cmprsk(p)
 #>      275  839     0 <list[2]>
 #>      276  788     0 <list[2]>
 
-# Convert a named list to a PredictionCompRisks object
-# The list must contain `row_ids`, `truth`, and `cif` elements
+# list => PredictionCompRisks
 p_list = list(
   row_ids = p$row_ids,
   truth = p$truth,
-  cif = p$cif
+  cif = p$cif,
+  times = p$times # supply the time grids per cause
 )
 as_prediction_cmprsk(p_list)
 #> 
@@ -137,24 +116,9 @@ as_prediction_cmprsk(p_list)
 #>      275  839     0 <list[2]>
 #>      276  788     0 <list[2]>
 
-# Convert a data.frame to a PredictionCompRisks object
-# The data.frame must contain the required columns: row_ids, time, event, and CIF
-tab = as.data.frame(as.data.table(p))
-as_prediction_cmprsk(tab)
-#> 
-#> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────
-#>  row_ids time event       CIF
-#>        1  400     2 <list[2]>
-#>        2 4500     0 <list[2]>
-#>        3 1012     2 <list[2]>
-#>      ---  ---   ---       ---
-#>      274  939     0 <list[2]>
-#>      275  839     0 <list[2]>
-#>      276  788     0 <list[2]>
-
-# Convert internal prediction data using as_prediction()
+# PredictionDataCompRisks => PredictionCompRisks (using as_prediction())
 p$data
-#> <PredictionDataCompRisks> 276 obs, 2 causes, CIF times: 1 (Liver transplantation) = 127, 2 (Death without transplantation) = 127
+#> <PredictionDataCompRisks> 276 obs, 2 causes, CIF times: 1 (Liver transplantation) = 18, 2 (Death without transplantation) = 109
 as_prediction(p$data)
 #> 
 #> ── <PredictionCompRisks> for 276 observations: ─────────────────────────────────

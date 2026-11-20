@@ -15,7 +15,7 @@ using IPCW as described in Schoop et al. (2011)."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.8</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -157,22 +157,24 @@ non-finite scores.</p>
 <p>The integration grid contains the time points at which Brier scores are evaluated for numerical integration.
 Its largest time point is the <strong>upper integration horizon</strong>.
 All causes use the same grid, with their predicted CIFs constantly interpolated
-to these times.</p>
+to these times.
+The observed follow-up times come from the supplied prediction.
+By default, resampling supplies predictions for the test set.</p>
 <p>If the user explicitly provides <code>times</code>, the supplied grid is used directly.
-Points beyond the maximum test-set follow-up are removed with a warning due to
+Points beyond the maximum observed follow-up are removed with a warning due to
 the limitations of <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score()</a></code>.
 At least two distinct evaluation times must remain.</p>
 <p>When <code>times = NULL</code>, the upper integration horizon is determined first.
-By default, it is the <strong>90th percentile</strong> of observed test-set follow-up times,
+By default, it is the <strong>90th percentile</strong> of observed follow-up times,
 including both events and censored observations.
 Set <code>t_quantile</code> to change the quantile probability (e.g., <code>0.8</code> for the 80th
 percentile), or supply <code>t_max</code> to specify the time horizon directly.
-If <code>t_max</code> exceeds the maximum test-set follow-up, it is reduced to that maximum
+If <code>t_max</code> exceeds the maximum observed follow-up, it is reduced to that maximum
 before constructing the grid, and a warning reports the effective horizon.</p>
 <p>The automatic grid is then generated and contains exactly <code>ntimes</code> equally
 spaced points from time 0 to the horizon, including both endpoints.
 Thus, the default grid consists of 100 points from 0 to the 90th percentile
-of test-set follow-up times.
+of observed follow-up times.
 Note that the generated grid is completely independent of the time grids of
 the predicted CIFs.</p>
 <p>The default 90th percentile is chosen to limit evaluation at extreme follow-up
@@ -201,6 +203,7 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 <p></p><ul><li><p><a href="#method-MeasureCompRisksIntegratedBrierScore-initialize"><code>MeasureCompRisksIntegratedBrierScore$new()</code></a></p></li>
+<li><p><a href="#method-MeasureCompRisksIntegratedBrierScore-eval_times"><code>MeasureCompRisksIntegratedBrierScore$eval_times()</code></a></p></li>
 <li><p><a href="#method-MeasureCompRisksIntegratedBrierScore-clone"><code>MeasureCompRisksIntegratedBrierScore$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="aggregate"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-aggregate"><code>mlr3::Measure$aggregate()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="format"><a href="https://mlr3.mlr-org.com/reference/Measure.html#method-format"><code>mlr3::Measure$format()</code></a></span></li>
@@ -217,13 +220,32 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 
 </div>
 
+<p></p><hr><a id="method-MeasureCompRisksIntegratedBrierScore-eval_times"></a><div class="section">
+<h3 id="measurecomprisksintegratedbrierscore-eval-times-"><code>MeasureCompRisksIntegratedBrierScore$eval_times()</code><a class="anchor" aria-label="anchor" href="#measurecomprisksintegratedbrierscore-eval-times-"></a></h3>
+<p>Returns the time points used to integrate the Brier score for a prediction.
+The grid follows the validation and truncation rules described in the
+<strong>Integration grid</strong> section.</p><div class="section">
+<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">MeasureCompRisksIntegratedBrierScore</span><span class="op">$</span><span class="fu">eval_times</span><span class="op">(</span><span class="va">prediction</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>prediction</code></dt>
+<dd><p>(<a href="PredictionCompRisks.html">PredictionCompRisks</a>)<br>
+A prediction object, usually containing the test set observations to be scored.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-MeasureCompRisksIntegratedBrierScore-clone"></a><div class="section">
 <h3 id="measurecomprisksintegratedbrierscore-clone-"><code>MeasureCompRisksIntegratedBrierScore$clone()</code><a class="anchor" aria-label="anchor" href="#measurecomprisksintegratedbrierscore-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">MeasureCompRisksIntegratedBrierScore</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
@@ -327,6 +349,12 @@ ISSN 0323-3847, <a href="https://doi.org/10.1002/BIMJ.201600191" class="external
 <span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.ibs"</span>, ntimes <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> cmprsk.ibs </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  0.1067466 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Inspect the integration grid for the test predictions</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"cmprsk.ibs"</span>, ntimes <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span><span class="op">$</span><span class="fu">eval_times</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]    0.0000  197.7105  395.4211  593.1316  790.8421  988.5526 1186.2632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1383.9737 1581.6842 1779.3947 1977.1053 2174.8158 2372.5263 2570.2368</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] 2767.9474 2965.6579 3163.3684 3361.0789 3558.7895 3756.5000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Define the integration grid in months</span></span></span>
 <span class="r-in"><span><span class="va">times</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>

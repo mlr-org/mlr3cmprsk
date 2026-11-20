@@ -1,21 +1,39 @@
 # Prediction Object for Competing Risks
 
-This object stores the predictions returned by a learner of class
+Stores competing risks predictions returned by a learner of class
 [LearnerCompRisks](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md).
 
-The `task_type` is set to `"cmprsk"`.
+- The `$cif` field provides **cumulative incidence function (CIF)
+  predictions**, with one matrix (observations x times) per cause.
 
-Causes use consecutive codes 1, 2, ..., K, matching the task used for
-prediction. By design, **predictions contain one CIF matrix for every
-cause** in `task$causes`, including causes that are not observed among
-the predicted observations. Filtering observations retains all cause
-levels and CIFs, even for unobserved causes. Combining predictions
-requires the same cause set.
+- The `$times` field provides the corresponding numeric time grids (can
+  be different per cause).
 
-Accessing all-cause survival or cause-specific hazard functions or
-similar quantities from a
-[LearnerCompRisks](https://mlr3cmprsk.mlr-org.com/reference/LearnerCompRisks.md)
-object is not possible at the moment.
+- The `$cause_names` field provides the descriptive cause names.
+
+- The `$raw` field provides optional upstream predictions, such as
+  cause-specific hazard matrices.
+
+- The `task_type` is set to `"cmprsk"`.
+
+## Raw predictions
+
+A learner can provide alternative upstream predictions, such as
+all-cause survival estimates or cause-specific hazard matrices, in the
+`raw` element of the list returned by its `.predict()` method. Set
+`learner$predict_raw = TRUE` to request these values from a learner that
+supports them. Keep in mind that:
+
+- Filtering prediction rows via `$filter()` retains the entire raw
+  object.
+
+- Combining multiple predictions via
+  [`c()`](https://rdrr.io/r/base/c.html) collects the non-`NULL` raw
+  objects into a list in input order and each object is kept intact. The
+  combined `$raw` is `NULL` if none of the inputs supplies a raw object.
+
+- [`as.data.table()`](https://rdrr.io/pkg/data.table/man/as.data.table.html)
+  omits raw predictions completely. Access them directly through `$raw`.
 
 ## Super class
 
@@ -24,16 +42,23 @@ object is not possible at the moment.
 
 ## Active bindings
 
+- `times`:
+
+  ([`list()`](https://rdrr.io/r/base/list.html))  
+  Read-only numeric time grids, named by cause code and stored as an
+  attribute of `$data`.
+
 - `cause_names`:
 
   ([`character()`](https://rdrr.io/r/base/character.html))  
-  Read-only descriptive cause names, named by the cause codes `"1"`,
-  `"2"`, ..., `"K"`.
+  Read-only descriptive cause names, named by cause code and stored in
+  the attribute `states` of `$truth`.
 
 - `cif`:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
-  Access the stored CIFs.
+  Read-only list of CIF matrices with column names derived from the
+  corresponding `$times` vectors.
 
 ## Methods
 
@@ -66,9 +91,11 @@ Creates a new instance of this
       row_ids = task$row_ids,
       truth = task$truth(),
       cif,
+      times,
       weights = NULL,
+      check = TRUE,
       extra = NULL,
-      check = TRUE
+      raw = NULL
     )
 
 #### Arguments
@@ -87,8 +114,8 @@ Creates a new instance of this
 - `truth`:
 
   ([`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html))  
-  True (observed) response. The `states` attribute contains descriptive
-  cause names, ordered by numeric cause code.
+  True observed response. Descriptive cause names are derived from the
+  `states` attribute, ordered by numeric cause code.
 
 - `cif`:
 
@@ -100,11 +127,26 @@ Creates a new instance of this
   CIF lists must use numeric cause codes as names, i.e. `"1"`, `"2"`,
   ..., `"K"`, exactly in that order.
 
+- `times`:
+
+  ([`list()`](https://rdrr.io/r/base/list.html))  
+  Named list of numeric time vectors, with the same names and order as
+  the CIF list. Time points must be finite, unique, non-negative,
+  strictly increasing numbers, and have one entry per corresponding CIF
+  matrix column. Different causes may use different time grids.
+
 - `weights`:
 
   ([`numeric()`](https://rdrr.io/r/base/numeric.html))  
   Optional measurement weights for the predicted observations, as
   supplied by a task with column role `"weights_measure"`.
+
+- `check`:
+
+  (`logical(1)`)  
+  If `TRUE` (default), performs argument checks which is encouraged for
+  user-supplied data. With `FALSE`, inputs are assumed valid and correct
+  behavior is not guaranteed.
 
 - `extra`:
 
@@ -114,21 +156,30 @@ Creates a new instance of this
   `time`, `event`, `CIF`, or `weights`, which are reserved prediction
   columns.
 
-- `check`:
+- `raw`:
 
-  (`logical(1)`)  
-  If `TRUE`, performs argument checks. Use `TRUE` for user-supplied
-  data. With `FALSE`, inputs are assumed valid and correct behavior is
-  not guaranteed.
+  (`any`)  
+  Optional upstream predictions or metadata, such as a vector, matrix,
+  or list. The constructor stores the object as-is without validation.
 
 #### Details
 
-The `cif` input is a list of CIF matrices. With `check = TRUE`, nonempty
-predictions are validated using
+The `cif` input is a named list of numeric CIF matrices, with rows =
+observations and columns = time points. The list names are consecutive
+cause codes (`"1"`, `"2"`, ..., `"K"`) matching the task's competing
+events/causes. The `times` argument is required and supplies the
+corresponding time grid for each cause. Predictions contain a matrix for
+every task cause, including causes absent from the observed response of
+the predicted observations. Filtering observations retains all causes
+and their CIF matrices. Combining predictions requires matching cause
+codes and descriptive names, and aligns each cause's matrices on the
+union of its time grids.
+
+With `check = TRUE`, nonempty predictions are validated using
 [`assert_cif_list()`](https://mlr3cmprsk.mlr-org.com/reference/assert_cif_list.md).
 This checks the list structure and cause codes, the time points used for
-prediction, and validates each CIF matrix, including probabilities in
-\[0, 1\] and non-decreasing probabilities over time.
+prediction, and validates that each CIF matrix includes probabilities in
+\[0, 1\] which are non-decreasing over time.
 
 With `options(mlr3cmprsk.warn_cif_sum = TRUE)`, joint coherence is
 checked separately by aligning the CIF matrices on a common time grid
@@ -138,9 +189,9 @@ time point. A sum greater than 1, allowing a numerical tolerance of
 `Mlr3WarningCIFSumExceedsOne`. This diagnostic is disabled by default;
 see the Package Options section in
 [mlr3cmprsk-package](https://mlr3cmprsk.mlr-org.com/reference/mlr3cmprsk-package.md).
-The prediction is retained without modifying its probabilities. Such
-sums can occur with independently fitted cause-specific models, such as
-the Fine-Gray model.
+Predictions are retained without modification. Such violations can arise
+when cause-specific CIFs are estimated independently, as with separately
+fitted Fine-Gray subdistribution hazards models.
 
 ------------------------------------------------------------------------
 
@@ -163,7 +214,8 @@ The objects of this class are cloneable with this method.
 ``` r
 library(mlr3)
 task = tsk("pbc")
-learner = lrn("cmprsk.aalen")
+task$select(c("age", "chol", "albumin", "ast", "bili", "protime"))
+learner = lrn("cmprsk.fg")
 part = partition(task)
 p = learner$train(task, part$train)$predict(task, part$test)
 p
@@ -178,118 +230,109 @@ p
 #>      274  939     0 <list[2]>
 #>      276  788     0 <list[2]>
 
-# CIF list: 1 matrix (obs x times) per competing event
-names(p$cif) # cause codes
-#> [1] "1" "2"
-p$cause_names # descriptive names, indexed by numeric cause codes
+# CIF list: one matrix (obs x times) per competing event
+str(p$cif)
+#> List of 2
+#>  $ 1: num [1:91, 1:12] 0.000554 0.003763 0.000496 0.000729 0.000904 ...
+#>   ..- attr(*, "dimnames")=List of 2
+#>   .. ..$ : NULL
+#>   .. ..$ : chr [1:12] "533" "732" "837" "877" ...
+#>  $ 2: num [1:91, 1:77] 0.050459 0.000524 0.006825 0.001709 0.002957 ...
+#>   ..- attr(*, "dimnames")=List of 2
+#>   .. ..$ : NULL
+#>   .. ..$ : chr [1:77] "51" "71" "77" "131" ...
+# numeric time points for each cause
+p$times
+#> $`1`
+#>  [1]  533  732  837  877 1067 1435 1504 1542 2033 2241 2468 2475
+#> 
+#> $`2`
+#>  [1]   51   71   77  131  140  179  191  198  223  304  321  348  388  515  549
+#> [16]  597  611  694  733  762  769  797  859  890  904  930  943  974 1012 1077
+#> [31] 1083 1165 1170 1191 1235 1360 1413 1427 1444 1487 1576 1682 1690 1741 1786
+#> [46] 1827 1847 1925 2090 2105 2256 2288 2297 2386 2400 2466 2540 2583 2598 2769
+#> [61] 2796 2847 3086 3090 3170 3244 3282 3358 3395 3428 3574 3584 3762 3839 3853
+#> [76] 4079 4191
+#> 
+# descriptive names, indexed by numeric cause codes
+p$cause_names
 #>                               1                               2 
 #>         "Liver transplantation" "Death without transplantation" 
-# CIF matrix for cause 1 (first 5 test observations and 20 time points)
-p$cif[["1"]][1:5, 1:20]
-#>      51 71 77 131 140 179 191 198 223 304 321 348 388 515         533
-#> [1,]  0  0  0   0   0   0   0   0   0   0   0   0   0   0 0.005405405
-#> [2,]  0  0  0   0   0   0   0   0   0   0   0   0   0   0 0.005405405
-#> [3,]  0  0  0   0   0   0   0   0   0   0   0   0   0   0 0.005405405
-#> [4,]  0  0  0   0   0   0   0   0   0   0   0   0   0   0 0.005405405
-#> [5,]  0  0  0   0   0   0   0   0   0   0   0   0   0   0 0.005405405
-#>              549         597         611         694        732
-#> [1,] 0.005405405 0.005405405 0.005405405 0.005405405 0.01081081
-#> [2,] 0.005405405 0.005405405 0.005405405 0.005405405 0.01081081
-#> [3,] 0.005405405 0.005405405 0.005405405 0.005405405 0.01081081
-#> [4,] 0.005405405 0.005405405 0.005405405 0.005405405 0.01081081
-#> [5,] 0.005405405 0.005405405 0.005405405 0.005405405 0.01081081
-# CIF matrix for cause 2 (first 5 test observations and 20 time points)
-p$cif[["2"]][1:5, 1:20]
-#>               51         71         77        131        140        179
-#> [1,] 0.005405405 0.01081081 0.01621622 0.02162162 0.02702703 0.03243243
-#> [2,] 0.005405405 0.01081081 0.01621622 0.02162162 0.02702703 0.03243243
-#> [3,] 0.005405405 0.01081081 0.01621622 0.02162162 0.02702703 0.03243243
-#> [4,] 0.005405405 0.01081081 0.01621622 0.02162162 0.02702703 0.03243243
-#> [5,] 0.005405405 0.01081081 0.01621622 0.02162162 0.02702703 0.03243243
-#>             191        198        223        304        321        348
-#> [1,] 0.03783784 0.04324324 0.04864865 0.05405405 0.05945946 0.06486486
-#> [2,] 0.03783784 0.04324324 0.04864865 0.05405405 0.05945946 0.06486486
-#> [3,] 0.03783784 0.04324324 0.04864865 0.05405405 0.05945946 0.06486486
-#> [4,] 0.03783784 0.04324324 0.04864865 0.05405405 0.05945946 0.06486486
-#> [5,] 0.03783784 0.04324324 0.04864865 0.05405405 0.05945946 0.06486486
-#>             388        515        533        549        597        611
-#> [1,] 0.07027027 0.07567568 0.07567568 0.08108108 0.08648649 0.09189189
-#> [2,] 0.07027027 0.07567568 0.07567568 0.08108108 0.08648649 0.09189189
-#> [3,] 0.07027027 0.07567568 0.07567568 0.08108108 0.08648649 0.09189189
-#> [4,] 0.07027027 0.07567568 0.07567568 0.08108108 0.08648649 0.09189189
-#> [5,] 0.07027027 0.07567568 0.07567568 0.08108108 0.08648649 0.09189189
-#>            694       732
-#> [1,] 0.0972973 0.0972973
-#> [2,] 0.0972973 0.0972973
-#> [3,] 0.0972973 0.0972973
-#> [4,] 0.0972973 0.0972973
-#> [5,] 0.0972973 0.0972973
+# CIF matrix for cause 1 (first 5 test observations and 5 time points)
+p$cif[["1"]][1:5, 1:5]
+#>               533          732         837         877        1067
+#> [1,] 0.0005543918 0.0011094504 0.001697085 0.002295556 0.002909697
+#> [2,] 0.0037631261 0.0075186718 0.011481461 0.015503453 0.019616231
+#> [3,] 0.0004959821 0.0009925898 0.001518375 0.002053889 0.002603460
+#> [4,] 0.0007288863 0.0014585219 0.002230840 0.003017254 0.003824103
+#> [5,] 0.0009040849 0.0018089403 0.002766555 0.003741464 0.004741515
+# CIF matrix for cause 2 (first 5 test observations and 5 time points)
+p$cif[["2"]][1:5, 1:5]
+#>                51          71          77         131         140
+#> [1,] 0.0504588489 0.101215904 0.150005167 0.197687927 0.245637744
+#> [2,] 0.0005240451 0.001079769 0.001644044 0.002227396 0.002849701
+#> [3,] 0.0068249325 0.014015428 0.021267345 0.028712622 0.036597378
+#> [4,] 0.0017090387 0.003519177 0.005354836 0.007250086 0.009269130
+#> [5,] 0.0029570413 0.006084973 0.009252766 0.012518912 0.015993382
 
 # data.table conversion
 tab = as.data.table(p)
-tab$CIF[[1]] # for first test observation, list of CIF vectors
+# CIF for first test observation (2 causes)
+tab$CIF[[1]]
 #> $`1`
-#>          51          71          77         131         140         179 
-#> 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 
-#>         191         198         223         304         321         348 
-#> 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 
-#>         388         515         533         549         597         611 
-#> 0.000000000 0.000000000 0.005405405 0.005405405 0.005405405 0.005405405 
-#>         694         732         733         762         769         797 
-#> 0.005405405 0.010810811 0.010810811 0.010810811 0.010810811 0.010810811 
-#>         837         859         877         890         904         930 
-#> 0.016216216 0.016216216 0.021655618 0.021655618 0.021655618 0.021655618 
-#>         943         974        1012        1067        1077        1083 
-#> 0.021655618 0.021655618 0.021655618 0.027167790 0.027167790 0.027167790 
-#>        1165        1170        1191        1235        1360        1413 
-#> 0.027167790 0.027167790 0.027167790 0.027167790 0.027167790 0.027167790 
-#>        1427        1435        1444        1487        1504        1542 
-#> 0.027167790 0.033538123 0.033538123 0.033538123 0.040019244 0.046500365 
-#>        1576        1682        1690        1741        1786        1827 
-#> 0.046500365 0.046500365 0.046500365 0.046500365 0.046500365 0.046500365 
-#>        1847        1925        2033        2090        2105        2241 
-#> 0.046500365 0.046500365 0.054377132 0.054377132 0.054377132 0.062657836 
-#>        2256        2288        2297        2386        2400        2466 
-#> 0.062657836 0.062657836 0.062657836 0.062657836 0.062657836 0.062657836 
-#>        2468        2475        2540        2583        2598        2769 
-#> 0.072091497 0.081525157 0.081525157 0.081525157 0.081525157 0.081525157 
-#>        2796        2847        3086        3090        3170        3244 
-#> 0.081525157 0.081525157 0.081525157 0.081525157 0.081525157 0.081525157 
-#>        3282        3358        3395        3428        3574        3584 
-#> 0.081525157 0.081525157 0.081525157 0.081525157 0.081525157 0.081525157 
-#>        3762        3839        3853        4079        4191 
-#> 0.081525157 0.081525157 0.081525157 0.081525157 0.081525157 
+#>  [1] 0.0005543918 0.0011094504 0.0016970847 0.0022955563 0.0029096972
+#>  [6] 0.0036382667 0.0044188070 0.0052072089 0.0062440746 0.0073512652
+#> [11] 0.0086548608 0.0099663490
 #> 
 #> $`2`
-#>          51          71          77         131         140         179 
-#> 0.005405405 0.010810811 0.016216216 0.021621622 0.027027027 0.032432432 
-#>         191         198         223         304         321         348 
-#> 0.037837838 0.043243243 0.048648649 0.054054054 0.059459459 0.064864865 
-#>         388         515         533         549         597         611 
-#> 0.070270270 0.075675676 0.075675676 0.081081081 0.086486486 0.091891892 
-#>         694         732         733         762         769         797 
-#> 0.097297297 0.097297297 0.102702703 0.108108108 0.113513514 0.118918919 
-#>         837         859         877         890         904         930 
-#> 0.118918919 0.124358321 0.124358321 0.129797722 0.135237124 0.140676526 
-#>         943         974        1012        1067        1077        1083 
-#> 0.146115927 0.151555329 0.157030753 0.157030753 0.162542925 0.168055097 
-#>        1165        1170        1191        1235        1360        1413 
-#> 0.173643827 0.179232557 0.190410017 0.196163121 0.202230849 0.208445376 
-#>        1427        1435        1444        1487        1504        1542 
-#> 0.214762622 0.214762622 0.221132955 0.227614076 0.227614076 0.227614076 
-#>        1576        1682        1690        1741        1786        1827 
-#> 0.234153586 0.241004500 0.247855415 0.254773496 0.261976858 0.269256045 
-#>        1847        1925        2033        2090        2105        2241 
-#> 0.276535232 0.283974401 0.283974401 0.291851169 0.299727936 0.299727936 
-#>        2256        2288        2297        2386        2400        2466 
-#> 0.308117597 0.316507258 0.325011846 0.334016703 0.343021561 0.352455221 
-#>        2468        2475        2540        2583        2598        2769 
-#> 0.352455221 0.352455221 0.361888882 0.371827917 0.381766952 0.391893516 
-#>        2796        2847        3086        3090        3170        3244 
-#> 0.402218640 0.412973977 0.425303267 0.437632556 0.450628294 0.463624031 
-#>        3282        3358        3395        3428        3574        3584 
-#> 0.476619769 0.490427740 0.504695977 0.519473793 0.534251610 0.550260911 
-#>        3762        3839        3853        4079        4191 
-#> 0.567794908 0.586251747 0.604708585 0.633232791 0.673981655 
+#>  [1] 0.05045885 0.10121590 0.15000517 0.19768793 0.24563774 0.29262196
+#>  [7] 0.33908667 0.38291904 0.42387061 0.46308041 0.49987571 0.53435966
+#> [13] 0.56699757 0.59781448 0.62646788 0.65411793 0.67988410 0.70393916
+#> [19] 0.72628186 0.74708790 0.76636185 0.78424534 0.80104941 0.81802397
+#> [25] 0.83378549 0.84831474 0.86214997 0.87633395 0.88922528 0.90092609
+#> [31] 0.91146442 0.92104829 0.93020335 0.94667155 0.95440814 0.96206741
+#> [37] 0.96856426 0.97419315 0.97885720 0.98273004 0.98595438 0.98879748
+#> [43] 0.99107549 0.99292415 0.99465334 0.99603360 0.99706682 0.99784891
+#> [49] 0.99845477 0.99889328 0.99921819 0.99945876 0.99962903 0.99975381
+#> [55] 0.99983848 0.99989594 0.99993310 0.99995940 0.99997546 0.99998537
+#> [61] 0.99999148 0.99999515 0.99999750 0.99999873 0.99999941 0.99999975
+#> [67] 0.99999989 0.99999996 0.99999999 1.00000000 1.00000000 1.00000000
+#> [73] 1.00000000 1.00000000 1.00000000 1.00000000 1.00000000
 #> 
+# time points are available in the data.table attributes
+attr(tab, "times")
+#> $`1`
+#>  [1]  533  732  837  877 1067 1435 1504 1542 2033 2241 2468 2475
+#> 
+#> $`2`
+#>  [1]   51   71   77  131  140  179  191  198  223  304  321  348  388  515  549
+#> [16]  597  611  694  733  762  769  797  859  890  904  930  943  974 1012 1077
+#> [31] 1083 1165 1170 1191 1235 1360 1413 1427 1444 1487 1576 1682 1690 1741 1786
+#> [46] 1827 1847 1925 2090 2105 2256 2288 2297 2386 2400 2466 2540 2583 2598 2769
+#> [61] 2796 2847 3086 3090 3170 3244 3282 3358 3395 3428 3574 3584 3762 3839 3853
+#> [76] 4079 4191
+#> 
+# descriptive cause names as well
+attr(tab, "cause_names")
+#>                               1                               2 
+#>         "Liver transplantation" "Death without transplantation" 
+
+# example raw predictions
+# attach random cause-specific hazard matrices
+n_obs = length(p$row_ids)
+cs_hazard = lapply(p$times, function(cause_times) {
+  matrix(runif(n_obs * length(cause_times)), nrow = n_obs)
+})
+
+p_raw = PredictionCompRisks$new(
+  row_ids = p$row_ids,
+  truth = p$truth,
+  cif = p$cif,
+  times = p$times,
+  raw = list(cs_hazard = cs_hazard)
+)
+str(p_raw$raw$cs_hazard)
+#> List of 2
+#>  $ 1: num [1:91, 1:12] 0.7298 0.0384 0.3338 0.7493 0.9132 ...
+#>  $ 2: num [1:91, 1:77] 0.438 0.807 0.481 0.258 0.17 ...
 ```

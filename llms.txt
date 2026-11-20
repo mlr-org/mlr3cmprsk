@@ -129,7 +129,7 @@ BibTeX entry:
   title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
   author = {John Zobolas and Andreas Bender},
   year = {2026},
-  note = {R package version 0.0.8, https://github.com/mlr-org/mlr3cmprsk},
+  note = {R package version 0.0.9, https://github.com/mlr-org/mlr3cmprsk},
   url = {https://mlr3cmprsk.mlr-org.com},
 }
 ```
@@ -207,8 +207,10 @@ contributing to this project, you agree to abide by its terms.
 - [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
   : Convert to a Competing Risks Task
 
-## Assertions
+## Helpers
 
+- [`align_cifs()`](https://mlr3cmprsk.mlr-org.com/reference/align_cifs.md)
+  : Align CIF matrices on a common time grid
 - [`assert_cif_list()`](https://mlr3cmprsk.mlr-org.com/reference/assert_cif_list.md)
   : Assert a List of Cumulative Incidence Matrices
 

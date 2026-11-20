@@ -9,13 +9,23 @@
 risks using the empirical Aalen-Johansen (AJ) estimator.
 Transition probabilities to each competing event are computed from the training
 data via the survival::survfit.formula() function.
-Predictions are made at all unique event times (across all causes) observed
-in the training set."><meta property="og:description" content="This learner estimates the Cumulative Incidence Function (CIF) for competing
+Each predicted CIF is evaluated on its cause's unique training event times.
+The grid uses the fitted times, so survfit() can group nearly identical event
+times into a single time point.
+With observation weights, a time appears in a cause's grid only if the total
+weight of that cause's events at that time is positive.
+These numeric grids are stored in the prediction's $times field.
+Causes without training events have a zero CIF anchored at time 0."><meta property="og:description" content="This learner estimates the Cumulative Incidence Function (CIF) for competing
 risks using the empirical Aalen-Johansen (AJ) estimator.
 Transition probabilities to each competing event are computed from the training
 data via the survival::survfit.formula() function.
-Predictions are made at all unique event times (across all causes) observed
-in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.com/logo.png"></head><body>
+Each predicted CIF is evaluated on its cause's unique training event times.
+The grid uses the fitted times, so survfit() can group nearly identical event
+times into a single time point.
+With observation weights, a time appears in a cause's grid only if the total
+weight of that cause's events at that time is positive.
+These numeric grids are stored in the prediction's $times field.
+Causes without training events have a zero CIF anchored at time 0."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.com/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +33,7 @@ in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.8</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,8 +73,13 @@ in the training set."><meta property="og:image" content="https://mlr3cmprsk.mlr-
 risks using the empirical Aalen-Johansen (AJ) estimator.</p>
 <p>Transition probabilities to each competing event are computed from the training
 data via the <code><a href="https://rdrr.io/pkg/survival/man/survfit.formula.html" class="external-link">survival::survfit.formula()</a></code> function.
-Predictions are made at all <strong>unique event times (across all causes)</strong> observed
-in the training set.</p>
+Each predicted CIF is evaluated on <strong>its cause's unique training event times</strong>.
+The grid uses the fitted times, so <code>survfit()</code> can group nearly identical event
+times into a single time point.
+With observation weights, a time appears in a cause's grid only if the total
+weight of that cause's events at that time is positive.
+These numeric grids are stored in the prediction's <code>$times</code> field.
+Causes without training events have a zero CIF anchored at time 0.</p>
     </div>
 
 

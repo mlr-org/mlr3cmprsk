@@ -65,7 +65,9 @@
 - [`as_task_cmprsk()`](https://mlr3cmprsk.mlr-org.com/reference/as_task_cmprsk.md)
   : Convert to a Competing Risks Task
 
-## Assertions
+## Helpers
 
+- [`align_cifs()`](https://mlr3cmprsk.mlr-org.com/reference/align_cifs.md)
+  : Align CIF matrices on a common time grid
 - [`assert_cif_list()`](https://mlr3cmprsk.mlr-org.com/reference/assert_cif_list.md)
   : Assert a List of Cumulative Incidence Matrices

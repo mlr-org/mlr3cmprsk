@@ -15,7 +15,7 @@ cmprsk::crr()."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.co
 
     <a class="navbar-brand me-2" href="../index.html">mlr3cmprsk</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.8</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,11 +61,12 @@ cmprsk::crr()."><meta property="og:image" content="https://mlr3cmprsk.mlr-org.co
     <p>A separate Fine-Gray subdistribution hazards model is fitted for every cause in <code>task$causes</code>.
 This follows the <a href="LearnerCompRisks.html">LearnerCompRisks</a> design: predictions contain CIFs for all available causes.</p>
 <p>The fitted model is an S3 object of class <code>"fine_gray"</code> that stores a list of
-cause-specific <code>crr</code> class models.</p>
+cause-specific <code>crr</code> class models, with <code>NULL</code> entries for causes without training events.</p>
 <p>At prediction time, each cause-specific model is evaluated with
-<code><a href="https://rdrr.io/pkg/cmprsk/man/predict.crr.html" class="external-link">cmprsk::predict.crr()</a></code> and the resulting CIF matrices are aligned to a common
-time grid across causes using constant CIF interpolation.
-The time grid is the <strong>unique event times (across all causes)</strong> observed in the training set.</p>
+<code><a href="https://rdrr.io/pkg/cmprsk/man/predict.crr.html" class="external-link">cmprsk::predict.crr()</a></code>, retaining its native cause-specific event-time grid.
+Each grid contains the <strong>unique training event times for that cause</strong> and is stored
+in the prediction's <code>$times</code> field.
+Causes without training events have a zero CIF anchored at time 0.</p>
 <p>Independently fitted cause-specific models can produce CIFs whose sum exceeds 1.
 The corresponding warning is disabled package-wide by default, as it can recur on every prediction call.
 Set <code>options(mlr3cmprsk.warn_cif_sum = TRUE)</code> to enable it.

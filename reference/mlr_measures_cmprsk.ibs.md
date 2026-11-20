@@ -135,27 +135,29 @@ the causes with non-finite scores.
 The integration grid contains the time points at which Brier scores are
 evaluated for numerical integration. Its largest time point is the
 **upper integration horizon**. All causes use the same grid, with their
-predicted CIFs constantly interpolated to these times.
+predicted CIFs constantly interpolated to these times. The observed
+follow-up times come from the supplied prediction. By default,
+resampling supplies predictions for the test set.
 
 If the user explicitly provides `times`, the supplied grid is used
-directly. Points beyond the maximum test-set follow-up are removed with
+directly. Points beyond the maximum observed follow-up are removed with
 a warning due to the limitations of
 [`riskRegression::Score()`](https://rdrr.io/pkg/riskRegression/man/Score.html).
 At least two distinct evaluation times must remain.
 
 When `times = NULL`, the upper integration horizon is determined first.
-By default, it is the **90th percentile** of observed test-set follow-up
-times, including both events and censored observations. Set `t_quantile`
-to change the quantile probability (e.g., `0.8` for the 80th
-percentile), or supply `t_max` to specify the time horizon directly. If
-`t_max` exceeds the maximum test-set follow-up, it is reduced to that
-maximum before constructing the grid, and a warning reports the
-effective horizon.
+By default, it is the **90th percentile** of observed follow-up times,
+including both events and censored observations. Set `t_quantile` to
+change the quantile probability (e.g., `0.8` for the 80th percentile),
+or supply `t_max` to specify the time horizon directly. If `t_max`
+exceeds the maximum observed follow-up, it is reduced to that maximum
+before constructing the grid, and a warning reports the effective
+horizon.
 
 The automatic grid is then generated and contains exactly `ntimes`
 equally spaced points from time 0 to the horizon, including both
 endpoints. Thus, the default grid consists of 100 points from 0 to the
-90th percentile of test-set follow-up times. Note that the generated
+90th percentile of observed follow-up times. Note that the generated
 grid is completely independent of the time grids of the predicted CIFs.
 
 The default 90th percentile is chosen to limit evaluation at extreme
@@ -187,6 +189,8 @@ models.” *Biometrical Journal*, **60**(1), 34–48. ISSN 0323-3847,
 
 - [`MeasureCompRisksIntegratedBrierScore$new()`](#method-MeasureCompRisksIntegratedBrierScore-initialize)
 
+- [`MeasureCompRisksIntegratedBrierScore$eval_times()`](#method-MeasureCompRisksIntegratedBrierScore-eval_times)
+
 - [`MeasureCompRisksIntegratedBrierScore$clone()`](#method-MeasureCompRisksIntegratedBrierScore-clone)
 
 Inherited methods
@@ -208,6 +212,26 @@ Creates a new instance of this
 #### Usage
 
     MeasureCompRisksIntegratedBrierScore$new()
+
+------------------------------------------------------------------------
+
+### `MeasureCompRisksIntegratedBrierScore$eval_times()`
+
+Returns the time points used to integrate the Brier score for a
+prediction. The grid follows the validation and truncation rules
+described in the **Integration grid** section.
+
+#### Usage
+
+    MeasureCompRisksIntegratedBrierScore$eval_times(prediction)
+
+#### Arguments
+
+- `prediction`:
+
+  ([PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md))  
+  A prediction object, usually containing the test set observations to
+  be scored.
 
 ------------------------------------------------------------------------
 
@@ -317,6 +341,12 @@ predictions$score(msr("cmprsk.ibs", t_quantile = 0.85))
 predictions$score(msr("cmprsk.ibs", ntimes = 20L))
 #> cmprsk.ibs 
 #>  0.1067466 
+
+# Inspect the integration grid for the test predictions
+msr("cmprsk.ibs", ntimes = 20L)$eval_times(predictions)
+#>  [1]    0.0000  197.7105  395.4211  593.1316  790.8421  988.5526 1186.2632
+#>  [8] 1383.9737 1581.6842 1779.3947 1977.1053 2174.8158 2372.5263 2570.2368
+#> [15] 2767.9474 2965.6579 3163.3684 3361.0789 3558.7895 3756.5000
 
 # Define the integration grid in months
 times = seq(0, 100, by = 5)

@@ -1,15 +1,19 @@
 # Assert a List of Cumulative Incidence Matrices
 
-Checks and validates the structure, optional cause names, and
+Validates the structure, optional cause names, time points, and
 probabilities in a list of cumulative incidence function (CIF) matrices.
 This is the format used by
 [PredictionCompRisks](https://mlr3cmprsk.mlr-org.com/reference/PredictionCompRisks.md)
 to store the predictions of competing risk models.
 
+Uses
+[`survdistr::assert_prob()`](https://survdistr.mlr-org.com/reference/assert_prob.html)
+with `type = "cif"`.
+
 ## Usage
 
 ``` r
-assert_cif_list(x, n_rows = NULL, causes = NULL)
+assert_cif_list(x, times = NULL, n_rows = NULL, causes = NULL)
 ```
 
 ## Arguments
@@ -17,9 +21,17 @@ assert_cif_list(x, n_rows = NULL, causes = NULL)
 - x:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
-  A list of at least two numeric matrices, one per competing event.
-  Names are checked only when `causes` is supplied. Rows represent
-  observations, and columns represent time points.
+  List of numeric matrices (at least two), one per competing event.
+  Names are checked only when `causes` is supplied. CIF matrix rows
+  represent observations, and columns represent time points.
+
+- times:
+
+  ([`list()`](https://rdrr.io/r/base/list.html)\|`NULL`)  
+  List of numeric time vectors, one per competing event. Each vector
+  must have one entry (i.e. time point) per corresponding CIF matrix
+  column. Names are checked only when `causes` is supplied. If `NULL`,
+  time points are taken from each matrix's column names.
 
 - n_rows:
 
@@ -31,8 +43,9 @@ assert_cif_list(x, n_rows = NULL, causes = NULL)
 
   ([`character()`](https://rdrr.io/r/base/character.html)\|`NULL`)  
   Expected unique, nonempty competing event names or codes. If supplied,
-  these must match the list names exactly, including their order. If
-  `NULL`, list names are not checked, and unnamed lists are accepted.
+  these must match the list names exactly (both in `x` and `times`),
+  including their order. If `NULL`, list names are not checked, and
+  unnamed lists are accepted.
 
 ## Value
 
@@ -40,22 +53,9 @@ Returns `NULL` invisibly if all checks pass, otherwise raises an error.
 
 ## Details
 
-Each matrix is checked with
+CIF matrices may use different time grids. See
 [`survdistr::assert_prob()`](https://survdistr.mlr-org.com/reference/assert_prob.html)
-using `type = "cif"`:
-
-- At least one row and one column are required, and missing values are
-  not allowed.
-
-- Column names must represent unique, increasing, non-negative numeric
-  time points.
-
-- Probabilities must be between 0 and 1 and non-decreasing over time
-  within each row.
-
-- If time 0 is included, its probabilities must all be 0.
-
-Matrices are checked individually and may use different time grids.
+for the probability and time point validation rules for `type = "cif"`.
 
 ## Examples
 
@@ -64,8 +64,23 @@ cif = list(
   "Death" = matrix(c(0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.4), nrow = 2L),
   "Relapse" = matrix(c(0, 0, 0.2, 0.1, 0.4, 0.3), nrow = 2L)
 )
-colnames(cif$Death) = 0:3
-colnames(cif$Relapse) = 0:2
+times = list(Death = 0:3, Relapse = 0:2)
 
-assert_cif_list(cif, n_rows = 2L, causes = c("Death", "Relapse"))
+assert_cif_list(cif, times, n_rows = 2L, causes = c("Death", "Relapse"))
+
+# Alternatively, supply time points through column names
+colnames(cif$Death) = times$Death
+colnames(cif$Relapse) = times$Relapse
+cif
+#> $Death
+#>      0   1   2   3
+#> [1,] 0 0.1 0.3 0.5
+#> [2,] 0 0.2 0.4 0.4
+#> 
+#> $Relapse
+#>      0   1   2
+#> [1,] 0 0.2 0.4
+#> [2,] 0 0.1 0.3
+#> 
+assert_cif_list(cif)
 ```
