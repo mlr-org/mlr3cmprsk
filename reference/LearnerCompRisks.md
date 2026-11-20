@@ -158,9 +158,10 @@ mlr_learners$get("cmprsk.aalen")
 #> • Parameters: list()
 #> • Packages: mlr3, mlr3cmprsk, and survival
 #> • Predict Types: [cif]
-#> • Feature Types: logical, integer, numeric, and factor
+#> • Feature Types: logical, integer, numeric, character, factor, ordered,
+#> POSIXct, and Date
 #> • Encapsulation: none (fallback: -)
-#> • Properties: importance, missings, selected_features, and weights
+#> • Properties: featureless, importance, missings, selected_features, and weights
 #> • Other settings: use_weights = 'use', predict_raw = 'FALSE'
 lrn("cmprsk.aalen")
 #> 
@@ -169,8 +170,9 @@ lrn("cmprsk.aalen")
 #> • Parameters: list()
 #> • Packages: mlr3, mlr3cmprsk, and survival
 #> • Predict Types: [cif]
-#> • Feature Types: logical, integer, numeric, and factor
+#> • Feature Types: logical, integer, numeric, character, factor, ordered,
+#> POSIXct, and Date
 #> • Encapsulation: none (fallback: -)
-#> • Properties: importance, missings, selected_features, and weights
+#> • Properties: featureless, importance, missings, selected_features, and weights
 #> • Other settings: use_weights = 'use', predict_raw = 'FALSE'
 ```

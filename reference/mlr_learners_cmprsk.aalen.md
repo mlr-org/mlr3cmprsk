@@ -32,7 +32,8 @@ with the associated sugar function
 
 - Predict Types: “cif”
 
-- Feature Types: “logical”, “integer”, “numeric”, “factor”
+- Feature Types: “logical”, “integer”, “numeric”, “character”, “factor”,
+  “ordered”, “POSIXct”, “Date”
 
 - Required Packages: [mlr3](https://CRAN.R-project.org/package=mlr3),
   [mlr3cmprsk](https://CRAN.R-project.org/package=mlr3cmprsk),

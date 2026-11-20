@@ -22,6 +22,9 @@
   [`align_cifs()`](https://mlr3cmprsk.mlr-org.com/reference/align_cifs.md)
   is now exported to align validated CIF matrices on a common time grid
   (for use outside this package).
+- fix: `cmprsk.aalen` now supports all feature types and has the
+  `"featureless"` property, so it no longer fails as a fallback learner
+  on tasks with `character`, `ordered`, `POSIXct`, or `Date` features.
 - feat: `cmprsk.aalen` and `cmprsk.fg` now return CIF matrices on
   separate event-time grids for each cause. Both learners use a zero-CIF
   anchor at time 0 for causes without training events.
