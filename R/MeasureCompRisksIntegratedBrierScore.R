@@ -107,7 +107,7 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
         range = c(0, Inf),
         minimize = TRUE,
         properties = "na_score",
-        packages = "riskRegression",
+        packages = c("riskRegression", "prodlim"),
         label = "Competing Risks Integrated Brier Score",
         man = "mlr3cmprsk::mlr_measures_cmprsk.ibs"
       )

@@ -26,6 +26,7 @@ Imports:
     data.table (>= 1.17.8),
     mlr3misc (>= 0.23.0),
     paradox (>= 1.0.1),
+    prodlim,
     R6,
     riskRegression,
     survdistr (>= 0.0.3),

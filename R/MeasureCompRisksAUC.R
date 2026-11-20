@@ -74,7 +74,7 @@ MeasureCompRisksAUC = R6Class(
         range = c(0, 1),
         minimize = FALSE,
         properties = "na_score",
-        packages = "riskRegression",
+        packages = c("riskRegression", "prodlim"),
         label = "Time-dependent AUC",
         man = "mlr3cmprsk::mlr_measures_cmprsk.auc"
       )
