@@ -66,7 +66,8 @@ with the associated sugar function
 
 - Required Packages: [mlr3](https://CRAN.R-project.org/package=mlr3),
   [mlr3cmprsk](https://CRAN.R-project.org/package=mlr3cmprsk),
-  [riskRegression](https://CRAN.R-project.org/package=riskRegression)
+  [riskRegression](https://CRAN.R-project.org/package=riskRegression),
+  [prodlim](https://CRAN.R-project.org/package=prodlim)
 
 ## Parameters
 
