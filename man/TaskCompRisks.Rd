@@ -157,7 +157,8 @@ Identifier for the new instance.}
 Either a \link[mlr3:DataBackend]{DataBackend}, or any object which is convertible to a \link[mlr3:DataBackend]{DataBackend} with \code{as_data_backend()}.
 E.g., a \code{data.frame()} will be converted to a \link[mlr3:DataBackendDataTable]{DataBackendDataTable}.}
       \item{\code{time}}{(\code{character(1)})\cr
-Name of the column for outcome time.}
+Name of the column for outcome time.
+Times must be non-negative, finite numbers without missing values.}
       \item{\code{event}}{(\code{character(1)})\cr
 Name of column that holds the event indicator.
 \eqn{0} corresponds to censoring, values \eqn{> 0} correspond to different
