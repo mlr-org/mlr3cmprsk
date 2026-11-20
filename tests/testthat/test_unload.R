@@ -25,6 +25,7 @@ test_that("unloading cleans up registrations and preserves unrelated hooks", {
     ]
   })
   other_task_types = mlr_reflections$task_types[!"cmprsk"]
+  other_packages = setdiff(mlr_reflections$loaded_packages, "mlr3cmprsk")
 
   tryCatch(
     {
@@ -44,6 +45,7 @@ test_that("unloading cleans up registrations and preserves unrelated hooks", {
           expect_true(all(dictionaries[[j]]$has(keys[[j]])))
         }
         expect_equal(sum(mlr_reflections$task_types$type == "cmprsk"), 1L)
+        expect_equal(sum(mlr_reflections$loaded_packages == "mlr3cmprsk"), 1L)
         for (field in fields) {
           expect_false(is.null(mlr_reflections[[field]]$cmprsk))
         }
@@ -71,6 +73,7 @@ test_that("unloading cleans up registrations and preserves unrelated hooks", {
           expect_setequal(dictionaries[[j]]$keys(), other_keys[[j]])
         }
         expect_identical(mlr_reflections$task_types, other_task_types)
+        expect_identical(mlr_reflections$loaded_packages, other_packages)
         for (j in seq_along(fields)) {
           expect_null(mlr_reflections[[fields[j]]]$cmprsk)
           expect_identical(mlr_reflections[[fields[j]]], other_reflections[[j]])
