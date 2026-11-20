@@ -82,6 +82,9 @@ register_mlr3cmprsk = function() {
   x$learner_properties$cmprsk = x$learner_properties$regr
   x$learner_predict_types$cmprsk = list(cif = "cif")
 
+  ## parallel workers load the packages listed here
+  x$loaded_packages = union(x$loaded_packages, "mlr3cmprsk")
+
   # mlr3 is an imported dependency, so its dictionaries are already available
   # Direct registration avoids unloading callbacks that inspect unrelated IDE or package hooks
   register_mlr3cmprsk()
@@ -104,6 +107,7 @@ register_mlr3cmprsk = function() {
   x$default_measures$cmprsk = NULL
   x$learner_properties$cmprsk = NULL
   x$learner_predict_types$cmprsk = NULL
+  x$loaded_packages = setdiff(x$loaded_packages, "mlr3cmprsk")
 }
 
 leanify_package()
