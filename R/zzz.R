@@ -18,6 +18,7 @@
 #' @import mlr3
 #' @import mlr3misc
 #' @import paradox
+#' @importFrom prodlim Hist
 #' @importFrom R6 R6Class
 #' @importFrom survival Surv
 #' @importFrom utils getFromNamespace tail

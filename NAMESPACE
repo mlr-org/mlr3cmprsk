@@ -40,6 +40,7 @@ importFrom(cli,
   cli_li,
   cli_ul
 )
+importFrom(prodlim,Hist)
 importFrom(stats,median)
 importFrom(survival,Surv)
 importFrom(utils,

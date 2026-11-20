@@ -68,7 +68,7 @@ MeasureCompRisksBrierScore = R6Class(
         range = c(0, Inf),
         minimize = TRUE,
         properties = "na_score",
-        packages = "riskRegression",
+        packages = c("riskRegression", "prodlim"),
         label = "Competing Risks Brier Score at a specified time",
         man = "mlr3cmprsk::mlr_measures_cmprsk.brier"
       )
