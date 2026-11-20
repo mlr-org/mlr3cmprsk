@@ -7,7 +7,7 @@ test_that("TaskCompRisks methods work", {
   expect_equal(task$task_type, "cmprsk")
   assert_integer(task$event(), len = 6, lower = 0, upper = 2)
   truth = task$truth()
-  assert_class(truth, "Surv", null.ok = FALSE)
+  assert_class(truth, "Surv")
   expect_identical(truth[, 1L], df$time)
   expect_identical(truth[, 2L], df$event)
   states = attr(truth, "states") # the cause names

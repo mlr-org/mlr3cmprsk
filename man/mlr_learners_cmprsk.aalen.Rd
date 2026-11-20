@@ -10,8 +10,13 @@ risks using the empirical Aalen-Johansen (AJ) estimator.
 
 Transition probabilities to each competing event are computed from the training
 data via the \code{\link[survival:survfit.formula]{survival::survfit.formula()}} function.
-Predictions are made at all \strong{unique event times (across all causes)} observed
-in the training set.
+Each predicted CIF is evaluated on \strong{its cause's unique training event times}.
+The grid uses the fitted times, so \code{survfit()} can group nearly identical event
+times into a single time point.
+With observation weights, a time appears in a cause's grid only if the total
+weight of that cause's events at that time is positive.
+These numeric grids are stored in the prediction's \verb{$times} field.
+Causes without training events have a zero CIF anchored at time 0.
 }
 \section{Dictionary}{
 

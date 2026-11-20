@@ -78,29 +78,30 @@ validate_times = function(times, t_max_test, integrated = FALSE) {
   times
 }
 
-#' Warns if scoring times exceed the final CIF prediction anchor (time point)
+#' Warns if scoring `times` exceed the final CIF prediction anchor time point
+#' for any cause.
 #' @keywords internal
 #' @noRd
-warn_cif_extrapolation = function(cif_list, times, causes) {
+warn_cif_extrapolation = function(cif_times, times, causes) {
   if (!getOption("mlr3cmprsk.warn_cif_extrapolation", FALSE)) {
     return(invisible(NULL))
   }
 
-  affected = causes[vapply(
-    cif_list[causes],
-    function(mat) {
-      any(times > max(as.numeric(colnames(mat))))
+  affected_causes = causes[vapply(
+    cif_times[causes], # CIF anchor times for each cause
+    function(cause_cif_times) {
+      any(times > max(cause_cif_times))
     },
     logical(1L)
   )]
 
-  if (length(affected)) {
+  if (length(affected_causes)) {
     warning_mlr3(
       paste0(
         "Scoring times exceed the final CIF prediction anchor for cause(s): %s. ",
         "We apply constant CIF extrapolation after the final prediction time point."
       ),
-      str_collapse(affected),
+      str_collapse(affected_causes),
       class = "Mlr3WarningCIFExtrapolation"
     )
   }
@@ -133,7 +134,7 @@ assert_cause_names = function(cause_names, causes) {
   invisible(cause_names)
 }
 
-#' Validates the `cause` parameter (against the `causes` from the prediction object)
+#' Validates the `cause` code parameter (against the `causes` from the prediction object, i.e. 1,2,...,K)
 #' @keywords internal
 #' @noRd
 assert_cause = function(cause, causes) {
@@ -147,7 +148,7 @@ assert_cause = function(cause, causes) {
   cause
 }
 
-#' Resolves custom or event-frequency weights into named `weights` aligned with `causes`.
+#' Resolves custom or event-frequency weights into named `weights` aligned with `causes` codes (1,2,...,K).
 #' Warns for (automatically-derived) zero weights.
 #' Returns `NA` weights + a warning when no events are observed.
 #' @keywords internal
@@ -205,57 +206,4 @@ aggregate_cause_causes = function(scores, weights) {
   }
 
   sum(scores * weights)
-}
-
-#' @title Align CIF matrices on a common time grid
-#'
-#' @description
-#' Given a list of CIF matrices, this function aligns all matrices to a common
-#' time grid using step-wise constant interpolation.
-#' Optionally, aligned matrices can be concatenated row-wise.
-#'
-#' @param cif_list (`list` of `matrix`)
-#'  List of CIF matrices. Each matrix can have different time points.
-#' @param bind_rows (`logical(1)`)
-#'  If `TRUE` (default), return one row-bound matrix.
-#'  If `FALSE`, return a list of aligned matrices.
-#'
-#' @return
-#' If `bind_rows = TRUE`, a single matrix with all rows from `cif_list`
-#' aligned on a common time grid.
-#' If `bind_rows = FALSE`, a list of aligned matrices (same columns/time grid).
-#'
-#' @noRd
-#' @keywords internal
-align_cifs = function(cif_list, bind_rows = TRUE) {
-  assert_list(cif_list, types = "matrix")
-  assert_flag(bind_rows)
-
-  # Extract time points from each matrix (we assume: colnames => time points)
-  times_list = lapply(cif_list, function(mat) as.numeric(colnames(mat)))
-  common_times = sort(unique(unlist(times_list)))
-
-  # Interpolate each CIF matrix to the common time grid
-  aligned_cifs = mapply(
-    function(mat, times) {
-      out = survdistr::interp_cif(
-        x = mat,
-        times = times,
-        eval_times = common_times,
-        add_times = FALSE,
-        check = FALSE
-      )
-      colnames(out) = common_times
-      out
-    },
-    cif_list,
-    times_list,
-    SIMPLIFY = FALSE
-  )
-
-  if (!bind_rows) {
-    return(aligned_cifs)
-  }
-
-  do.call(rbind, aligned_cifs)
 }

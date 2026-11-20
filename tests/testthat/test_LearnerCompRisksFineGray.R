@@ -38,7 +38,7 @@ test_that("predict params of cmprsk.fg", {
   expect_true(res, info = res$error)
 })
 
-test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
+test_that("cmprsk.fg returns one model per cause and cause-specific CIF time grids", {
   with_seed(42L, {
     task = tgen("cmprsk", n_causes = 3L)$generate(240L)
     task$set_col_roles(cols = "event", add_to = "stratum")
@@ -56,16 +56,29 @@ test_that("cmprsk.fg returns one model per cause and aligned CIF time grids", {
     cif_list = p$cif
     expect_equal(names(cif_list), as.character(task$causes))
 
-    # CIF grids should match the training event-time grid for every cause (within tolerance)
-    time_grids = lapply(cif_list, function(x) as.numeric(colnames(x)))
-    uevents = task$unique_event_times(rows = part$train)
-
-    # there is some loss of precision in the time grid, so we check that they
-    # are equal within a tolerance
     for (cause in names(cif_list)) {
-      expect_equal(time_grids[[cause]], uevents, tolerance = 1e-8)
+      uevents = task$unique_event_times(rows = part$train, cause = as.integer(cause))
+      expect_identical(p$times[[cause]], uevents)
+      expect_equal(ncol(cif_list[[cause]]), length(uevents))
+      expect_identical(colnames(cif_list[[cause]]), as.character(uevents))
+      expect_null(colnames(p$data$cif[[cause]]))
     }
   })
+})
+
+test_that("cmprsk.fg includes a zero CIF for a cause absent from training", {
+  task = as_task_cmprsk(data.frame(
+    time = 1:10,
+    event = c(1L, 0L, 1L, 0L, 1L, 0L, 1L, 0L, 2L, 2L),
+    x = c(1, 4, 6, 8, 2, 7, 5, 3, 4, 5)
+  ))
+  learner = lrn("cmprsk.fg")
+  # train set has no events of cause 2
+  p = learner$train(task, row_ids = 1:8)$predict(task, row_ids = 9:10)
+
+  expect_named(p$cif, c("1", "2"))
+  expect_equal(p$times, list("1" = c(1, 3, 5, 7), "2" = 0))
+  expect_identical(p$cif[["2"]], matrix(0, nrow = 2L, dimnames = list(NULL, "0")))
 })
 
 test_that("check that training works with no censored observations", {
@@ -97,4 +110,5 @@ test_that("cmprsk.fg CIF sum warnings are opt-in", {
     class = "Mlr3WarningCIFSumExceedsOne"
   )
   expect_equal(p_warn$cif, p$cif)
+  expect_identical(p_warn$times, p$times)
 })

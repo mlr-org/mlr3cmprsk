@@ -14,12 +14,13 @@
 #' This follows the [LearnerCompRisks] design: predictions contain CIFs for all available causes.
 #'
 #' The fitted model is an S3 object of class `"fine_gray"` that stores a list of
-#' cause-specific `crr` class models.
+#' cause-specific `crr` class models, with `NULL` entries for causes without training events.
 #'
 #' At prediction time, each cause-specific model is evaluated with
-#' [cmprsk::predict.crr()] and the resulting CIF matrices are aligned to a common
-#' time grid across causes using constant CIF interpolation.
-#' The time grid is the **unique event times (across all causes)** observed in the training set.
+#' [cmprsk::predict.crr()], retaining its native cause-specific event-time grid.
+#' Each grid contains the **unique training event times for that cause** and is stored
+#' in the prediction's `$times` field.
+#' Causes without training events have a zero CIF anchored at time 0.
 #'
 #' Independently fitted cause-specific models can produce CIFs whose sum exceeds 1.
 #' The corresponding warning is disabled package-wide by default, as it can recur on every prediction call.
@@ -74,12 +75,18 @@ LearnerCompRisksFineGray = R6Class(
 
       # different Fine-Gray model per competing event
       model_list = lapply(causes, function(cause) {
+        failcode = as.integer(cause)
+        # crr() cannot fit a cause with no training events => NULL model
+        if (failcode %nin% fstatus) {
+          return(NULL)
+        }
+
         invoke(
           cmprsk::crr,
           ftime = ftime,
           fstatus = fstatus,
           cov1 = cov1,
-          failcode = as.integer(cause),
+          failcode = failcode,
           cencode = 0L,
           .args = pv
         )
@@ -94,16 +101,26 @@ LearnerCompRisksFineGray = R6Class(
     .predict = function(task) {
       cov1 = as.matrix(task$data(cols = task$feature_names))
 
-      cif_list = map(self$model, function(m) {
-        p = invoke(cmprsk::predict.crr, m, cov1 = cov1)
-        cif_mat = t(p[, -1, drop = FALSE])
-        colnames(cif_mat) = p[, 1] # first column is the time points
-        cif_mat
+      predictions = map(self$model, function(m) {
+        if (is.null(m)) {
+          return(NULL)
+        }
+        # predict.crr() returns one row per training event time for this cause
+        # The first column holds the times, followed by one CIF column per test observation
+        invoke(cmprsk::predict.crr, m, cov1 = cov1)
+      })
+      # Keep each cause's time grid as a separate numeric vector
+      times = map(predictions, function(p) if (is.null(p)) 0 else as.numeric(p[, 1L]))
+      # Transpose the CIF values so rows index test observations and columns index times
+      cif_list = map(predictions, function(p) {
+        # A cause without a fit gets CIF(t = 0) = 0
+        if (is.null(p)) {
+          return(matrix(0, nrow = task$nrow, ncol = 1L))
+        }
+        unname(t(p[, -1L, drop = FALSE]))
       })
 
-      cif_list = align_cifs(cif_list, bind_rows = FALSE)
-
-      list(cif = cif_list)
+      structure(list(cif = cif_list), times = times)
     }
   )
 )

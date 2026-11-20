@@ -111,6 +111,18 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
         label = "Competing Risks Integrated Brier Score",
         man = "mlr3cmprsk::mlr_measures_cmprsk.ibs"
       )
+    },
+
+    #' @description
+    #' Returns the time points used to integrate the Brier score for a prediction.
+    #' The grid follows the validation and truncation rules described in the
+    #' **Integration grid** section.
+    #'
+    #' @param prediction ([PredictionCompRisks])\cr
+    #'   A prediction object, usually containing the test set observations to be scored.
+    eval_times = function(prediction) {
+      assert_class(prediction, "PredictionCompRisks")
+      private$.resolve_times(prediction)
     }
   ),
 
@@ -118,7 +130,7 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
     .score = function(prediction, task, ...) {
       pv = self$param_set$values
 
-      # get list of predicted CIF matrices and causes requested
+      # Get list of predicted CIF matrices and causes requested
       cif_list = prediction$cif
       causes = names(cif_list)
       cause = assert_cause(pv$cause, causes)
@@ -131,29 +143,8 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
       )
       form = formulate(lhs = "Hist(time, event)", rhs = "1", env = getNamespace("prodlim"))
 
-      # check time grid parameters
-      times = pv$times
-      if (!is.null(pv$t_max) && !is.null(pv$t_quantile)) {
-        error_input("`t_max` and `t_quantile` are mutually exclusive.")
-      }
-      if (!is.null(times) && (!is.null(pv$t_max) || !is.null(pv$t_quantile))) {
-        error_input(
-          "`t_max` and `t_quantile` must both be NULL when explicit `times` are supplied."
-        )
-      }
-
-      t_max_test = max(data$time)
-      if (is.null(times)) {
-        # get upper integration horizon tau
-        tau = if (!is.null(pv$t_max)) {
-          validate_tau(pv$t_max, t_max_test)
-        } else {
-          stats::quantile(data$time, probs = pv$t_quantile %??% 0.9, names = FALSE)
-        }
-        # equally-spaced time grid
-        times = seq(from = 0, to = tau, length.out = pv$ntimes %??% 100L)
-      }
-      times = validate_times(times, t_max_test, integrated = TRUE)
+      # Get integration time grid
+      times = private$.resolve_times(prediction)
 
       # For cause = "mean", get cause weights
       active_causes = cause
@@ -167,12 +158,13 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
 
       # Preserve absent causes for RiskRegression
       data$event = factor(data$event, levels = c("0", causes))
-      warn_cif_extrapolation(cif_list, times, active_causes)
+      warn_cif_extrapolation(prediction$times, times, active_causes)
 
       ibs = function(cause) {
-        # get CIF on the times grid
+        # Interpolate CIF on the times grid
         mat = survdistr::interp_cif(
           x = cif_list[[cause]], # cause-specific CIF
+          times = prediction$times[[cause]], # cause-specific time grid
           eval_times = times,
           add_times = FALSE,
           check = FALSE
@@ -200,6 +192,36 @@ MeasureCompRisksIntegratedBrierScore = R6Class(
       ibs_scores = vapply(active_causes, ibs, numeric(1L))
 
       aggregate_cause_causes(ibs_scores, weights[active_causes])
+    },
+
+    .resolve_times = function(prediction) {
+      pv = self$param_set$values
+      times = pv$times
+
+      # check time-grid parameters
+      if (!is.null(pv$t_max) && !is.null(pv$t_quantile)) {
+        error_input("`t_max` and `t_quantile` are mutually exclusive.")
+      }
+      if (!is.null(times) && (!is.null(pv$t_max) || !is.null(pv$t_quantile))) {
+        error_input(
+          "`t_max` and `t_quantile` must both be NULL when explicit `times` are supplied."
+        )
+      }
+
+      # all observed times from prediction object
+      follow_up = prediction$truth[, 1L]
+      max_follow_up = max(follow_up)
+      if (is.null(times)) {
+        # get upper integration horizon (tau)
+        tau = if (!is.null(pv$t_max)) {
+          validate_tau(pv$t_max, max_follow_up)
+        } else {
+          stats::quantile(follow_up, probs = pv$t_quantile %??% 0.9, names = FALSE)
+        }
+        # construct equidistant integration grid from 0 to tau
+        times = seq(from = 0, to = tau, length.out = pv$ntimes %??% 100L)
+      }
+      validate_times(times, max_follow_up, integrated = TRUE)
     }
   )
 )
