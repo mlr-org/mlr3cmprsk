@@ -49,7 +49,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.9" id="mlr3cmprsk-009">mlr3cmprsk 0.0.9<a class="anchor" aria-label="anchor" href="#mlr3cmprsk-009"></a></h2>
-<ul><li>feat: <code>PredictionCompRisks</code> now requires a named <code>times</code> list upon initialization, exposed as <code>$times</code> and stored as an attribute of prediction data and exported tables; <code>$cif</code> adds time points as column names without changing the stored CIF matrices, and filtering/combining predictions, conversions, and scoring, use each cause’s specific numeric grid.</li>
+<ul><li>Raised the minimum required version of <code>mlr3misc</code> to 0.24.0.</li>
+<li>feat: <code>PredictionCompRisks</code> now requires a named <code>times</code> list upon initialization, exposed as <code>$times</code> and stored as an attribute of prediction data and exported tables; <code>$cif</code> adds time points as column names without changing the stored CIF matrices, and filtering/combining predictions, conversions, and scoring, use each cause’s specific numeric grid.</li>
 <li>feat: <code><a href="../reference/assert_cif_list.html">assert_cif_list()</a></code> accepts a <code>times</code> list argument now.</li>
 <li>BREAKING CHANGE: <code><a href="../reference/as_prediction_cmprsk.html">as_prediction_cmprsk()</a></code> no longer accepts <code>data.frame</code> or <code>data.table</code> inputs. Supply a named list containing <code>row_ids</code>, <code>truth</code>, <code>cif</code>, and <code>times</code>, or construct a <code>PredictionCompRisks</code> directly.</li>
 <li>feat: <code>PredictionCompRisks</code> now supports optional upstream predictions through the inherited <code>$raw</code> field.</li>

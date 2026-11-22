@@ -2,6 +2,7 @@
 
 ## mlr3cmprsk 0.0.9
 
+- Raised the minimum required version of `mlr3misc` to 0.24.0.
 - feat: `PredictionCompRisks` now requires a named `times` list upon
   initialization, exposed as `$times` and stored as an attribute of
   prediction data and exported tables; `$cif` adds time points as column
