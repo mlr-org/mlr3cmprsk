@@ -7,6 +7,10 @@ test_that("autotest", {
   })
 })
 
+test_that("cmprsk.fg trains without censoring or with an absent cause", {
+  test_absent_causes(lrn("cmprsk.fg"))
+})
+
 test_that("train params of cmprsk.fg", {
   learner = lrn("cmprsk.fg")
   fun = list(cmprsk::crr)
@@ -64,31 +68,6 @@ test_that("cmprsk.fg returns one model per cause and cause-specific CIF time gri
       expect_null(colnames(p$data$cif[[cause]]))
     }
   })
-})
-
-test_that("cmprsk.fg includes a zero CIF for a cause absent from training", {
-  task = as_task_cmprsk(data.frame(
-    time = 1:10,
-    event = c(1L, 0L, 1L, 0L, 1L, 0L, 1L, 0L, 2L, 2L),
-    x = c(1, 4, 6, 8, 2, 7, 5, 3, 4, 5)
-  ))
-  learner = lrn("cmprsk.fg")
-  # train set has no events of cause 2
-  p = learner$train(task, row_ids = 1:8)$predict(task, row_ids = 9:10)
-
-  expect_named(p$cif, c("1", "2"))
-  expect_equal(p$times, list("1" = c(1, 3, 5, 7), "2" = 0))
-  expect_identical(p$cif[["2"]], matrix(0, nrow = 2L, dimnames = list(NULL, "0")))
-})
-
-test_that("check that training works with no censored observations", {
-  task = with_seed(42L, {
-    tgen("cmprsk", event_probs = c(0.5, 0.5))$generate(50L)
-  })
-  learner = lrn("cmprsk.fg")
-  p = learner$train(task)$predict(task)
-
-  expect_prediction_cmprsk(p)
 })
 
 test_that("cmprsk.fg CIF sum warnings are opt-in", {
