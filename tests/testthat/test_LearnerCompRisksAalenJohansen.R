@@ -7,6 +7,10 @@ test_that("autotest", {
   })
 })
 
+test_that("cmprsk.aalen trains without censoring or with an absent cause", {
+  test_absent_causes(lrn("cmprsk.aalen"))
+})
+
 test_that("cmprsk.aalen returns cause-specific CIF time grids", {
   with_seed(42L, {
     task = tgen("cmprsk", n_causes = 3L)$generate(240L)
@@ -92,37 +96,3 @@ test_that("train params of cmprsk.aalen", {
   expect_true(res, info = res$error)
 })
 # no predict wrapped function is used for this learner, so we do not test predict params
-
-test_that("training works with no censored observations", {
-  task = as_task_cmprsk(
-    data.frame(time = 1:6, event = rep(c(1L, 2L), 3L), x = 1:6)
-  )
-  learner = lrn("cmprsk.aalen")
-  p = learner$train(task)$predict(task)
-
-  expect_prediction_cmprsk(p)
-})
-
-test_that("absent causes during training give zero CIF when predicting", {
-  data = data.frame(
-    time = 1:7,
-    event = c(1L, 2L, 1L, 2L, 3L, 3L, 0L),
-    x = 1:7
-  )
-  task = as_task_cmprsk(data)
-  learner = lrn("cmprsk.aalen")
-  learner$train(task, row_ids = 1:4) # causes 1 and 2
-  expect_length(learner$native_model$states, 4) # all 3 causes + censoring accounted
-
-  p = learner$predict(task, 5:7)
-  expect_prediction_cmprsk(p)
-
-  # cause 3 gives only CIF(t=0) = 0
-  expect_identical(p$times[["3"]], 0)
-  expect_equal(unname(p$cif[["3"]]), matrix(0, nrow = 3L, ncol = 1L))
-  # cause 1 and 2 have CIFs
-  expect_identical(p$times[["1"]], c(1, 3))
-  expect_identical(p$times[["2"]], c(2, 4))
-  expect_matrix(p$cif[["1"]], mode = "numeric", nrows = 3L, ncols = 2L)
-  expect_matrix(p$cif[["2"]], mode = "numeric", nrows = 3L, ncols = 2L)
-})

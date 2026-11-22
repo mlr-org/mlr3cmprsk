@@ -53,3 +53,59 @@ sanity_check.PredictionCompRisks = function(prediction, ...) {
   prediction$score(m) >= 0 && prediction$score(m) <= 1
 }
 registerS3method("sanity_check", "PredictionCompRisks", sanity_check.PredictionCompRisks)
+
+test_absent_causes = function(learner, case_ids = 1:4) {
+  withr::local_seed(42L)
+  # Each pair gives the event codes for training and test set rows
+  cases = list(
+    list(train = 1:2, test = 0:2), # No censoring during training
+    list(train = c(0L, 2L), test = 0:2), # Cause 1 appears only in the test set
+    list(train = 0:1, test = 0:2), # Cause 2 appears only in the test set
+    list(train = 0:2, test = 0:3) # Cause 3 appears only in the test set
+  )
+
+  for (case in cases[case_ids]) {
+    train_codes = case$train
+    train_events = rep(train_codes, 8L)
+    train_times = seq_along(train_events)
+
+    # test events == test observations
+    test_events = case$test
+    test_times = seq(1.5, length(train_times) - 0.5, length.out = length(test_events))
+    event = c(train_events, test_events)
+
+    # make task
+    data = data.frame(
+      time = c(train_times, test_times),
+      event = event,
+      x = stats::rnorm(length(event))
+    )
+    task = mlr3cmprsk::as_task_cmprsk(data)
+    # split train/test
+    train_rows = head(task$row_ids, length(train_events))
+    test_rows = tail(task$row_ids, length(test_events))
+    l = learner$clone(deep = TRUE)
+    # train should work
+    expect_silent(l$train(task, row_ids = train_rows))
+    # prediction the same
+    p = l$predict(task, row_ids = test_rows)
+    expect_prediction_cmprsk(p)
+    testthat::expect_identical(p$row_ids, test_rows)
+
+    # Every task cause has a nonempty CIF matrix on its prediction grid
+    cif = p$cif
+    times = p$times
+    causes = as.character(task$causes)
+    mlr3cmprsk::assert_cif_list(cif, times, n_rows = length(test_rows), causes = causes)
+
+    # Causes absent from training have zero incidence at every predicted time
+    for (cause in setdiff(causes, as.character(train_codes))) {
+      zeros = matrix(0, nrow = length(test_rows), ncol = length(times[[cause]]))
+      testthat::expect_equal(
+        unname(cif[[cause]]),
+        zeros,
+        info = sprintf("Absent cause %s", cause)
+      )
+    }
+  }
+}
