@@ -15,3 +15,19 @@ test_that("default_fallback", {
     fixed = TRUE
   )
 })
+
+test_that("default_fallback trains on all feature types", {
+  data = tsk("pbc")$data(cols = c("time", "status", "age"))
+  data$ord = factor(rep_len(c("a", "b"), nrow(data)), ordered = TRUE)
+  data$chr = "a"
+  data$date = as.Date("2020-01-01")
+  data$pxc = as.POSIXct("2020-01-01", tz = "UTC")
+  task = as_task_cmprsk(data, time = "time", event = "status")
+
+  fallback = default_fallback(lrn("cmprsk.fg"))
+  expect_subset(c("featureless", "missings"), fallback$properties)
+  expect_set_equal(fallback$feature_types, mlr_reflections$task_feature_types)
+  expect_prediction(fallback$train(task)$predict(task))
+  task$select(character())
+  expect_prediction(fallback$train(task)$predict(task))
+})

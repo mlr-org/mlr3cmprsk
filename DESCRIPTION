@@ -4,6 +4,8 @@ Version: 0.0.9
 Authors@R: c(
     person("John", "Zobolas", , "bblodfon@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-3609-8674")),
+    person("Marc", "Becker", , "marcbecker@posteo.de", role = "aut",
+           comment = c(ORCID = "0000-0002-8115-0400")),
     person("Andreas", "Bender", , "bender.andreas@lmu.de", role = c("aut"),
            comment = c(ORCID = "0000-0001-5628-8611")),
     person("Andrzej", "Galecki", , "agalecki@umich.edu", role = "ctb",
@@ -16,7 +18,7 @@ URL: https://mlr3cmprsk.mlr-org.com, https://github.com/mlr-org/mlr3cmprsk
 BugReports: https://github.com/mlr-org/mlr3cmprsk/issues
 Depends:
     mlr3 (>= 1.8.0),
-    R (>= 3.6.0)
+    R (>= 4.0.0)
 Imports:
     checkmate (>= 2.3.2),
     cli,
@@ -24,6 +26,7 @@ Imports:
     data.table (>= 1.17.8),
     mlr3misc (>= 0.23.0.9000),
     paradox (>= 1.0.1),
+    prodlim,
     R6,
     riskRegression,
     survdistr (>= 0.0.3),

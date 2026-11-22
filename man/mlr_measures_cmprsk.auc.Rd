@@ -56,7 +56,7 @@ msr("cmprsk.auc")
 \item Minimize: FALSE
 \item Average: macro
 \item Required Prediction: \dQuote{cif}
-\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3cmprsk}, \CRANpkg{riskRegression}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3cmprsk}, \CRANpkg{riskRegression}, \CRANpkg{prodlim}
 }
 }
 

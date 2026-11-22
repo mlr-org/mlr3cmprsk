@@ -142,6 +142,12 @@ test_that("as_task_cmprsk", {
     class = "Mlr3ErrorInput"
   )
 
+  # times must be non-negative, finite, and non-missing numbers
+  expect_error(as_task_cmprsk(data.frame(time = c(-1, 2), event = c(1, 2))), "time")
+  expect_error(as_task_cmprsk(data.frame(time = c(NA, 2), event = c(1, 2))), "time")
+  expect_error(as_task_cmprsk(data.frame(time = c("1", "2"), event = c(1, 2))), "time")
+  expect_error(as_task_cmprsk(data.frame(t = c(1, 2), event = c(1, 2))), "time")
+
   expect_task_cmprsk(
     as_task_cmprsk(data.frame(time = c(1, 2), status = c(1, 2)), event = "status")
   )
