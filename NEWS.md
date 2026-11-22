@@ -1,5 +1,6 @@
 # mlr3cmprsk 0.0.9
 
+* Raised the minimum required version of `mlr3misc` to 0.24.0.
 * feat: `PredictionCompRisks` now requires a named `times` list upon initialization, exposed as `$times` and stored as an attribute of prediction data and exported tables; `$cif` adds time points as column names without changing the stored CIF matrices, and filtering/combining predictions, conversions, and scoring, use each cause's specific numeric grid.
 * feat: `assert_cif_list()` accepts a `times` list argument now.
 * BREAKING CHANGE: `as_prediction_cmprsk()` no longer accepts `data.frame` or `data.table` inputs. Supply a named list containing `row_ids`, `truth`, `cif`, and `times`, or construct a `PredictionCompRisks` directly.

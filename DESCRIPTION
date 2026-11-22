@@ -24,7 +24,7 @@ Imports:
     cli,
     cmprsk,
     data.table,
-    mlr3misc (>= 0.23.0),
+    mlr3misc (>= 0.24.0),
     paradox (>= 1.0.1),
     prodlim,
     R6,
