@@ -23,7 +23,7 @@ Imports:
     checkmate (>= 2.3.2),
     cli,
     cmprsk,
-    data.table (>= 1.17.8),
+    data.table,
     mlr3misc (>= 0.23.0),
     paradox (>= 1.0.1),
     prodlim,
@@ -34,7 +34,7 @@ Imports:
 Suggests:
     lgr,
     mirai,
-    testthat (>= 3.0.0),
+    testthat (>= 3.3.0),
     withr
 ByteCompile: true
 Config/roxygen2/version: 8.1.0
