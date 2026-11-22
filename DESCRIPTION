@@ -24,15 +24,13 @@ Imports:
     cli,
     cmprsk,
     data.table (>= 1.17.8),
-    mlr3misc (>= 0.23.0.9000),
+    mlr3misc (>= 0.24.0),
     paradox (>= 1.0.1),
     prodlim,
     R6,
     riskRegression,
     survdistr (>= 0.0.3),
     survival
-Remotes:
-    mlr-org/mlr3misc
 Suggests:
     lgr,
     mirai,
