@@ -120,20 +120,19 @@ the causes with non-finite scores.
 Blanche, Paul, Dartigues, Francois J, Jacqmin-Gadda, Helene (2013).
 “Estimating and comparing time-dependent areas under receiver operating
 characteristic curves for censored event times with competing risks.”
-*Statistics in Medicine*, **32**(30), 5381–5397. ISSN 1097-0258,
-[doi:10.1002/SIM.5958](https://doi.org/10.1002/SIM.5958) ,
+*Statistics in Medicine*, **32**(30), 5381–5397. ISSN 1097-0258.
+[doi:10.1002/SIM.5958](https://doi.org/10.1002/SIM.5958) .
 <https://onlinelibrary.wiley.com/doi/10.1002/sim.5958>.
 
 Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018). “Prediction
 errors for state occupation and transition probabilities in multi-state
-models.” *Biometrical Journal*, **60**(1), 34–48. ISSN 0323-3847,
-[doi:10.1002/BIMJ.201600191](https://doi.org/10.1002/BIMJ.201600191) ,
-<https://doi.org/10.1002/BIMJ.201600191>.
+models.” *Biometrical Journal*, **60**(1), 34–48. ISSN 0323-3847.
+[doi:10.1002/BIMJ.201600191](https://doi.org/10.1002/BIMJ.201600191) .
 
 Heyard, Rachel, Timsit, Jean-Francois, Held, Leonhard (2020).
 “Validation of discrete time-to-event prediction models in the presence
 of competing risks.” *Biometrical Journal*, **62**(3), 643–657.
-<https://doi.org/10.1002/BIMJ.201800293>.
+[doi:10.1002/BIMJ.201800293](https://doi.org/10.1002/BIMJ.201800293) .
 
 ## Super classes
 

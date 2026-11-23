@@ -114,13 +114,13 @@ the causes with non-finite scores.
 Schoop, Roland, Beyersmann, Jan, Schumacher, Martin, Binder, Harald
 (2011). “Quantifying the predictive accuracy of time-to-event models in
 the presence of competing risks.” *Biometrical Journal*, **53**(1),
-88–112. <https://doi.org/10.1002/BIMJ.201000073>.
+88–112.
+[doi:10.1002/BIMJ.201000073](https://doi.org/10.1002/BIMJ.201000073) .
 
 Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018). “Prediction
 errors for state occupation and transition probabilities in multi-state
-models.” *Biometrical Journal*, **60**(1), 34–48. ISSN 0323-3847,
-[doi:10.1002/BIMJ.201600191](https://doi.org/10.1002/BIMJ.201600191) ,
-<https://doi.org/10.1002/BIMJ.201600191>.
+models.” *Biometrical Journal*, **60**(1), 34–48. ISSN 0323-3847.
+[doi:10.1002/BIMJ.201600191](https://doi.org/10.1002/BIMJ.201600191) .
 
 ## Super classes
 
