@@ -12,7 +12,7 @@ evaluation within the `mlr3` framework.
 <!-- badges: start -->
 
 [![r-cmd-check](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/mlr-org/mlr3cmprsk/actions/workflows/r-cmd-check.yml)
-[![codecov](https://codecov.io/gh/mlr-org/mlr3cmprsk/graph/badge.svg)](https://codecov.io/gh/mlr-org/mlr3cmprsk)
+[![codecov](https://codecov.io/gh/mlr-org/mlr3cmprsk/graph/badge.svg)](https://app.codecov.io/gh/mlr-org/mlr3cmprsk)
 [![CRAN
 Status](https://www.r-pkg.org/badges/version-ago/mlr3cmprsk)](https://cran.r-project.org/package=mlr3cmprsk)
 <!-- badges: end -->
@@ -133,7 +133,7 @@ BibTeX entry:
   title = {mlr3cmprsk: Competing Risks Machine Learning for 'mlr3'},
   author = {John Zobolas and Marc Becker and Andreas Bender},
   year = {2026},
-  note = {R package version 0.0.9, https://github.com/mlr-org/mlr3cmprsk},
+  note = {R package version 0.0.9},
   url = {https://mlr3cmprsk.mlr-org.com},
 }
 ```

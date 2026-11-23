@@ -148,12 +148,13 @@ predictions$score(msr("cmprsk.brier", time = 100, cause = 2))
 Schoop, Roland, Beyersmann, Jan, Schumacher, Martin, Binder, Harald (2011).
 \dQuote{Quantifying the predictive accuracy of time-to-event models in the presence of competing risks.}
 \emph{Biometrical Journal}, \bold{53}(1), 88--112.
-\url{https://doi.org/10.1002/BIMJ.201000073}.
+\doi{10.1002/BIMJ.201000073}.
 
 Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018).
 \dQuote{Prediction errors for state occupation and transition probabilities in multi-state models.}
 \emph{Biometrical Journal}, \bold{60}(1), 34--48.
-ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.201600191}.
+ISSN 0323-3847.
+\doi{10.1002/BIMJ.201600191}.
 }
 \section{Super classes}{
 \code{\link[mlr3:Measure]{mlr3::Measure}} -> \code{\link[mlr3cmprsk:MeasureCompRisks]{MeasureCompRisks}} -> \code{MeasureCompRisksBrierScore}

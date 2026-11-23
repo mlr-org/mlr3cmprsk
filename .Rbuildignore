@@ -12,6 +12,7 @@
 ^\.gitignore$
 ^\.ignore$
 ^\.lintr$
+^\.posit$
 ^\.vscode$
 ^docs$
 ^man-roxygen$

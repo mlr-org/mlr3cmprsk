@@ -44,7 +44,7 @@ bibentries = c(
     number = "3",
     pages = "643--657",
     year = "2020",
-    url = "https://doi.org/10.1002/BIMJ.201800293"
+    doi = "10.1002/BIMJ.201800293"
   ),
   schoop_2011 = bibentry(
     "article",
@@ -55,7 +55,7 @@ bibentries = c(
     number = "1",
     pages = "88--112",
     year = "2011",
-    url = "https://doi.org/10.1002/BIMJ.201000073"
+    doi = "10.1002/BIMJ.201000073"
   ),
   fine_1999 = bibentry(
     "article",
@@ -80,7 +80,6 @@ bibentries = c(
     issn = "0323-3847",
     month = "January",
     number = "1",
-    volume = "60",
-    url = "https://doi.org/10.1002/BIMJ.201600191"
+    volume = "60"
   )
 )

@@ -154,17 +154,20 @@ predictions$score(msr("cmprsk.auc", time = 100, cause = 2))
 Blanche, Paul, Dartigues, Francois J, Jacqmin-Gadda, Helene (2013).
 \dQuote{Estimating and comparing time-dependent areas under receiver operating characteristic curves for censored event times with competing risks.}
 \emph{Statistics in Medicine}, \bold{32}(30), 5381--5397.
-ISSN 1097-0258, \doi{10.1002/SIM.5958}, \url{https://onlinelibrary.wiley.com/doi/10.1002/sim.5958}.
+ISSN 1097-0258.
+\doi{10.1002/SIM.5958}.
+\url{https://onlinelibrary.wiley.com/doi/10.1002/sim.5958}.
 
 Spitoni, Claudia, Lammens, Valerie, Putter, Hein (2018).
 \dQuote{Prediction errors for state occupation and transition probabilities in multi-state models.}
 \emph{Biometrical Journal}, \bold{60}(1), 34--48.
-ISSN 0323-3847, \doi{10.1002/BIMJ.201600191}, \url{https://doi.org/10.1002/BIMJ.201600191}.
+ISSN 0323-3847.
+\doi{10.1002/BIMJ.201600191}.
 
 Heyard, Rachel, Timsit, Jean-Francois, Held, Leonhard (2020).
 \dQuote{Validation of discrete time-to-event prediction models in the presence of competing risks.}
 \emph{Biometrical Journal}, \bold{62}(3), 643--657.
-\url{https://doi.org/10.1002/BIMJ.201800293}.
+\doi{10.1002/BIMJ.201800293}.
 }
 \section{Super classes}{
 \code{\link[mlr3:Measure]{mlr3::Measure}} -> \code{\link[mlr3cmprsk:MeasureCompRisks]{MeasureCompRisks}} -> \code{MeasureCompRisksAUC}
